@@ -30,6 +30,7 @@
     "mysql-import": "^5.0.26",
     "mysql2": "^3.9.2",
     "nodemailer": "^6.9.12",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "uuid": "^9.0.1"
   }
 }

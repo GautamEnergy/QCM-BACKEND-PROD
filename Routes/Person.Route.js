@@ -1,8 +1,8 @@
-const express = require('express')
-const PersonRouter = express.Router()
-const {upload} = require('../Middleware/Person.middleware')
-const {PersonRegister,UploadProfile,Login} = require('../Controller/PersonController.js')
-const {getDesignationList} = require('../Controller/DesignationController.js')
+const express = require('express');
+const PersonRouter = express.Router();
+const {upload} = require('../Middleware/Person.middleware');
+const {PersonRegister,UploadProfile,Login} = require('../Controller/PersonController.js');
+
 
 
 
@@ -15,8 +15,7 @@ PersonRouter.post('/UploadProfileImg',upload.single('Profile'),UploadProfile)
 /** Login */
 PersonRouter.post('/Login',Login)
 
-/** To get Designation List */
-PersonRouter.get('/GetDesignationList',getDesignationList)
+
 
 
 
