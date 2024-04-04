@@ -9,7 +9,7 @@ require('dotenv').config()
 const PersonRegister = async (req, res) => {
     const { personid, employeeid, loginid, joblocation, fullname, department, designation } = req.body
     const PlainPassword = `${fullname.split(' ')[0]}@${generatePassword()}`
-    console.log(PlainPassword)
+    //console.log(PlainPassword)
     try {
         /** Hashed the Password */
         //const HashedPassword = await bcrypt.hash(PlainPassword,8)
@@ -54,7 +54,7 @@ const PersonRegister = async (req, res) => {
        })
   })
 
-console.log(DepartmentName[0]['Department'])
+//console.log(DepartmentName[0]['Department'])
         /** Sending A Email to Admin */
         await transport.sendMail({
         from: 'bhanu.galo@gmail.com',
@@ -95,8 +95,8 @@ console.log(DepartmentName[0]['Department'])
 /** Controller to Upload Profile Image */
 const UploadProfile = async (req,res)=>{
     const {personid} = req.body;
-    console.log(req.file.buffer) 
-    console.log(personid)
+    //console.log(req.file.buffer) 
+    //console.log(personid)
     try{
        
         /** Uploading Profile Image In S3 Bucket */
@@ -149,7 +149,7 @@ try{
       }
     })
   })
-console.log(hashedPassword[0].Password)
+//console.log(hashedPassword[0].Password)
   try{
 
     if(hashedPassword[0].Password == password){
@@ -177,12 +177,12 @@ console.log(hashedPassword[0].Password)
      res.status(400).send({msg:'Wrong Password'})
     }
   }catch(err){
-
+    console.log(err)
     res.status(400).send({msg:'Internal Error'})
   }
 
 }catch(err){
-
+   console.log(err)
   res.status(400).send({msg:'Wrong EmployeeId'})
 }
   
