@@ -96,7 +96,7 @@ const PersonRegister = async (req, res) => {
 const UploadProfile = async (req,res)=>{
     const {personid} = req.body;
     //console.log(req.file.buffer) 
-    //console.log(personid)
+    console.log(personid)
     try{
        
         /** Uploading Profile Image In S3 Bucket */
