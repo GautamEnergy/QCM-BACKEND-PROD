@@ -29,6 +29,10 @@ app.use('/IQCSolarCell',IQCSolarCellRoute)
 
 app.use('/IPQC',IPQCJobCardRouter);
 
+app.get('/',()=>{
+  res.send(Hello In QCM Backend);
+})
+
 app.listen(PORT,async()=>{
   try{
  dbConn
