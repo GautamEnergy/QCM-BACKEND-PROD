@@ -95,7 +95,7 @@ const PersonRegister = async (req, res) => {
 /** Controller to Upload Profile Image */
 const UploadProfile = async (req,res)=>{
     const {personid} = req.body;
-    //console.log(req.file.buffer) 
+    console.log(req.file.buffer) 
     console.log(personid)
     try{
        
@@ -109,9 +109,14 @@ const UploadProfile = async (req,res)=>{
                 ContentType: req.body.FileFormat
             },(err,result)=>{
                if(err){
+                    console.log(personid)
+                    console.log("error kya he", err)
                 reject(err)
                }else{
+                    console.log(personid)
+                   console.log("resolve kya he", result)
                 resolve(result)
+                   
                }
             })
         });
