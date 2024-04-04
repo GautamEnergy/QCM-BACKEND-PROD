@@ -94,16 +94,16 @@ const PersonRegister = async (req, res) => {
 
 /** Controller to Upload Profile Image */
 const UploadProfile = async (req,res)=>{
-    const {personid} = req.body;
-    console.log(req.file.buffer) 
-    console.log(personid)
-    console.log(process.env)
+    // const {personid} = req.body;
+    // console.log(req.file.buffer) 
+    // console.log(personid)
+     console.log(process.env)
     try{
        
         /** Uploading Profile Image In S3 Bucket */
         const data = await new Promise((resolve, reject) => {
             s3.upload({
-                Bucket:'qcm-project-bucket',
+                Bucket:process.env.AWS_BUCKET_1,
                 Key: personid,
                 Body: req.file.buffer,
                 ACL: "public-read-write",
