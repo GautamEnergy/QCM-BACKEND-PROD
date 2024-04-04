@@ -97,6 +97,7 @@ const UploadProfile = async (req,res)=>{
     const {personid} = req.body;
     console.log(req.file.buffer) 
     console.log(personid)
+    console.log(process.env.AWS_BUCKET_1)
     try{
        
         /** Uploading Profile Image In S3 Bucket */
