@@ -102,7 +102,7 @@ const UploadProfile = async (req,res)=>{
         /** Uploading Profile Image In S3 Bucket */
         const data = await new Promise((resolve, reject) => {
             s3.upload({
-                Bucket: process.env.AWS_BUCKET_1,
+                Bucket: process.env.AWS_BUCKET_2,
                 Key: personid,
                 Body: req.file.buffer,
                 ACL: "public-read-write",
