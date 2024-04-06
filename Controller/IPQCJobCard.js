@@ -1,7 +1,7 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { getCurrentDateTime,s3 } = require('../Utilis/IPQCJobCardUtilis')
 const util = require('util')
-const { dbConn } = require('../db.config/db.config')
+const { dbConn } = require('../db.config/db.config');
 
 
 /** Making Sync To Query */
@@ -113,9 +113,9 @@ const AddIPQCJobCard = async (req, res) => {
   const IPQCJobCard = req.body;
  // console.log(IPQCJobCard)
   const JobCardDetails = IPQCJobCard[0]['JobCardDetails'];
-  const JobCard = IPQCJobCard[1]['JobCard']
-  const {JobCardDetailId} = IPQCJobCard
-  console.log(JobCardDetails)
+  const JobCard = IPQCJobCard[1]['JobCard'];
+  const { JobCardDetailId } = JobCardDetails;
+  console.log(JobCardDetails);
   const UUID = v4();
 
 
@@ -139,21 +139,40 @@ const AddIPQCJobCard = async (req, res) => {
 
     });
 
-    res.send({msg:'Data Inserted Succesfully !',UUID})
-  }else{
-    const QueryToJobCardDetails = `UPDATE JobCardDetails jcd
-    set jcd.DocNo = '',
-        jcd.RevisionNo = '',
-        jcd.RevisonDate = '',
-        jcd.ModuleType = '',
-        jcd.ModuleNo = '',
-        jcd.Date = '',
-        jcd.MatrixSize = '',
-        jcd.ReferencePdf = '',
-        jcd.Status = '',
-        jcd.CreatedBy = ''
-    WHERE jcd.JobCardDetailID = '';`
-  }
+      res.send({ msg: 'Data Inserted Succesfully !', UUID })
+    } else {
+
+       /** Updating Data in Job Card Details Table  */
+      const QueryToJobCardDetails = `UPDATE JobCardDetails jcd
+    set jcd.DocNo = '${JobCardDetails['DocNo']}',
+        jcd.RevisionNo = '${JobCardDetails['RevisionNo']}',
+        jcd.RevisonDate = '${JobCardDetails['RevisionDate']}',
+        jcd.ModuleType = '${JobCardDetails['moduleType']}',
+        jcd.ModuleNo = '${JobCardDetails['moduleNo']}',
+        jcd.Date = '${JobCardDetails['date']}',
+        jcd.MatrixSize = '${JobCardDetails['matrixSize']}',
+        jcd.Status = '${JobCardDetails['Status']}',
+        jcd.CreatedBy = '${JobCardDetails['CreatedBy']}'
+    WHERE jcd.JobCardDetailID = '${JobCardDetailId}';`
+
+      await queryAsync(QueryToJobCardDetails)
+
+
+      /** Updating Data in Job Card Table */
+
+      JobCard.forEach(async (Card) => {
+        let description = JSON.stringify(Card['Description']);
+        /** Query */
+        const QuerytToJobCard = `UPDATE JobCard JC 
+        set JC.EmployeeId = '${Card['EmployeeID']}',
+            JC.Description = '${description}',
+            JC.Comments = '${Card['Comment']}'
+        WHERE JC.JobCardDetailID = '${JobCardDetailId}' AND JC.Process='${Card['Process']}'`
+
+        await queryAsync(QuerytToJobCard)
+      });
+      res.send({ msg: 'Data Inserted Succesfully !', 'UUID':JobCardDetailId})
+    }
   } catch (err) {
      console.log(err)
 
@@ -283,4 +302,21 @@ let  response = {}
 }
 
 
-module.exports ={ AddIPQCJobCard,JobCardList,UploadPdf,GetSpecificJobCard};
+const UpdateJobCardStatus = async(req,res)=>{
+  const {CurrentUser,ApprovalStatus,JobCardDetailId} = req.body
+
+  try{
+       let query = `UPDATE JobCardDetails jd
+                    set jd.Status = '${ApprovalStatus}',
+                        jd.UpdatedBy ='${CurrentUser}',
+                        jd.UpdatedOn = '${getCurrentDateTime()}'
+                    WHERE jd.JobCardDetailID = '${JobCardDetailId}'`
+      let JobCardDetail = await queryAsync(query)
+      res.send({ApprovalStatus,JobCardDetail})
+  }catch(err){
+    console.log(err)
+      res.status(400).send(err)
+  }
+}
+
+module.exports = { AddIPQCJobCard, JobCardList, UploadPdf, GetSpecificJobCard,UpdateJobCardStatus };
