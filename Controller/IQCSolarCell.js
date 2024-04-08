@@ -106,7 +106,7 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 const AddIQCSolarCell = async (req, res) => {
   const data = req.body;
   const {SolarDetailId,Status,MaterialName} = data;
-// console.log(data);
+ console.log(data);
   const UUID = v4();
   const SolarCellDetail = data['SolarCellDetails']
   const SolarCel = data['SolarCell']
@@ -138,7 +138,7 @@ const AddIQCSolarCell = async (req, res) => {
     /************ Inserting Data in IQC Solar Table ******************/
     for (let key in SolarCel) {
       const Samples = SolarCel[key]['Samples'];
-     // console.log(Samples)
+      console.log(Samples)
       for (let i = 0; i < Samples.length; i++) {
         Samples[i] = JSON.stringify(Samples[i]);
       }
@@ -161,7 +161,7 @@ const AddIQCSolarCell = async (req, res) => {
  VALUES ('${v4()}','${UUID}','[${checkTypes}]','${Rejected['Reason']}','${Rejected['Result']}','${getCurrentDateTime()}','');`
     const Reject = await queryAsync(RejectedQuery);
    
-    //console.log(Reject, result,UUID);
+    console.log(Reject, result,UUID);
     res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': UUID })
   } catch (err) {
 
@@ -169,7 +169,7 @@ const AddIQCSolarCell = async (req, res) => {
     res.status(401).send(err)
   }
 }else{
-  //console.log(SolarCel['Packaging'])
+  console.log(SolarCel['Packaging'])
 try{
     /*************** Update Data in IQCSolarDetails Table **************/
     let SolarDetailQuery = `UPDATE IQCSolarDetails id
@@ -209,7 +209,7 @@ try{
      for (let key in SolarCel) {
      // console.log(key)
       const Samples = SolarCel[key]['Samples'];
-     //console.log(Samples)
+     console.log(Samples)
       for (let i = 0; i < Samples.length; i++) {
         Samples[i] = JSON.stringify(Samples[i]);
       }
@@ -225,7 +225,7 @@ try{
          i.CreatedDate = '${getCurrentDateTime()}',
          i.UpdatedDate = ''
      WHERE i.SolarDetailID = '${SolarDetailId}' AND i.CheckType = '${key}';`;
-     //console.log(SolarCellQuery)
+     console.log(SolarCellQuery)
       const Solar = await queryAsync(SolarCellQuery);
       temp = Solar;
     }
@@ -246,7 +246,7 @@ try{
    WHERE r.SolarDetailID = '${SolarDetailId}';`
    
      const Reject = await queryAsync(RejectedQuery);
-     //console.log(Reject, result);
+     console.log(Reject, result);
      res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': SolarDetailId,'Status':Status });
 
 }catch(err){
@@ -290,7 +290,7 @@ const GetIQCSolarCellTests = async (req, res) => {
         }
       })
     })
-    //console.log(data)
+    console.log(data)
     res.send({ status: true, data })
   } catch (err) {
     res.status(400).send({ status: false, err })
@@ -316,7 +316,7 @@ const GetSpecificSolarCellTest = async (req, res) => {
         }
       })
     })
-    //console.log(data)
+    console.log(data)
     let responseData = []
     let obj = {}
     data.forEach((data, i) => {

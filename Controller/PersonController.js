@@ -1,5 +1,5 @@
 const { dbConn } = require('../db.config/db.config')
-const { generatePassword,s3,AWS,transport } = require('../Utilis/Person.utilis')
+const { generatePassword,s3,AWS,transport,getCurrentDateTime } = require('../Utilis/Person.utilis')
 const bcrypt = require('bcrypt')
 const JWT = require('jsonwebtoken')
 require('dotenv').config()
@@ -7,9 +7,10 @@ require('dotenv').config()
 
 /** Controller to Register Employee */
 const PersonRegister = async (req, res) => {
-    const { personid, employeeid, loginid, joblocation, fullname, department, designation } = req.body
+    const { personid, currentuser,employeeid, loginid, joblocation, fullname, department, designation } = req.body
     const PlainPassword = `${fullname.split(' ')[0]}@${generatePassword()}`
-    //console.log(PlainPassword)
+    console.log(PlainPassword)
+    if(!personid){
     try {
         /** Hashed the Password */
         //const HashedPassword = await bcrypt.hash(PlainPassword,8)
@@ -54,7 +55,7 @@ const PersonRegister = async (req, res) => {
        })
   })
 
-//console.log(DepartmentName[0]['Department'])
+console.log(DepartmentName[0]['Department'])
         /** Sending A Email to Admin */
         await transport.sendMail({
         from: 'bhanu.galo@gmail.com',
@@ -69,7 +70,7 @@ const PersonRegister = async (req, res) => {
           <p style="font-size: 16px; margin-bottom: 0px;">Congratulations, ${fullname} is now officially enrolled in ${DepartmentName[0]['Department']} department.</p>      
           <p style="font-size: 16px;">Below are your enrollment details:</p>
           <ul style="font-size: 16px;">
-            <li><strong>Employee ID:</strong> ${loginid}</li>
+            <li><strong>Login ID:</strong> ${loginid}</li>
             <li><strong>Password:</strong> ${PlainPassword}</li>
           </ul>
           <p style="font-size: 16px; margin-bottom: 0px;">Please keep his Employee ID and Password confidential for security reasons.</p>        
@@ -87,6 +88,39 @@ const PersonRegister = async (req, res) => {
         console.log(err)
         res.status(500).send({ err })
     }
+  }else{
+    
+    
+    let query =  `UPDATE Person p
+    set p.EmployeeID = '${employeeid}',
+        p.Name = '${fullname}',
+        p.LoginID = '${loginid}',
+        p.WorkLocation = '${joblocation}',
+        p.Department = '${department}',
+        p.Desgination = '${designation}',
+        p.Status ='Active',
+        p.UpdatedBy = '${currentuser}',
+        p.UpdateOn = '${getCurrentDateTime()}'
+    WHERE p.PersonID = '${personid}';`
+
+    try{
+      const UpdateEmployeeDetail = await new Promise((resolve,reject)=>{
+        dbConn.query(query,(err,result)=>{
+         if(err){
+           reject(err)
+         }else{
+           resolve(result)
+         }
+        });
+   });
+  
+   res.send({msg:'Update Employee Detail',UpdateEmployeeDetail})
+    }catch(err){
+  res.status(400).send(err)
+    }
+
+
+  }
 
 
 }
@@ -94,30 +128,24 @@ const PersonRegister = async (req, res) => {
 
 /** Controller to Upload Profile Image */
 const UploadProfile = async (req,res)=>{
-    // const {personid} = req.body;
-    // console.log(req.file.buffer) 
-    // console.log(personid)
-     console.log(process.env)
+    const {personid} = req.body;
+    console.log(req.file.buffer) 
+    console.log(personid)
     try{
        
         /** Uploading Profile Image In S3 Bucket */
         const data = await new Promise((resolve, reject) => {
             s3.upload({
-                Bucket:process.env.AWS_BUCKET_1,
+                Bucket: process.env.AWS_BUCKET_1,
                 Key: personid,
                 Body: req.file.buffer,
                 ACL: "public-read-write",
                 ContentType: req.body.FileFormat
             },(err,result)=>{
                if(err){
-                    console.log(personid)
-                    console.log("error kya he", err)
                 reject(err)
                }else{
-                    console.log(personid)
-                   console.log("resolve kya he", result)
                 resolve(result)
-                   
                }
             })
         });
@@ -144,7 +172,7 @@ const UploadProfile = async (req,res)=>{
 const Login = async(req,res)=>{
   const {loginid,password} = req.body
 
-  const query = `SELECT Password FROM Person Where LoginID = '${loginid}'`
+  const query = `SELECT Password FROM Person Where LoginID = '${loginid}' AND Status = 'Active'`
 try{
   const hashedPassword = await new Promise((resolve,reject)=>{
     dbConn.query(query,(err,result)=>{
@@ -155,7 +183,7 @@ try{
       }
     })
   })
-//console.log(hashedPassword[0].Password)
+console.log(hashedPassword[0].Password)
   try{
 
     if(hashedPassword[0].Password == password){
@@ -183,19 +211,66 @@ try{
      res.status(400).send({msg:'Wrong Password'})
     }
   }catch(err){
-    console.log(err)
+
     res.status(400).send({msg:'Internal Error'})
   }
 
 }catch(err){
-   console.log(err)
+
   res.status(400).send({msg:'Wrong EmployeeId'})
 }
   
 }
 
 
-/** UpdatedOn, Created on column  */
+const EmployeeList = async(req,res)=>{
+    
+  const query = `SELECT p.PersonID, p.LoginID,p.EmployeeID,p.Name,p.ProfileImg,wl.Location,d.Designation,d1.Department,p.Status  FROM Person p
+  JOIN Designation d ON p.Desgination = d.DesignationID
+  JOIN Department d1 ON p.Department = d1.DepartmentID
+  JOIN WorkLocation wl ON p.WorkLocation = wl.LocationID;`
+
+  try{
+    const EmployeeList = await new Promise((resolve,reject)=>{
+      dbConn.query(query,(err,result)=>{
+       if(err){
+         reject(err)
+       }else{
+         resolve(result)
+       }
+      });
+ });
+
+ res.send({status:true,data:EmployeeList})
+  }catch(err){
+res.status(400).send(err)
+  }
+}
+
+const GetSpecificEmployee = async(req,res)=>{
+
+  const {PersonID} = req.body
+
+  const query = `SELECT *FROM Person p WHERE p.PersonID = '${PersonID}'`
+
+  try{
+    const GetSpecificEmployee = await new Promise((resolve,reject)=>{
+      dbConn.query(query,(err,result)=>{
+       if(err){
+         reject(err)
+       }else{
+         resolve(result)
+       }
+      });
+ });
+
+ res.send({status:true,data:GetSpecificEmployee})
+  }catch(err){
+res.status(400).send(err)
+  }
+}
 
 
-module.exports = {PersonRegister,UploadProfile,Login}
+
+
+module.exports = {PersonRegister, UploadProfile, Login, EmployeeList, GetSpecificEmployee}
