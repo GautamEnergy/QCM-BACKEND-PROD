@@ -100,7 +100,7 @@ console.log(DepartmentName[0]['Department'])
         p.Desgination = '${designation}',
         p.Status ='Active',
         p.UpdatedBy = '${currentuser}',
-        p.UpdateOn = '${getCurrentDateTime()}'
+        p.UpdatedOn = '${getCurrentDateTime()}'
     WHERE p.PersonID = '${personid}';`
 
     try{
