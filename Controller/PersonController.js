@@ -9,14 +9,14 @@ require('dotenv').config()
 const PersonRegister = async (req, res) => {
     const { personid, currentuser,employeeid, loginid, joblocation, fullname, department, designation } = req.body
     const PlainPassword = `${fullname.split(' ')[0]}@${generatePassword()}`
-    console.log(PlainPassword)
+   // console.log(PlainPassword)
     if(!personid){
     try {
         /** Hashed the Password */
         //const HashedPassword = await bcrypt.hash(PlainPassword,8)
 
         /**query to register a Employee */
-        const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}' )`
+        const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}','${getCurrentDateTime()}','${currentuser}' )`
 
         const data = await new Promise((resolve,reject)=>{
              dbConn.query(query,(err,result)=>{
