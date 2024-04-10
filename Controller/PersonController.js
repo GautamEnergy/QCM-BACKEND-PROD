@@ -198,10 +198,9 @@ try{
       })
       let EnCodeData = PersonData[0];
     const token = JWT.sign({PersonID:EnCodeData['PersonID'],Designation:EnCodeData['Designation'],Department:EnCodeData['Department']},process.env.SecretKey)
-
+   
     res.send({status:true, msg:'Login Successfull', token, PersonData})
     }else{
-   console.log(err)
      res.status(400).send({msg:'Wrong Password'})
     }
   }catch(err){
