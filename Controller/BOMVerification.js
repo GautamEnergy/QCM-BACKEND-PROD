@@ -131,6 +131,7 @@ const AddBomVerification = async (req, res) => {
     const BOM = Bom[1];
     const UUID = v4();
     const {BOMDetailId} = BomVerificationDetails
+    console.log(Bom);
     if(!BOMDetailId){
     try {
         /** Insert Bom Data in BomVerficationDetail Table */
