@@ -16,6 +16,7 @@ try{
     })
    res.send({data:data})
    }catch(err){
+    console.log(err)
      res.status(500).send({err})
    }
 }
@@ -38,6 +39,7 @@ try{
   })
  res.send({data:data})
  }catch(err){
+  console.log(err)
    res.status(500).send({err})
  }
 }
@@ -58,6 +60,7 @@ try{
   })
  res.send({data:data})
  }catch(err){
+  console.log(err)
    res.status(500).send({err})
  }
 }

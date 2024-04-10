@@ -29,4 +29,6 @@ AWS.config.credentials = new AWS.Credentials({
 
 /* Create S3 instance **/
 const s3 = new AWS.S3();
+
+
   module.exports = {getCurrentDateTime,s3}

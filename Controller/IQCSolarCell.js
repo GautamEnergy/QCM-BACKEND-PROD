@@ -106,7 +106,6 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 const AddIQCSolarCell = async (req, res) => {
   const data = req.body;
   const {SolarDetailId,Status,MaterialName} = data;
- console.log(data);
   const UUID = v4();
   const SolarCellDetail = data['SolarCellDetails']
   const SolarCel = data['SolarCell']
@@ -125,7 +124,6 @@ const AddIQCSolarCell = async (req, res) => {
     const result = await new Promise((resolve, reject) => {
       dbConn.query(SolarDetailQuery, (err, result) => {
         if (err) {
-          console.log(err)
           return reject(err);
         } else {
           return resolve(result);
@@ -138,7 +136,6 @@ const AddIQCSolarCell = async (req, res) => {
     /************ Inserting Data in IQC Solar Table ******************/
     for (let key in SolarCel) {
       const Samples = SolarCel[key]['Samples'];
-      console.log(Samples)
       for (let i = 0; i < Samples.length; i++) {
         Samples[i] = JSON.stringify(Samples[i]);
       }
@@ -156,12 +153,11 @@ const AddIQCSolarCell = async (req, res) => {
     for (let i = 0; i < Rejected['CheckTypes'].length; i++) {
       checkTypes.push(JSON.stringify(Rejected['CheckTypes'][i]))
     }
-    //console.log(checkTypes)
+
     const RejectedQuery = `INSERT INTO Rejected(RejectedID,SolarDetailID,CheckTypes,Reason,Result,CreatedDate,UpdatedDate)
  VALUES ('${v4()}','${UUID}','[${checkTypes}]','${Rejected['Reason']}','${Rejected['Result']}','${getCurrentDateTime()}','');`
     const Reject = await queryAsync(RejectedQuery);
-   
-    console.log(Reject, result,UUID);
+
     res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': UUID })
   } catch (err) {
 
@@ -196,7 +192,6 @@ try{
     const result = await new Promise((resolve, reject) => {
       dbConn.query(SolarDetailQuery, (err, result) => {
         if (err) {
-          console.log(err)
           return reject(err);
         } else {
           return resolve(result);
@@ -225,7 +220,6 @@ try{
          i.CreatedDate = '${getCurrentDateTime()}',
          i.UpdatedDate = ''
      WHERE i.SolarDetailID = '${SolarDetailId}' AND i.CheckType = '${key}';`;
-     console.log(SolarCellQuery)
       const Solar = await queryAsync(SolarCellQuery);
       temp = Solar;
     }
@@ -246,7 +240,6 @@ try{
    WHERE r.SolarDetailID = '${SolarDetailId}';`
    
      const Reject = await queryAsync(RejectedQuery);
-     console.log(Reject, result);
      res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': SolarDetailId,'Status':Status });
 
 }catch(err){
@@ -290,9 +283,9 @@ const GetIQCSolarCellTests = async (req, res) => {
         }
       })
     })
-    console.log(data)
     res.send({ status: true, data })
   } catch (err) {
+    console.log(err)
     res.status(400).send({ status: false, err })
   }
 
@@ -316,7 +309,6 @@ const GetSpecificSolarCellTest = async (req, res) => {
         }
       })
     })
-    console.log(data)
     let responseData = []
     let obj = {}
     data.forEach((data, i) => {
@@ -358,7 +350,6 @@ const GetSpecificSolarCellTest = async (req, res) => {
 
       for (let key in data) {
         if (key == 'CheckType') {
-         // console.log(data['Samples'])
           let temp = JSON.parse(data['Samples'])
           obj[`SampleSize${data[key]}`] = Number(data['SampleSize'])
           obj[data[key]] = temp
@@ -368,7 +359,6 @@ const GetSpecificSolarCellTest = async (req, res) => {
 
     })
     responseData.push(obj);
-   // console.log(responseData)
     res.send(responseData)
   } catch (err) {
     console.log(err)
@@ -412,6 +402,7 @@ const UpdateStatus = async (req, res) => {
 
     res.send({ ApprovalStatus, SolarCellDetailTable })
   } catch (err) {
+    console.log(err)
     res.status(500).send({ err })
   }
 }

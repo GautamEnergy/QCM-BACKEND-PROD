@@ -9,7 +9,6 @@ require('dotenv').config()
 const PersonRegister = async (req, res) => {
     const { personid, currentuser,employeeid, loginid, joblocation, fullname, department, designation } = req.body
     const PlainPassword = `${fullname.split(' ')[0]}@${generatePassword()}`
-   // console.log(PlainPassword)
     if(!personid){
     try {
         /** Hashed the Password */
@@ -54,8 +53,6 @@ const PersonRegister = async (req, res) => {
           }
        })
   })
-
-console.log(DepartmentName[0]['Department'])
         /** Sending A Email to Admin */
         await transport.sendMail({
         from: 'bhanu.galo@gmail.com',
@@ -100,7 +97,7 @@ console.log(DepartmentName[0]['Department'])
         p.Desgination = '${designation}',
         p.Status ='Active',
         p.UpdatedBy = '${currentuser}',
-        p.UpdatedOn = '${getCurrentDateTime()}'
+        p.UpdateOn = '${getCurrentDateTime()}'
     WHERE p.PersonID = '${personid}';`
 
     try{
@@ -129,8 +126,6 @@ console.log(DepartmentName[0]['Department'])
 /** Controller to Upload Profile Image */
 const UploadProfile = async (req,res)=>{
     const {personid} = req.body;
-    console.log(req.file.buffer) 
-    console.log(personid)
     try{
        
         /** Uploading Profile Image In S3 Bucket */
@@ -183,7 +178,6 @@ try{
       }
     })
   })
-console.log(hashedPassword[0].Password)
   try{
 
     if(hashedPassword[0].Password == password){
@@ -202,22 +196,22 @@ console.log(hashedPassword[0].Password)
             }
            })
       })
-      let EnCodeData = PersonData[0]
+      let EnCodeData = PersonData[0];
     const token = JWT.sign({PersonID:EnCodeData['PersonID'],Designation:EnCodeData['Designation'],Department:EnCodeData['Department']},process.env.SecretKey)
 
     res.send({status:true, msg:'Login Successfull', token, PersonData})
     }else{
-
+   console.log(err)
      res.status(400).send({msg:'Wrong Password'})
     }
   }catch(err){
-
+    console.log(err)
     res.status(400).send({msg:'Internal Error'})
   }
 
 }catch(err){
-
-  res.status(400).send({msg:'Wrong EmployeeId'})
+  console.log(err)
+  res.status(400).send({msg:'Wrong EmployeeId'});
 }
   
 }
@@ -243,6 +237,7 @@ const EmployeeList = async(req,res)=>{
 
  res.send({status:true,data:EmployeeList})
   }catch(err){
+    console.log(err);
 res.status(400).send(err)
   }
 }
@@ -266,6 +261,7 @@ const GetSpecificEmployee = async(req,res)=>{
 
  res.send({status:true,data:GetSpecificEmployee})
   }catch(err){
+    console.log(err);
 res.status(400).send(err)
   }
 }

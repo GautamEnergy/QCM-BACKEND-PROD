@@ -13,7 +13,6 @@ const storage = multer.memoryStorage({
 
 const filefilter = (req, file, cb) => {
 
-    //console.log(req.file)
       req.body.FileFormat = file.mimetype
       cb(null, true)
     

@@ -115,7 +115,6 @@ const AddIPQCJobCard = async (req, res) => {
   const JobCardDetails = IPQCJobCard[0]['JobCardDetails'];
   const JobCard = IPQCJobCard[1]['JobCard'];
   const { JobCardDetailId } = JobCardDetails;
-  console.log(JobCardDetails);
   const UUID = v4();
 
 
@@ -191,26 +190,26 @@ const JobCardList = async (req, res) => {
   try {
 
     if (Designation == 'Admin' || Designation == 'Super Admin') {
-      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type FROM Person p
+      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
 WHERE jcd.Status = '${Status}'
 ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
 
-      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type FROM Person p
+      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}'
 ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
 
     } else {
-      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type FROM Person p
+      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf FROM Person p
     JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
     JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
     WHERE jcd.Status = '${Status}' AND p.PersonID = '${PersonID}'
     ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
 
-      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type FROM Person p
+      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}' AND p.PersonID = '${PersonID}'
@@ -246,7 +245,6 @@ BomList.forEach((BOM)=>{
 const UploadPdf = async (req, res) => {
 
   const { JobCardDetailId } = req.body;
-  console.log(req.file);
   /** Uploading PDF in S3 Bucket */
   try {
     const ReferencePdf = await new Promise((resolve, reject) => {
@@ -317,9 +315,6 @@ const GetSpecificJobCard = async (req, res) => {
         index++;
       }
     })
-
-    console.log(response)
-
 
     res.send({ response })
   } catch (err) {
