@@ -3,7 +3,7 @@ const {dbConn} = require('./db.config/db.config')
 const {PersonRouter} = require('./Routes/Person.Route')
 const {designationRouter} = require('./Routes/DesignationRoute')
 const {IQCSolarCellRoute} = require('./Routes/IQCSolarCellRoute')
-const {IPQCJobCardRouter} = require('./Routes/IPQCJobCardRouter')
+const {IPQC} = require('./Routes/IPQCRoute')
 const app = express()
 const cors = require('cors')
 const PORT = process.env.PORT || 8080
@@ -14,8 +14,7 @@ app.use(cors())
 
 
 
-console.log("Hello");
-
+/**Endpoints */
 
 /** to Employee */
 app.use('/Employee',PersonRouter)
@@ -26,14 +25,16 @@ app.use('/QCM',designationRouter)
 /** to IQC Solar Cell */
 app.use('/IQCSolarCell',IQCSolarCellRoute)
 
+/**to IPQC */
+app.use('/IPQC',IPQC);
 
-app.use('/IPQC',IPQCJobCardRouter);
+
 
 app.listen(PORT,async()=>{
   try{
- dbConn
-  console.log('server is running')
-  
+    console.log('server is running')
+    console.log('Database is connecting....')
+      dbConn
   }catch(err){
 console.log(err)
   }
