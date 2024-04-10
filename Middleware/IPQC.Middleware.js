@@ -19,6 +19,7 @@ const RoleAuthentication = async(req,res,next)=>{
       req.body.Department = DecodeData['Department']
       next()
     }catch(err){
+        console.log(err);
       res.status(401).send({err})
     }
     
