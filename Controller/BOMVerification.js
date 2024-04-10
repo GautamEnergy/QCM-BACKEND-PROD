@@ -144,6 +144,7 @@ const AddBomVerification = async (req, res) => {
                          VALUES('${v4()}','${UUID}','${item['BOMitem']}','${item['Supplier']}','${item['ModelNo']}','${item['BatchNo']}','${item['Remarks']}','${BomVerificationDetails['CurrentUser']}','${getCurrentDateTime()}');`
             await queryAsync(BOMQuery)
         })
+        console.log(UUID)
         res.send({ msg: 'Data Inserted Succesfully !', UUID});
     } catch (err) {
        console.log(err);
@@ -175,7 +176,7 @@ const AddBomVerification = async (req, res) => {
                BOMDetailId = '${BOMDetailId}' AND BOMItem = '${item['BOMitem']}';`;
             await queryAsync(BOMQuery)
         })
-  
+      console.log(BOMDetailId)
         res.send({ msg: 'Data Inserted Succesfully !',UUID:BOMDetailId });
     }catch(err){
         console.log(err);
