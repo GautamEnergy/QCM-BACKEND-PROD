@@ -179,7 +179,7 @@ try{
     })
   })
   try{
-
+console.log(hashedPassword);
     if(hashedPassword[0].Password == password){
   
       const getdata = `SELECT p.PersonID,p.ProfileImg,p.Name,d1.Designation,d.Department FROM Person p
