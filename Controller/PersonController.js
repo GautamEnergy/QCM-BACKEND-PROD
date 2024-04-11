@@ -97,7 +97,7 @@ const PersonRegister = async (req, res) => {
         p.Desgination = '${designation}',
         p.Status ='Active',
         p.UpdatedBy = '${currentuser}',
-        p.UpdateOn = '${getCurrentDateTime()}'
+        p.UpdatedOn = '${getCurrentDateTime()}'
     WHERE p.PersonID = '${personid}';`
 
     try{
@@ -113,6 +113,7 @@ const PersonRegister = async (req, res) => {
   
    res.send({msg:'Update Employee Detail',UpdateEmployeeDetail})
     }catch(err){
+    console.log(err)
   res.status(400).send(err)
     }
 
