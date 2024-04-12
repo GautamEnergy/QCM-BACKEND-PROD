@@ -14,8 +14,24 @@ const PersonRegister = async (req, res) => {
         /** Hashed the Password */
         //const HashedPassword = await bcrypt.hash(PlainPassword,8)
 
-        /**query to register a Employee */
-        const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}','${getCurrentDateTime()}','${currentuser}' )`
+      /**query to register a Employee */
+
+      const IsActiveQuery = `SELECT Status FROM Person WHERE LoginID = '${loginid}'`;
+
+      const IsActive = await new Promise((resolve, reject) => {
+        dbConn.query(IsActiveQuery, (err, result) => {
+          if (err) {
+            reject(err)
+          } else {
+
+            resolve(result)
+          }
+        })
+      })
+      const Status = IsActive[0]['Status'];
+
+      if (Status!=='Active') { 
+      const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}','${getCurrentDateTime()}','${currentuser}' )`
 
         const data = await new Promise((resolve,reject)=>{
              dbConn.query(query,(err,result)=>{
@@ -79,8 +95,11 @@ const PersonRegister = async (req, res) => {
         </div>
       </div>`
       })
-    
-    res.send({msg:'Employee Registered Succesfully',data})
+
+      res.send({ msg: 'Employee Registered Succesfully', data })
+    }else{
+      res.status(400).send({msg:'LoginId is already exists'})
+    }
     } catch (err) {
         console.log(err)
         res.status(500).send({ err })
@@ -268,6 +287,32 @@ res.status(400).send(err)
 }
 
 
+const UpdateStatus = async (req, res) => {
+  const { PersonId, Status } = req.body;
+
+  try {
+    const UpdateStatusQuery = `UPDATE Person 
+                               SET
+                                  Status = '${Status}'
+                               WHERE PersonID = '${PersonId}'`
+
+    const UpdateStatusEmployee = await new Promise((resolve, reject) => {
+      dbConn.query(UpdateStatusQuery, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
+
+      });
+    });
+    res.send({ status: true, message: 'Status Updated!', UpdateStatusEmployee })
+  } catch (err) {
+    console.log(err)
+    res.status(400).send({ err })
+  }
+}
 
 
-module.exports = {PersonRegister, UploadProfile, Login, EmployeeList, GetSpecificEmployee}
+
+module.exports = { PersonRegister, UploadProfile, Login, EmployeeList, GetSpecificEmployee, UpdateStatus }
