@@ -1,5 +1,5 @@
 const { v4: uuidv4, v4 } = require('uuid');
-const { getCurrentDateTime, s3 } = require('../Utilis/PreLamUtilis');
+const { getCurrentDateTime, s3 } = require('../Utilis/PreLamUtilis.js');
 const util = require('util');
 const { dbConn } = require('../db.config/db.config');
 
