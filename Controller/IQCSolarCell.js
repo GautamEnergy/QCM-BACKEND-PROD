@@ -418,7 +418,7 @@ const UploadPdf = async (req, res) => {
     const Invoice = await new Promise((resolve, reject) => {
       s3.upload({
         Bucket: process.env.AWS_BUCKET_2,
-        Key: `${SolarDetailId}_${req.files['InvoicePdf'][0].originalname}`,
+        Key: `IQC/${SolarDetailId}_${req.files['InvoicePdf'][0].originalname}`,
         Body: req.files['InvoicePdf'][0].buffer,
         ACL: "public-read-write",
         ContentType: req.files['InvoicePdf'][0].mimetype
@@ -473,5 +473,4 @@ const UploadPdf = async (req, res) => {
 
 /** Export Controllers */
 module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus,UploadPdf };
-
 
