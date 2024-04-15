@@ -46,6 +46,6 @@ var transport = nodemailer.createTransport({
     }
   });
 
-  
+  console.log('');
 module.exports = {generatePassword,s3,AWS,transport,getCurrentDateTime}
 
