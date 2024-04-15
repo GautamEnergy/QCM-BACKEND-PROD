@@ -187,6 +187,7 @@ const JobCardList = async (req, res) => {
   const { PersonID, Status, Designation } = req.body
   let query;
   let BomQuery;
+  let PreLamQuery;
   try {
 
     if (Designation == 'Admin' || Designation == 'Super Admin') {
@@ -194,45 +195,75 @@ const JobCardList = async (req, res) => {
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
 WHERE jcd.Status = '${Status}'
-ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
+ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
       BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}'
-ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
+ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
+
+      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Type,PD.PreLamPdf FROM Person p
+JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
+JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
+WHERE PD.Status = '${Status}'
+ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
+
+
 
     } else {
       query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf FROM Person p
     JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
     JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
     WHERE jcd.Status = '${Status}' AND p.PersonID = '${PersonID}'
-    ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
+    ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
       BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}' AND p.PersonID = '${PersonID}'
-ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
+ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
+
+      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Type,PD.PreLamPdf FROM Person p
+JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
+JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
+WHERE PD.Status = '${Status}' AND p.PersonID = '${PersonID}'
+ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
     }
 
     const JobCardList = await queryAsync(query);
     const BomList = await queryAsync(BomQuery);
-   
-BomList.forEach((BOM)=>{
-  for(let key in BOM){
-    if(key == 'BOMDetailId'){
-      BOM['JobCardDetailID'] = BOM[key]
-      delete BOM[key]
-    }else if(key == 'PONo'){
-      BOM['ModuleNo'] = BOM[key]
-      delete BOM[key]
-    }
-  }
-  JobCardList.push(BOM)
-})
-    res.send({status:true,data:JobCardList})
+    const PreLamList = await queryAsync(PreLamQuery);
+    BomList.forEach((BOM) => {
+      for (let key in BOM) {
+        if (key == 'BOMDetailId') {
+          BOM['JobCardDetailID'] = BOM[key]
+          delete BOM[key]
+        } else if (key == 'PONo') {
+          BOM['ModuleNo'] = BOM[key]
+          delete BOM[key]
+        }
+      }
+      JobCardList.push(BOM)
+    })
+
+    PreLamList.forEach((BOM) => {
+      for (let key in BOM) {
+        if (key == 'PreLamDetailId') {
+          BOM['JobCardDetailID'] = BOM[key]
+          delete BOM[key]
+        } else if (key == 'PONo') {
+          BOM['ModuleNo'] = BOM[key]
+          delete BOM[key]
+        }else if(key == 'PreLamPdf'){
+          BOM['ReferencePdf'] = BOM[key]
+          delete BOM[key]
+        }
+      }
+      JobCardList.push(BOM)
+    })
+    res.send({ status: true, data: JobCardList })
   } catch (err) {
     console.log(err)
     res.status(400).send(err)
@@ -250,7 +281,7 @@ const UploadPdf = async (req, res) => {
     const ReferencePdf = await new Promise((resolve, reject) => {
       s3.upload({
         Bucket: process.env.AWS_BUCKET_2,
-        Key: `${JobCardDetailId}_${req.file.originalname}`,
+        Key: `IPQC/${JobCardDetailId}_${req.file.originalname}`,
         Body: req.file.buffer,
         ACL: "public-read-write",
         ContentType: req.file.mimetype
