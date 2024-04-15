@@ -25,10 +25,10 @@ IPQC.post('/UploadPreLamPdf',upload.single('PreLamPdf'),PreLamUploadPdf);
 /**Router To Add BOM Verification Data*/
 IPQC.post('/AddBOMVerification',AddBomVerification);
 
+/**Router To Add PreLam Data **/
+IPQC.post("/AddPreLam",AddPreLam);
 
 
-/** Router To Add Framing Detail */
-IPQC.post('/AddFraming',AddFraming);
 
 /** Middleware to check Role Authentication */
 IPQC.use(RoleAuthentication);
