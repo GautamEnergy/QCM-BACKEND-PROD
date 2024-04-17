@@ -141,6 +141,7 @@ const PreLamUploadPdf = async (req, res) => {
   const { JobCardDetailId } = req.body;
   console.log(req.file)
   /** Uploading PDF in S3 Bucket */
+  if(req.file.size){
   try {
     const ReferencePdf = await new Promise((resolve, reject) => {
       s3.upload({
@@ -171,6 +172,9 @@ const PreLamUploadPdf = async (req, res) => {
     console.log(err);
     res.status(401).send(err);
   }
+}else{
+  res.status(400).send({msg:'Cannot take Empty File'})
+}
 }
 
 
@@ -195,16 +199,15 @@ try{
              response['Line'] = Lam['Line'];
              response['PONo'] = Lam['PONo'];
              response['PreLamPdf'] = Lam['PreLamPdf'];
-             response['CheckedBy'] = Lam['CheckedBy']
-             response['Status'] = Lam['Status']
+             response['CheckedBy'] = Lam['CheckedBy'];
+             response['Status'] = Lam['Status'];
          }
          const Stage = Lam['Stage'].split(' ').join('');
-        // console.log(JSON.parse(Lam['CheckPoint']))
         response[`${Stage}CheckPoint`] = JSON.parse(Lam['CheckPoint']);
         response[`${Stage}Frequency`] = JSON.parse(Lam['Frequency']);
         response[`${Stage}AcceptanceCriteria`] = JSON.parse(Lam['AcceptanceCriteria']);
         response[`${Stage}Remark`] = Lam['Remark'];
-
+       
     })
     res.send({response})
 }catch(err){
