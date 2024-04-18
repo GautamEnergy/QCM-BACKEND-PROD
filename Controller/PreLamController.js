@@ -188,7 +188,7 @@ try{
     const PreLam = await queryAsync(query)
    
     let response = {}
-
+   console.log(PreLam);
     PreLam.forEach((Lam,i)=>{
          if(i == 0){
              response['PreLamDetailId'] = Lam['PreLamDetailId'];
