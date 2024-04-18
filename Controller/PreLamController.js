@@ -77,7 +77,7 @@ const AddPreLam = async (req, res) => {
   if (!PreLamDetailId) {
     try {
       const PreLamDetailQuery = `INSERT INTO PreLamDetail(PreLamDetailId,Type,DocNo,RevNo,Date,Shift,Line,PONo,CheckedBy,CreatedBy,CreatedOn,Status)
-                                          VALUES('${UUID}','PreLam','${PreLamDetail['DocNo']}','${PreLamDetail['RevNo']}','${PreLamDetail['Date']}','${PreLamDetail['Shift']}','${PreLamDetail['Line']}','${PreLamDetail['PONo']}','${PreLamDetail['CurrentUser']}','${PreLamDetail['CurrentUser']}','${getCurrentDateTime()}','${PreLamDetail['Status']}')`
+                                          VALUES('${UUID}','${PreLamDetail['Type']}','${PreLamDetail['DocNo']}','${PreLamDetail['RevNo']}','${PreLamDetail['Date']}','${PreLamDetail['Shift']}','${PreLamDetail['Line']}','${PreLamDetail['PONo']}','${PreLamDetail['CurrentUser']}','${PreLamDetail['CurrentUser']}','${getCurrentDateTime()}','${PreLamDetail['Status']}')`
 
       await queryAsync(PreLamDetailQuery);
 
@@ -219,12 +219,12 @@ try{
 
 
 const UpdatePreLamStatus = async(req,res)=>{
-  const {JobCardDetailId,Status,CurrentUser} = req.body;
+  const {JobCardDetailId,ApprovalStatus,CurrentUser} = req.body;
 
   try{
      const UpdateStatusQuery = `UPDATE PreLamDetail
                                 SET
-                                  Status = '${Status}',
+                                  Status = '${ApprovalStatus}',
                                   UpdatedBy = '${CurrentUser}',
                                   UpdatedOn = '${getCurrentDateTime()}'
                                 WHERE PreLamDetailId = '${JobCardDetailId}';`;
