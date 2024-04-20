@@ -161,7 +161,8 @@ const AddBomVerification = async (req, res) => {
             Shift = '${BomVerificationDetails['Shift']}',
             Line = '${BomVerificationDetails['Line']}',
             PONo = '${BomVerificationDetails['PONo']}',
-            Status = '${BomVerificationDetails['Status']}'
+            Status = '${BomVerificationDetails['Status']}',
+            CreatedOn = '${getCurrentDateTime()}'
         WHERE
             BOMDetailId = '${BOMDetailId}';`
         await queryAsync(BomVerificationDetailsQuery)
