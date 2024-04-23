@@ -7,6 +7,7 @@ require('dotenv').config()
 
 /** Controller to Register Employee */
 const PersonRegister = async (req, res) => {
+  
   const { personid, currentuser, employeeid, loginid, joblocation, fullname, department, designation } = req.body
   const PlainPassword = `${fullname.split(' ')[0]}@${generatePassword()}`
   if (!personid) {
