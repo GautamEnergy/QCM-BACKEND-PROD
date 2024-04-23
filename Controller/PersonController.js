@@ -26,8 +26,7 @@ const PersonRegister = async (req, res) => {
           }
         })
       })
-      const Status = IsActive[0];
- //console.log(Status);
+      const Status = IsActive;
       if (!Status.length) { 
       const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}','${getCurrentDateTime()}','${currentuser}' )`
 
