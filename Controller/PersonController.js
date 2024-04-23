@@ -1,8 +1,7 @@
-const { dbConn } = require('../db.config/db.config')
-const { generatePassword, s3, AWS, transport, getCurrentDateTime } = require('../Utilis/Person.utilis.js')
-const bcrypt = require('bcrypt')
-const JWT = require('jsonwebtoken')
-require('dotenv').config()
+const { dbConn } = require('../db.config/db.config');
+const { generatePassword, s3, AWS, transport, getCurrentDateTime } = require('../Utilis/Person.utilis.js');
+const JWT = require('jsonwebtoken');
+require('dotenv').config();
 
 
 /** Controller to Register Employee */
@@ -12,9 +11,7 @@ const PersonRegister = async (req, res) => {
   const PlainPassword = `${fullname.split(' ')[0]}@${generatePassword()}`
   if (!personid) {
     try {
-      /** Hashed the Password */
-      //const HashedPassword = await bcrypt.hash(PlainPassword,8)
-
+  
       /**query to register a Employee */
 
       const IsActiveQuery = `SELECT Status FROM Person WHERE LoginID = '${loginid}';`;
@@ -44,20 +41,7 @@ const PersonRegister = async (req, res) => {
           }
         })
       })
-      //    /** to Find Designation */
-      //     const DesignationQuery = `SELECT Designation FROM Designation WHERE DesignationID = '${designation}'`
-      //     const DesignationName = await new Promise((resolve,reject)=>{
-      //       dbConn.query(DesignationQuery,(err,result)=>{
-      //          if(err){
-      //             reject(err)
-      //          }else{
-
-      //            resolve(result)
-      //          }
-      //       })
-      //  })
-
-
+     
       /** to Find Department */
       const DepartmentQuery = `SELECT Department FROM Department WHERE DepartmentID = '${department}'`
       const DepartmentName = await new Promise((resolve, reject) => {
@@ -112,19 +96,6 @@ const PersonRegister = async (req, res) => {
           }
         })
       })
-      //    /** to Find Designation */
-      //     const DesignationQuery = `SELECT Designation FROM Designation WHERE DesignationID = '${designation}'`
-      //     const DesignationName = await new Promise((resolve,reject)=>{
-      //       dbConn.query(DesignationQuery,(err,result)=>{
-      //          if(err){
-      //             reject(err)
-      //          }else{
-
-      //            resolve(result)
-      //          }
-      //       })
-      //  })
-
 
       /** to Find Department */
       const DepartmentQuery = `SELECT Department FROM Department WHERE DepartmentID = '${department}'`
