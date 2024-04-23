@@ -16,7 +16,7 @@ const PersonRegister = async (req, res) => {
 
       /**query to register a Employee */
 
-      const IsActiveQuery = `SELECT Status FROM Person WHERE LoginID = '${loginid}';`;
+      const IsActiveQuery = `SELECT Status FROM Person WHERE LoginID = '${loginid}'`;
 
       const IsActive = await new Promise((resolve, reject) => {
         dbConn.query(IsActiveQuery, (err, result) => {
@@ -28,77 +28,9 @@ const PersonRegister = async (req, res) => {
           }
         })
       })
-      const Status = IsActive[0];
- //console.log(Status);
-      if (!Status.length) { 
-      const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}','${getCurrentDateTime()}','${currentuser}' )`
+      const Status = IsActive[0]['Status'];
 
-      const data = await new Promise((resolve, reject) => {
-        dbConn.query(query, (err, result) => {
-          if (err) {
-            reject(err)
-          } else {
-
-            resolve(result)
-          }
-        })
-      })
-      //    /** to Find Designation */
-      //     const DesignationQuery = `SELECT Designation FROM Designation WHERE DesignationID = '${designation}'`
-      //     const DesignationName = await new Promise((resolve,reject)=>{
-      //       dbConn.query(DesignationQuery,(err,result)=>{
-      //          if(err){
-      //             reject(err)
-      //          }else{
-
-      //            resolve(result)
-      //          }
-      //       })
-      //  })
-
-
-      /** to Find Department */
-      const DepartmentQuery = `SELECT Department FROM Department WHERE DepartmentID = '${department}'`
-      const DepartmentName = await new Promise((resolve, reject) => {
-        dbConn.query(DepartmentQuery, (err, result) => {
-          if (err) {
-            reject(err)
-          } else {
-
-            resolve(result)
-          }
-        })
-      })
-      /** Sending A Email to Admin */
-      await transport.sendMail({
-        from: 'bhanu.galo@gmail.com',
-        cc: 'bhanu.galo@gmail.com',
-        to: 'quality@gautamsolar.com',
-        subject: 'Enrollment in Gautam Solar Private Limited',
-        html: `<div style="position: relative; padding: 5px;">
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://galo.co.in/wp-content/uploads/2024/01/Galo-Energy-Logo-06.png'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.3; z-index: -1;"></div>
-        <div style="background-color: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 10px;">
-          <h3 style="color: #2f4f4f;">Welcome to Gautam Solar Private Limited!</h3>
-          <p style="font-size: 16px;">Dear Admin,</p>      
-          <p style="font-size: 16px; margin-bottom: 0px;">Congratulations, ${fullname} is now officially enrolled in ${DepartmentName[0]['Department']} department.</p>      
-          <p style="font-size: 16px;">Below are your enrollment details:</p>
-          <ul style="font-size: 16px;">
-            <li><strong>Login ID:</strong> ${loginid}</li>
-            <li><strong>Password:</strong> ${PlainPassword}</li>
-          </ul>
-          <p style="font-size: 16px; margin-bottom: 0px;">Please keep his Employee ID and Password confidential for security reasons.</p>        
-          <p style="font-size: 16px; margin-bottom: 0px;">If you have any questions or need assistance, feel free to contact us at <a href="mailto:quality@gautamsolar.com" style="color: #007bff;">quality@gautamsolar.com</a>.</p>
-          <p style="font-size: 16px;">We look forward to working with you!</p>
-          <br>
-          <p style="font-size: 16px;"><em>Sincerely,</em></p>
-          <p style="font-size: 16px;"><strong>Gautam Solar QCM Team</strong></p>
-        </div>
-      </div>`
-      })
-
-      res.send({ msg: 'Employee Registered Succesfully', data })
-
-    }else if(Status[0]['Status']!=='Active'){
+      if (Status!=='Active') { 
       const query = `CALL PersonRegister('${personid}','${employeeid}','${fullname}','${loginid}','${PlainPassword}', '${joblocation}','krishukumar7827@gmail.com','${department}','','${designation}','${getCurrentDateTime()}','${currentuser}' )`
 
       const data = await new Promise((resolve, reject) => {
@@ -209,6 +141,7 @@ const PersonRegister = async (req, res) => {
 
 
 }
+
 
 
 /** Controller to Upload Profile Image */
