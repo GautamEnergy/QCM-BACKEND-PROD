@@ -192,19 +192,19 @@ const JobCardList = async (req, res) => {
   try {
 
     if (Designation == 'Admin' || Designation == 'Super Admin') {
-      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf,jcd.CreatedOn FROM Person p
+      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf,jcd.CreatedOn,jcd.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
 WHERE jcd.Status = '${Status}'
 ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf, bd.CreatedOn FROM Person p
+      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf, bd.CreatedOn,bd.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}'
 ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Type,PD.PreLamPdf, PD.CreatedOn FROM Person p
+      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Type,PD.PreLamPdf, PD.CreatedOn, PD.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
 WHERE PD.Status = '${Status}'
@@ -213,19 +213,19 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
 
     } else {
-      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf,jcd.CreatedOn FROM Person p
+      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf,jcd.CreatedOn,jcd.UpdatedOn  FROM Person p
     JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
     JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
     WHERE jcd.Status = '${Status}' AND p.PersonID = '${PersonID}'
     ORDER BY STR_TO_DATE(jcd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf, bd.CreatedOn FROM Person p
+      BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf, bd.CreatedOn, bd.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}' AND p.PersonID = '${PersonID}'
 ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Type,PD.PreLamPdf, PD.CreatedOn FROM Person p
+      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Type,PD.PreLamPdf, PD.CreatedOn,PD.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
 WHERE PD.Status = '${Status}' AND p.PersonID = '${PersonID}'
@@ -236,18 +236,27 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
     const JobCardList = await queryAsync(query);
     const BomList = await queryAsync(BomQuery);
     const PreLamList = await queryAsync(PreLamQuery);
-    BomList.forEach((BOM) => {
-      for (let key in BOM) {
-        if (key == 'BOMDetailId') {
-          BOM['JobCardDetailID'] = BOM[key]
-          delete BOM[key]
-        } else if (key == 'PONo') {
-          BOM['ModuleNo'] = BOM[key]
-          delete BOM[key]
+    /** Function to parse the date string into a Date object for comparison **/
+    const parseDate = dateString => {
+      const [date, time] = dateString.split(' ');
+      const [day, month, year] = date.split('-');
+      const [hours, minutes, seconds] = time.split(':');
+      return new Date(year, month - 1, day, hours, minutes, seconds);
+    };
+    if (Status == 'Inprogress') {
+
+      BomList.forEach((BOM) => {
+        for (let key in BOM) {
+          if (key == 'BOMDetailId') {
+            BOM['JobCardDetailID'] = BOM[key]
+            delete BOM[key]
+          } else if (key == 'PONo') {
+            BOM['ModuleNo'] = BOM[key]
+            delete BOM[key]
+          }
         }
-      }
-      JobCardList.push(BOM)
-    })
+        JobCardList.push(BOM)
+      })
 
     PreLamList.forEach((BOM) => {
       for (let key in BOM) {
@@ -265,7 +274,7 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           delete BOM[key]
         }
         delete BOM['Line'];
-      }else if(BOM['Type'] == 'Framing Dimension'){
+      }else if(BOM['Type'] == 'Framing'){
         if (key == 'PreLamDetailId') {
           BOM['JobCardDetailID'] = BOM[key]
           delete BOM[key]
@@ -280,21 +289,128 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
       }
       JobCardList.push(BOM);
     })
- /** Function to parse the date string into a Date object for comparison **/
-const parseDate = dateString => {
-  const [date, time] = dateString.split(' ');
-  const [day, month, year] = date.split('-');
-  const [hours, minutes, seconds] = time.split(':');
-  return new Date(year, month - 1, day, hours, minutes, seconds);
-};
 
-/** Sort the array by the "CreatedOn" property in descending order */
-JobCardList.sort((a, b) => {
-  const dateA = parseDate(a.CreatedOn);
-  const dateB = parseDate(b.CreatedOn);
-  return dateB - dateA; /** Compare dates in descending order */
-});
-    res.send({ status: true, data: JobCardList })
+
+      /** Sort the array by the "CreatedOn" property in descending order */
+      JobCardList.sort((a, b) => {
+        const dateA = parseDate(a.CreatedOn);
+        const dateB = parseDate(b.CreatedOn);
+        return dateB - dateA; /** Compare dates in descending order */
+      });
+
+      res.send({ status: true, data: JobCardList })
+    } else if (Status == 'Approved') {
+
+      BomList.forEach((BOM) => {
+        for (let key in BOM) {
+          if (key == 'BOMDetailId') {
+            BOM['JobCardDetailID'] = BOM[key]
+            delete BOM[key]
+          } else if (key == 'PONo') {
+            BOM['ModuleNo'] = BOM[key]
+            delete BOM[key]
+          }
+        }
+        JobCardList.push(BOM)
+      })
+
+      PreLamList.forEach((BOM) => {
+        for (let key in BOM) {
+
+          if (BOM['Type'] == 'PreLam' || BOM['Type'] == 'PostLam') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PONo') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+            delete BOM['Line'];
+          } else if (BOM['Type'] == 'Framing') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Line') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+          }
+        }
+        JobCardList.push(BOM);
+      });
+
+      /** Sort the array by the "CreatedOn" property in descending order */
+      JobCardList.sort((a, b) => {
+        const dateA = parseDate(a.UpdatedOn);
+        const dateB = parseDate(b.UpdatedOn);
+        return dateB - dateA; /** Compare dates in descending order */
+      });
+      res.send({ status: true, data: JobCardList });
+
+    }else{
+
+      BomList.forEach((BOM) => {
+        for (let key in BOM) {
+          if (key == 'BOMDetailId') {
+            BOM['JobCardDetailID'] = BOM[key]
+            delete BOM[key]
+          } else if (key == 'PONo') {
+            BOM['ModuleNo'] = BOM[key]
+            delete BOM[key]
+          }
+        }
+
+        JobCardList.push(BOM)
+      })
+
+      PreLamList.forEach((BOM) => {
+        for (let key in BOM) {
+
+
+          if (BOM['Type'] == 'PreLam' || BOM['Type'] == 'PostLam') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PONo') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+            delete BOM['Line'];
+          } else if (BOM['Type'] == 'Framing') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Line') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+          }
+        }
+        JobCardList.push(BOM);
+      })
+
+
+      /** Sort the array by the "CreatedOn" property in descending order */
+      JobCardList.sort((a, b) => {
+        const dateA = parseDate(a.CreatedOn);
+        const dateB = parseDate(b.CreatedOn);
+        return dateB - dateA; /** Compare dates in descending order */
+      });
+
+      res.send({ status: true, data: JobCardList });
+    }
   } catch (err) {
     console.log(err)
     res.status(400).send(err)
