@@ -106,7 +106,8 @@ const AddPreLam = async (req, res) => {
      PONo = '${PreLamDetail['PONo']}',
      CheckedBy = '${PreLamDetail['CurrentUser']}',
      CreatedBy = '${PreLamDetail['CurrentUser']}',
-     Status = '${PreLamDetail['Status']}'
+     Status = '${PreLamDetail['Status']}',
+     CreatedOn ='${getCurrentDateTime()}'
    WHERE PreLamDetailId = '${PreLamDetailId}';
      `
       await queryAsync(PreLamDetailQuery);
