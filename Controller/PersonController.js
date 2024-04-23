@@ -1,5 +1,5 @@
 const { dbConn } = require('../db.config/db.config')
-const { generatePassword,s3,AWS,transport,getCurrentDateTime } = require('../Utilis/Person.utilis')
+const { generatePassword, s3, AWS, transport, getCurrentDateTime } = require('../Utilis/Person.utilis')
 const bcrypt = require('bcrypt')
 const JWT = require('jsonwebtoken')
 require('dotenv').config()
@@ -212,145 +212,145 @@ const PersonRegister = async (req, res) => {
 
 
 /** Controller to Upload Profile Image */
-const UploadProfile = async (req,res)=>{
-    const {personid} = req.body;
-    try{
-       
-        /** Uploading Profile Image In S3 Bucket */
-        const data = await new Promise((resolve, reject) => {
-            s3.upload({
-                Bucket: process.env.AWS_BUCKET_1,
-                Key: personid,
-                Body: req.file.buffer,
-                ACL: "public-read-write",
-                ContentType: req.body.FileFormat
-            },(err,result)=>{
-               if(err){
-                reject(err)
-               }else{
-                resolve(result)
-               }
-            })
-        });
-    const query = `UPDATE Person SET ProfileImg = '${data.Location}' WHERE PersonID = '${personid}'`
-    
-    const SqlData = await new Promise((resolve,reject)=>{
-       dbConn.query(query,(err,result)=>{
-        if(err){
+const UploadProfile = async (req, res) => {
+  const { personid } = req.body;
+  try {
+
+    /** Uploading Profile Image In S3 Bucket */
+    const data = await new Promise((resolve, reject) => {
+      s3.upload({
+        Bucket: process.env.AWS_BUCKET_1,
+        Key: personid,
+        Body: req.file.buffer,
+        ACL: "public-read-write",
+        ContentType: req.body.FileFormat
+      }, (err, result) => {
+        if (err) {
           reject(err)
-        }else{
+        } else {
           resolve(result)
         }
-       })
+      })
+    });
+    const query = `UPDATE Person SET ProfileImg = '${data.Location}' WHERE PersonID = '${personid}'`
+
+    const SqlData = await new Promise((resolve, reject) => {
+      dbConn.query(query, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
+      })
     })
 
-    res.send({msg:'Profile Image Updated Succesfully'})
-    }catch(err){
-        console.log(err)
-        res.status(500).send({err})
-    }
+    res.send({ msg: 'Profile Image Updated Succesfully' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ err })
+  }
 }
 
 
-const Login = async(req,res)=>{
-  const {loginid,password} = req.body
+const Login = async (req, res) => {
+  const { loginid, password } = req.body
 
   const query = `SELECT Password FROM Person Where LoginID = '${loginid}' AND Status = 'Active'`
-try{
-  const hashedPassword = await new Promise((resolve,reject)=>{
-    dbConn.query(query,(err,result)=>{
-      if(err){
-        reject(err)
-      }else{
-        resolve(result)
-      }
+  try {
+    const hashedPassword = await new Promise((resolve, reject) => {
+      dbConn.query(query, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
+      })
     })
-  })
-  try{
-console.log(hashedPassword);
-    if(hashedPassword[0].Password == password){
-  
-      const getdata = `SELECT p.PersonID,p.ProfileImg,p.Name,d1.Designation,d.Department FROM Person p
+    try {
+      console.log(hashedPassword)
+      if (hashedPassword[0].Password == password) {
+
+        const getdata = `SELECT p.PersonID,p.ProfileImg,p.Name,d1.Designation,d.Department FROM Person p
       JOIN Department d ON p.Department = d.DepartmentID
       JOIN Designation d1 ON p.Desgination = d1.DesignationID
       WHERE p.LoginID = '${loginid}'`
 
-      const PersonData = await new Promise((resolve,reject)=>{
-           dbConn.query(getdata,(err,result)=>{
-            if(err){
+        const PersonData = await new Promise((resolve, reject) => {
+          dbConn.query(getdata, (err, result) => {
+            if (err) {
               reject(err)
-            }else{
+            } else {
               resolve(result)
             }
-           })
-      })
-      let EnCodeData = PersonData[0];
-    const token = JWT.sign({PersonID:EnCodeData['PersonID'],Designation:EnCodeData['Designation'],Department:EnCodeData['Department']},process.env.SecretKey)
-   
-    res.send({status:true, msg:'Login Successfull', token, PersonData})
-    }else{
-     res.status(400).send({msg:'Wrong Password'})
+          })
+        })
+        let EnCodeData = PersonData[0];
+        const token = JWT.sign({ PersonID: EnCodeData['PersonID'], Designation: EnCodeData['Designation'], Department: EnCodeData['Department'] }, process.env.SecretKey)
+
+        res.send({ status: true, msg: 'Login Successfull', token, PersonData })
+      } else {
+        res.status(400).send({ msg: 'Wrong Password' })
+      }
+    } catch (err) {
+      console.log(err)
+      res.status(400).send({ msg: 'Internal Error' })
     }
-  }catch(err){
+
+  } catch (err) {
     console.log(err)
-    res.status(400).send({msg:'Internal Error'})
+    res.status(400).send({ msg: 'Wrong EmployeeId' });
   }
 
-}catch(err){
-  console.log(err)
-  res.status(400).send({msg:'Wrong EmployeeId'});
-}
-  
 }
 
 
-const EmployeeList = async(req,res)=>{
-    
+const EmployeeList = async (req, res) => {
+
   const query = `SELECT p.PersonID, p.LoginID,p.EmployeeID,p.Name,p.ProfileImg,wl.Location,d.Designation,d1.Department,p.Status  FROM Person p
   JOIN Designation d ON p.Desgination = d.DesignationID
   JOIN Department d1 ON p.Department = d1.DepartmentID
   JOIN WorkLocation wl ON p.WorkLocation = wl.LocationID
   WHERE p.Status = 'Active';`
 
-  try{
-    const EmployeeList = await new Promise((resolve,reject)=>{
-      dbConn.query(query,(err,result)=>{
-       if(err){
-         reject(err)
-       }else{
-         resolve(result)
-       }
+  try {
+    const EmployeeList = await new Promise((resolve, reject) => {
+      dbConn.query(query, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
       });
- });
+    });
 
- res.send({status:true,data:EmployeeList})
-  }catch(err){
+    res.send({ status: true, data: EmployeeList })
+  } catch (err) {
     console.log(err);
-res.status(400).send(err)
+    res.status(400).send(err)
   }
 }
 
-const GetSpecificEmployee = async(req,res)=>{
+const GetSpecificEmployee = async (req, res) => {
 
-  const {PersonID} = req.body
+  const { PersonID } = req.body
 
   const query = `SELECT *FROM Person p WHERE p.PersonID = '${PersonID}'`
 
-  try{
-    const GetSpecificEmployee = await new Promise((resolve,reject)=>{
-      dbConn.query(query,(err,result)=>{
-       if(err){
-         reject(err)
-       }else{
-         resolve(result)
-       }
+  try {
+    const GetSpecificEmployee = await new Promise((resolve, reject) => {
+      dbConn.query(query, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
       });
- });
+    });
 
- res.send({status:true,data:GetSpecificEmployee})
-  }catch(err){
+    res.send({ status: true, data: GetSpecificEmployee })
+  } catch (err) {
     console.log(err);
-res.status(400).send(err)
+    res.status(400).send(err)
   }
 }
 
