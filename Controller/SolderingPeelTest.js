@@ -38,6 +38,7 @@ var data = {
 
 const AddSolderingPeelTest = async (req, res) => {
     const { JobCardDetailId, Type, Date, Remarks, DocNo, RevNo, RibbonMake, RibbonSize, CellMake, CellSize, Line, Shift, Samples, MachineNo, OperatorName, CreatedBy, Status, BusBarWidth, BussingStage } = req.body;
+    console.log(req.body['Samples']);
     const UUID = v4()
     if (!JobCardDetailId) {
         try {
