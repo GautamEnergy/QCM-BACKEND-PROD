@@ -212,7 +212,7 @@ const UploadProfile = async (req, res) => {
   
        // Save the file buffer to the specified file path
     fs.writeFileSync(filePath, fileBuffer);
-    const query = `UPDATE Person SET ProfileImg = 'http://srv515471.hstgr.cloud:8080/Employee/Profile/${personid}.pdf' WHERE PersonID = '${personid}'`;
+    const query = `UPDATE Person SET ProfileImg = 'http://srv515471.hstgr.cloud:8080/Employee/Profile/${fileName}' WHERE PersonID = '${personid}'`;
   const update = await queryAsync(query);
   
   // Send success response with the file URL
