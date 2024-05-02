@@ -207,7 +207,7 @@ const UploadProfile = async (req, res) => {
        }
        
        // Define the file path, including the desired file name and format
-       const fileName = `${personid}.pdf`;
+         const fileName = `${personid}${req.file.originalname}`;
        const filePath = Path.join(folderPath, fileName);
   
        // Save the file buffer to the specified file path
