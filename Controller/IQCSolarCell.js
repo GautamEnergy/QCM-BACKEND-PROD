@@ -4,8 +4,8 @@ const util = require('util');
 const fs = require('fs');
 const Path = require('path');
 const { getCurrentDateTime, s3, ExcelGenerate } = require('../Utilis/IQCSolarCellUtilis');
-
 require('dotenv').config()
+const PORT = process.env.PORT || 8080
 
 
 /** Making Sync To Query to Loop */
@@ -460,8 +460,8 @@ const UploadPdf = async (req, res) => {
       fs.writeFileSync(COCFilePath, COCFileBuffer);
       
       const query = `UPDATE IQCSolarDetails id
-      set id.COCPdf = 'http://srv515471.hstgr.cloud:8080/IQCSolarCell/Pdf/${COCFileName}',
-       id.InvoicePdf = 'http://srv515471.hstgr.cloud:8080/IQCSolarCell/Pdf/${InvoiceFileName}'
+      set id.COCPdf = 'http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Pdf/${COCFileName}',
+       id.InvoicePdf = 'http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Pdf/${InvoiceFileName}'
 
      WHERE id.SolarDetailID = '${SolarDetailId}';`;
      let data = await new Promise((resolve, rejects) => {
@@ -504,4 +504,3 @@ const GetPdf = async(req,res)=>{
 
 /** Export Controllers */
 module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf };
-
