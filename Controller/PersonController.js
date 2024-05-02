@@ -6,7 +6,7 @@ const util = require('util');
 const Path = require('path')
 const JWT = require('jsonwebtoken')
 require('dotenv').config()
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 9090
 
 /** Making Sync To Query to Loop */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
