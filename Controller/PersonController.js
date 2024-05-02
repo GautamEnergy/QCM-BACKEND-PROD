@@ -1,8 +1,14 @@
-const { dbConn } = require('../db.config/db.config');
-const { generatePassword, s3, AWS, transport, getCurrentDateTime } = require('../Utilis/Person.utilis.js');
-const JWT = require('jsonwebtoken');
-require('dotenv').config();
+const { dbConn } = require('../db.config/db.config')
+const { generatePassword, s3, AWS, transport, getCurrentDateTime } = require('../Utilis/Person.utilis')
+const bcrypt = require('bcrypt')
+const fs = require('fs');
+const util = require('util');
+const Path = require('path')
+const JWT = require('jsonwebtoken')
+require('dotenv').config()
 
+/** Making Sync To Query to Loop */
+const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 
 /** Controller to Register Employee */
 const PersonRegister = async (req, res) => {
@@ -185,41 +191,57 @@ const PersonRegister = async (req, res) => {
 /** Controller to Upload Profile Image */
 const UploadProfile = async (req, res) => {
   const { personid } = req.body;
-  try {
-
-    /** Uploading Profile Image In S3 Bucket */
-    const data = await new Promise((resolve, reject) => {
-      s3.upload({
-        Bucket: process.env.AWS_BUCKET_1,
-        Key: personid,
-        Body: req.file.buffer,
-        ACL: "public-read-write",
-        ContentType: req.body.FileFormat
-      }, (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(result)
-        }
-      })
-    });
-    const query = `UPDATE Person SET ProfileImg = '${data.Location}' WHERE PersonID = '${personid}'`
-
-    const SqlData = await new Promise((resolve, reject) => {
-      dbConn.query(query, (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(result)
-        }
-      })
-    })
-
-    res.send({ msg: 'Profile Image Updated Succesfully' })
-  } catch (err) {
-    console.log(err)
-    res.status(500).send({ err })
+  if(req.file.size){
+    /** making file in IPQC-Pdf-Folder*/
+    try {
+       // Get the file buffer and the file format
+       const fileBuffer = req.file.buffer;
+      
+       // Define the folder path
+       const folderPath = Path.join('Employee-Profile-Folder');
+  
+       // Create the folder if it doesn't exist
+       if (!fs.existsSync(folderPath)) {
+        console.log(folderPath)
+           fs.mkdirSync(folderPath, { recursive: true });
+       }
+       
+       // Define the file path, including the desired file name and format
+       const fileName = `${personid}.pdf`;
+       const filePath = Path.join(folderPath, fileName);
+  
+       // Save the file buffer to the specified file path
+    fs.writeFileSync(filePath, fileBuffer);
+    const query = `UPDATE Person SET ProfileImg = 'http://srv515471.hstgr.cloud:8080/Employee/Profile/${personid}.pdf' WHERE PersonID = '${personid}'`;
+  const update = await queryAsync(query);
+  
+  // Send success response with the file URL
+  res.send({ msg: 'Data inserted successfully!', URL: `http://srv515471.hstgr.cloud:8080/Employee/Profile/${personid}.pdf` });
+    } catch (err) {
+      console.log(err);
+      res.status(401).send(err);
+    }
+  }else{
+    res.status(401).send({status:false,'err':'file is empty'})
   }
+}
+
+
+const GetProfile = async(req,res)=>{
+  const filename = req.params.filename;
+   // Define the absolute path to the IPQC-Pdf-Folder directory
+   const pdfFolderPath = Path.resolve('Employee-Profile-Folder');
+
+   // Construct the full file path to the requested file
+   const filePath = Path.join(pdfFolderPath, filename);
+
+   // Send the file to the client
+   res.sendFile(filePath, (err) => {
+       if (err) {
+           console.error('Error sending file:', err);
+           res.status(404).send({ error: 'File not found' });
+       }
+   });
 }
 
 
@@ -244,7 +266,7 @@ const Login = async (req, res) => {
         const getdata = `SELECT p.PersonID,p.ProfileImg,p.Name,d1.Designation,d.Department FROM Person p
       JOIN Department d ON p.Department = d.DepartmentID
       JOIN Designation d1 ON p.Desgination = d1.DesignationID
-      WHERE p.LoginID = '${loginid}'`
+      WHERE p.LoginID = '${loginid}' AND Status = 'Active'; `
 
         const PersonData = await new Promise((resolve, reject) => {
           dbConn.query(getdata, (err, result) => {
@@ -354,4 +376,4 @@ const UpdateStatus = async (req, res) => {
 
 
 
-module.exports = { PersonRegister, UploadProfile, Login, EmployeeList, GetSpecificEmployee, UpdateStatus }
+module.exports = { PersonRegister, UploadProfile, Login, EmployeeList, GetSpecificEmployee, UpdateStatus,GetProfile }
