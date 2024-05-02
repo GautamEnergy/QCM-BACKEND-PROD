@@ -5,7 +5,7 @@ const fs = require('fs');
 const Path = require('path');
 const { getCurrentDateTime, s3, ExcelGenerate } = require('../Utilis/IQCSolarCellUtilis');
 require('dotenv').config()
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 9090
 
 
 /** Making Sync To Query to Loop */
