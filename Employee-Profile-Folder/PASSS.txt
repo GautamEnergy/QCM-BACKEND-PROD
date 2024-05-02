@@ -1,0 +1,13 @@
+u- it5@gautamsolar.com
+p-Gautam123
+
+
+
+u-root
+p- Admin@123
+
+
+https://91.108.111.172:2083/cpsess2542561963/frontend/jupiter/index.html?login=1&post_login=94323674099493
+u- it5@gautamsolar.com
+username- qcm
+p- Bhanu@#531
