@@ -4,7 +4,8 @@ const util = require('util');
 const fs = require('fs');
 const Path = require('path');
 const { dbConn } = require('../db.config/db.config')
-
+require('dotenv').config()
+const PORT = process.env.PORT || 9090
 /** Making Sync To Query */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 
@@ -145,12 +146,12 @@ const UploadSealentWeightPdf = async(req,res)=>{
          // Save the file buffer to the specified file path
       fs.writeFileSync(filePath, fileBuffer);
          const query = `UPDATE PreLamDetail
-         SET PreLamPdf = 'http://srv515471.hstgr.cloud:8080/IPQC/Pdf/${JobCardDetailId}.pdf'
+         SET PreLamPdf = 'http://srv515471.hstgr.cloud:${PORT}/IPQC/Pdf/${JobCardDetailId}.pdf'
          WHERE PreLamDetailId = '${JobCardDetailId}';`;
     const update = await queryAsync(query);
     
     // Send success response with the file URL
-    res.send({ msg: 'Data inserted successfully!', URL: `http://srv515471.hstgr.cloud:8080/IPQC/Pdf/${JobCardDetailId}.pdf` });
+    res.send({ msg: 'Data inserted successfully!', URL: `http://srv515471.hstgr.cloud:${PORT}/IPQC/Pdf/${JobCardDetailId}.pdf` });
       } catch (err) {
         console.log(err);
         res.status(401).send(err);
