@@ -1,6 +1,8 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { getCurrentDateTime, s3 } = require('../Utilis/IPQCJobCardUtilis')
 const util = require('util')
+const fs = require('fs');
+const Path = require('path')
 const { dbConn } = require('../db.config/db.config');
 
 
@@ -189,6 +191,7 @@ const JobCardList = async (req, res) => {
   let query;
   let BomQuery;
   let PreLamQuery;
+  let SolderingPeelTestQuery;
   try {
 
     if (Designation == 'Admin' || Designation == 'Super Admin') {
@@ -204,13 +207,17 @@ JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}'
 ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Type,PD.PreLamPdf, PD.CreatedOn, PD.UpdatedOn FROM Person p
+      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Shift,PD.Type,PD.PreLamPdf, PD.CreatedOn, PD.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
 WHERE PD.Status = '${Status}'
 ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-
+      SolderingPeelTestQuery = `  SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,SPT.TestDetailId,SPT.Line,SPT.Shift,SPT.Type,SPT.Pdf, SPT.CreatedOn, SPT.UpdatedOn FROM Person p
+JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
+JOIN SolderingPeelTestDetail SPT ON p.PersonID = SPT.CreatedBy
+WHERE SPT.Status = '${Status}'
+ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
     } else {
       query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf,jcd.CreatedOn,jcd.UpdatedOn  FROM Person p
@@ -225,17 +232,24 @@ JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
 WHERE bd.Status = '${Status}' AND p.PersonID = '${PersonID}'
 ORDER BY STR_TO_DATE(bd.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Type,PD.PreLamPdf, PD.CreatedOn,PD.UpdatedOn FROM Person p
+      PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,PD.PreLamDetailId,PD.PONo,PD.Line,PD.Shift,PD.Type,PD.PreLamPdf, PD.CreatedOn,PD.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
 WHERE PD.Status = '${Status}' AND p.PersonID = '${PersonID}'
 ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
+
+      SolderingPeelTestQuery = `  SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,SPT.TestDetailId,SPT.Line,SPT.Shift,SPT.Type,SPT.Pdf, SPT.CreatedOn, SPT.UpdatedOn FROM Person p
+JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
+JOIN SolderingPeelTestDetail SPT ON p.PersonID = SPT.CreatedBy
+WHERE SPT.Status = '${Status}' AND p.PersonID = '${PersonID}'
+ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
     }
 
     const JobCardList = await queryAsync(query);
     const BomList = await queryAsync(BomQuery);
     const PreLamList = await queryAsync(PreLamQuery);
+    const SolderingPeelTestList = await queryAsync(SolderingPeelTestQuery)
     /** Function to parse the date string into a Date object for comparison **/
     const parseDate = dateString => {
       const [date, time] = dateString.split(' ');
@@ -285,11 +299,51 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           BOM['ReferencePdf'] = BOM[key]
           delete BOM[key]
         }
-      }
-      }
-      JobCardList.push(BOM);
-    })
+          } else if (BOM['Type'] == 'Sealent') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Shift') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+          } else if (BOM['Type'] == 'Laminator1' || BOM['Type'] == 'Laminator2' || BOM['Type'] == 'Stringer1' || BOM['Type'] == 'Stringer2' || BOM['Type'] == 'Stringer3') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Shift') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+          }
+        }
+        delete BOM['Line'];
+        delete BOM['PONo']
+        JobCardList.push(BOM);
+      })
 
+      /** Deconstructing of Soldering Peel Test List */
+      SolderingPeelTestList.forEach((Test) => {
+        for (let key in Test) {
+          if (key == 'TestDetailId') {
+            Test['JobCardDetailID'] = Test[key]
+            delete Test[key]
+          } else if (key == 'Line') {
+            Test['ModuleNo'] = Test[key]
+            delete Test[key]
+          } else if (key = 'Pdf') {
+            Test['ReferencePdf'] = Test[key]
+            delete Test[key]
+          }
+        }
+        JobCardList.push(Test);
+      })
 
       /** Sort the array by the "CreatedOn" property in descending order */
       JobCardList.sort((a, b) => {
@@ -340,10 +394,51 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
               BOM['ReferencePdf'] = BOM[key]
               delete BOM[key]
             }
+          } else if (BOM['Type'] == 'Sealent') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Shift') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+          } else if (BOM['Type'] == 'Laminator1' || BOM['Type'] == 'Laminator2' || BOM['Type'] == 'Stringer1' || BOM['Type'] == 'Stringer2' || BOM['Type'] == 'Stringer3') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Shift') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
           }
         }
+        delete BOM['Line'];
+        delete BOM['PONo']
         JobCardList.push(BOM);
       });
+
+      /** Deconstructing of Soldering Peel Test List */
+      SolderingPeelTestList.forEach((Test) => {
+        for (let key in Test) {
+          if (key == 'TestDetailId') {
+            Test['JobCardDetailID'] = Test[key]
+            delete Test[key]
+          } else if (key == 'Line') {
+            Test['ModuleNo'] = Test[key]
+            delete Test[key]
+          } else if (key = 'Pdf') {
+            Test['ReferencePdf'] = Test[key]
+            delete Test[key]
+          }
+        }
+        JobCardList.push(Test);
+      })
 
       /** Sort the array by the "CreatedOn" property in descending order */
       JobCardList.sort((a, b) => {
@@ -396,11 +491,53 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
               BOM['ReferencePdf'] = BOM[key]
               delete BOM[key]
             }
+          } else if (BOM['Type'] == 'Sealent') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Shift') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+           
+          } else if (BOM['Type'] == 'Laminator1' || BOM['Type'] == 'Laminator2' || BOM['Type'] == 'Stringer1' || BOM['Type'] == 'Stringer2' || BOM['Type'] == 'Stringer3') {
+            if (key == 'PreLamDetailId') {
+              BOM['JobCardDetailID'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'Shift') {
+              BOM['ModuleNo'] = BOM[key]
+              delete BOM[key]
+            } else if (key == 'PreLamPdf') {
+              BOM['ReferencePdf'] = BOM[key]
+              delete BOM[key]
+            }
+        
           }
         }
+        delete BOM['Line'];
+        delete BOM['PONo']
         JobCardList.push(BOM);
       })
 
+      /** Deconstructing of Soldering Peel Test List */
+      SolderingPeelTestList.forEach((Test) => {
+        for (let key in Test) {
+          if (key == 'TestDetailId') {
+            Test['JobCardDetailID'] = Test[key]
+            delete Test[key]
+          } else if (key == 'Line') {
+            Test['ModuleNo'] = Test[key]
+            delete Test[key]
+          } else if (key = 'Pdf') {
+            Test['ReferencePdf'] = Test[key]
+            delete Test[key]
+          }
+        }
+        JobCardList.push(Test);
+      })
 
       /** Sort the array by the "CreatedOn" property in descending order */
       JobCardList.sort((a, b) => {
@@ -423,36 +560,42 @@ ORDER BY STR_TO_DATE(PD.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 const UploadPdf = async (req, res) => {
 
   const { JobCardDetailId } = req.body;
-  /** Uploading PDF in S3 Bucket */
-  try {
-    const ReferencePdf = await new Promise((resolve, reject) => {
-      s3.upload({
-        Bucket: process.env.AWS_BUCKET_2,
-        Key: `IPQC/${JobCardDetailId}_${req.file.originalname}`,
-        Body: req.file.buffer,
-        ACL: "public-read-write",
-        ContentType: req.file.mimetype
-      }, (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
 
-          resolve(result)
-        }
-      })
-    });
+  if (req.file.size) {
+    /** making file in IPQC-Pdf-Folder*/
+    try {
+      // Get the file buffer and the file format
+      const fileBuffer = req.file.buffer;
 
+      // Define the folder path
+      const folderPath = Path.join('IPQC-Pdf-Folder');
 
+      // Create the folder if it doesn't exist
+      if (!fs.existsSync(folderPath)) {
+        console.log(folderPath)
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
 
-    const query = `UPDATE JobCardDetails jcd
-    set jcd.ReferencePdf = '${ReferencePdf.Location}'
-   WHERE jcd.JobCardDetailID = '${JobCardDetailId}';`;
+      // Define the file path, including the desired file name and format
+      const fileName = `${JobCardDetailId}.pdf`;
+      const filePath = Path.join(folderPath, fileName);
 
-    const update = await queryAsync(query);
-    res.send({ msg: 'Data Inserted SuccesFully !', URL: ReferencePdf.Location });
-  } catch (err) {
-    console.log(err);
-    res.status(401).send(err);
+      // Save the file buffer to the specified file path
+      fs.writeFileSync(filePath, fileBuffer);
+
+      const query = `UPDATE JobCardDetails jcd
+set jcd.ReferencePdf = 'http://srv515471.hstgr.cloud:8080/IPQC/Pdf/${JobCardDetailId}.pdf'
+WHERE jcd.JobCardDetailID = '${JobCardDetailId}';`;
+      const update = await queryAsync(query);
+
+      // Send success response with the file URL
+      res.send({ msg: 'Data inserted successfully!', URL: `http://srv502293.hstgr.cloud:8080/IPQC/Pdf/${JobCardDetailId}.pdf` });
+    } catch (err) {
+      console.log(err);
+      res.status(401).send(err);
+    }
+  } else {
+    res.status(401).send({ status: false, 'err': 'file is empty' })
   }
 }
 
