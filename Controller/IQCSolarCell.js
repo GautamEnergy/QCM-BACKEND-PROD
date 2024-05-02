@@ -1,7 +1,9 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { dbConn } = require('../db.config/db.config')
-const util = require('util')
-const { getCurrentDateTime, s3 } = require('../Utilis/IQCSolarCellUtilis');
+const util = require('util');
+const fs = require('fs');
+const Path = require('path');
+const { getCurrentDateTime, s3, ExcelGenerate } = require('../Utilis/IQCSolarCellUtilis');
 
 require('dotenv').config()
 
@@ -400,7 +402,26 @@ const UpdateStatus = async (req, res) => {
       })
     })
 
-    res.send({ ApprovalStatus, SolarCellDetailTable })
+    const ExcelQuery = `SELECT id.SolarDetailID,id.MaterialName,id.DocumentNo,id.RevisionNo,id.LotSize,id.SupplierName,id.InvoiceNo,id.InvoiceDate,id.SupplierRMBatchNo,id.RawMaterialSpecs,id.QualityCheckDate,id.ReceiptDate,id.Status,id.COCPdf,id.InvoicePdf,i.IQCSolarID,i.CheckType,i.Characterstics,i.MeasuringMethod,i.Sampling,i.Reference,i.AcceptanceCriteria,i.SampleSize,i.Samples,r.RejectedID,r.CheckTypes,r.Reason,r.Result,id.CheckedBy,id.UpdatedBy, p.Name, a.Reason as ApproveReason  FROM IQCSolarDetails id
+    JOIN IQCSolar i ON id.SolarDetailID = i.SolarDetailID
+    JOIN Rejected r ON id.SolarDetailID = r.SolarDetailID
+    JOIN Person p on p.PersonID =  id.CheckedBy
+    JOIN ApprovalStatus a on a.SolarDetailID = r.SolarDetailID
+    WHERE id.SolarDetailID = '${SolarDetailID}';`;
+
+    const ApproveTableQuery = `select p.Name from IQCSolarDetails id
+    join Person p on p.PersonID = id.UpdatedBy
+    where id.SolarDetailID = '${SolarDetailID}';`;
+
+    const ExcelData = await queryAsync(ExcelQuery);
+    const ApproveData = await queryAsync(ApproveTableQuery);
+    ExcelData.forEach((data) => {
+      data['Samples'] = JSON.parse(data['Samples']);
+    })
+
+    console.log(ExcelData)
+    ExcelGenerate(ExcelData, ApproveData);
+    res.send({ ExcelData, ApproveData })
   } catch (err) {
     console.log(err)
     res.status(500).send({ err })
@@ -413,48 +434,37 @@ const UploadPdf = async (req, res) => {
 
   const { SolarDetailId } = req.body;
 
-  /** Uploading PDF in S3 Bucket */
-  try {
-    const Invoice = await new Promise((resolve, reject) => {
-      s3.upload({
-        Bucket: process.env.AWS_BUCKET_2,
-        Key: `IQC/${SolarDetailId}_${req.files['InvoicePdf'][0].originalname}`,
-        Body: req.files['InvoicePdf'][0].buffer,
-        ACL: "public-read-write",
-        ContentType: req.files['InvoicePdf'][0].mimetype
-      }, (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
+  /** Uploading PDF in Employee-Profile-Folder */
+  if (req.files['InvoicePdf'][0].size && req.files['COCPdf'][0].size) {
+    try {
+      /** Get the file buffer and the file format */
+      const InvoiceFileBuffer = req.files['InvoicePdf'][0].buffer;
+      const COCFileBuffer = req.files['COCPdf'][0].buffer;
 
-          resolve(result)
-        }
-      })
-    })
+      /** Define the folder path */
+      const folderPath = Path.join('IQC-Pdf-Folder');
 
-    const COC = await new Promise((resolve, reject) => {
-      s3.upload({
-        Bucket: process.env.AWS_BUCKET_2,
-        Key: `${SolarDetailId}_${req.files['COCPdf'][0].originalname}`,
-        Body: req.files['COCPdf'][0].buffer,
-        ACL: "public-read-write",
-        ContentType: req.files['COCPdf'][0].mimetype
-      }, (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
+      /** Create the folder if it doesn't exist */
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
 
-          resolve(result)
-        }
-      })
-    })
+      /** Define the file path, including the desired file name and format */
+      const InvoiceFileName = `${SolarDetailId}_${req.files['InvoicePdf'][0].originalname}`;
+      const COCFileName = `${SolarDetailId}_${req.files['COCPdf'][0].originalname}`;
+      const InvoceFilePath = Path.join(folderPath, InvoiceFileName);
+      const COCFilePath = Path.join(folderPath,COCFileName);
 
-    const query = `UPDATE IQCSolarDetails id
-                  set id.COCPdf = '${COC.Location}',
-                   id.InvoicePdf = '${Invoice.Location}'
-                 WHERE id.SolarDetailID = '${SolarDetailId}';`
+      /** Save the file buffer to the specified file path */
+      fs.writeFileSync(InvoceFilePath, InvoiceFileBuffer);
+      fs.writeFileSync(COCFilePath, COCFileBuffer);
+      
+      const query = `UPDATE IQCSolarDetails id
+      set id.COCPdf = 'http://srv515471.hstgr.cloud:8080/IQCSolarCell/Pdf/${COCFileName}',
+       id.InvoicePdf = 'http://srv515471.hstgr.cloud:8080/IQCSolarCell/Pdf/${InvoiceFileName}'
 
-    let data = await new Promise((resolve, rejects) => {
+     WHERE id.SolarDetailID = '${SolarDetailId}';`;
+     let data = await new Promise((resolve, rejects) => {
       dbConn.query(query, (err, result) => {
         if (err) {
           rejects(err)
@@ -463,14 +473,35 @@ const UploadPdf = async (req, res) => {
         }
       })
     })
-    res.send({msg:'Data Inserted SuccesFully !'})
-  } catch (err) {
-    console.log(err);
-    res.status(401).send(err);
+    res.send({ msg: 'Data Inserted SuccesFully !' })
+
+    } catch (err) {
+      console.log(err);
+      res.status(401).send(err);
+    }
+  }else{
+    res.status(401).send({status:false,'err':'file is empty'});
   }
+}
+
+const GetPdf = async(req,res)=>{
+  const filename = req.params.filename;
+   /** Define the absolute path to the IPQC-Pdf-Folder directory */
+   const pdfFolderPath = Path.resolve('IQC-Pdf-Folder');
+
+   /** Construct the full file path to the requested file */
+   const filePath = Path.join(pdfFolderPath, filename);
+
+   /** Send the file to the client */
+   res.sendFile(filePath, (err) => {
+       if (err) {
+           console.error('Error sending file:', err);
+           res.status(404).send({ error: 'File not found' });
+       }
+   });
 }
 
 
 /** Export Controllers */
-module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus,UploadPdf };
+module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf };
 
