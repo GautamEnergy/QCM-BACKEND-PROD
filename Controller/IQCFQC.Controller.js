@@ -4,8 +4,8 @@ const util = require('util')
 const Path = require('path')
 const fs = require('fs')
 const { getCurrentDateTime, s3 } = require('../Utilis/IQCSolarCellUtilis');
-
 require('dotenv').config()
+const PORT = process.env.PORT || 9090
 
 
 /** Making Sync To Query to Loop */
@@ -187,12 +187,12 @@ if(req.file.size){
        // Save the file buffer to the specified file path
     fs.writeFileSync(filePath, fileBuffer);
     const query = `UPDATE FQCDetails FD
-                  set FD.Pdf = 'http://srv515471.hstgr.cloud:8080/IQCSolarCell/Pdf/${fileName}'
+                  set FD.Pdf = 'http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Pdf/${fileName}'
                     WHERE FD.FQCDetailId = '${FQCDetailId}';`;
   const update = await queryAsync(query);
   
   
-  res.send({ msg: 'Data inserted successfully!', URL: `http://srv515471.hstgr.cloud:8080/IQCSolarCell/Pdf/${fileName}` });
+  res.send({ msg: 'Data inserted successfully!', URL: `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Pdf/${fileName}` });
     } catch (err) {
       console.log(err);
       res.status(401).send(err);
