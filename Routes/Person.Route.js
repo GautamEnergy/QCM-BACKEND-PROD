@@ -1,7 +1,7 @@
 const express = require('express');
 const PersonRouter = express.Router();
 const {upload} = require('../Middleware/Person.middleware');
-const {PersonRegister,UploadProfile,Login,EmployeeList,GetSpecificEmployee,UpdateStatus} = require('../Controller/PersonController.js');
+const {PersonRegister,UploadProfile,Login,EmployeeList,GetSpecificEmployee,UpdateStatus,GetProfile} = require('../Controller/PersonController.js');
 
 
 
@@ -12,7 +12,10 @@ PersonRouter.post('/SignUp',PersonRegister);
 /** Upload Profile Route during SignUp */
 PersonRouter.post('/UploadProfileImg',upload.single('Profile'),UploadProfile);
 
-/** Login */
+/**Router to Get Pdf */
+PersonRouter.get('/Profile/:filename',GetProfile);
+
+/** Router to Login */
 PersonRouter.post('/Login',Login);
 
 /**Router to Get Employees List */
