@@ -57,6 +57,8 @@ const data = {
 const AddSealentWeight = async (req, res) => {
     const { Type, JobCardDetailId, Shift, Status, Date, CreatedBy, DocNo, RevNo } = req.body
     const Stages = req.body['Stages'];
+    console.log(Stages);
+    console.log(req.body);
     const UUID = v4()
     if (!JobCardDetailId) {
         try {
