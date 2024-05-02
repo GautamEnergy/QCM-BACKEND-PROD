@@ -338,7 +338,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           } else if (key == 'Line') {
             Test['ModuleNo'] = Test[key]
             delete Test[key]
-          } else if (key = 'Pdf') {
+          } else if (key == 'Pdf') {
             Test['ReferencePdf'] = Test[key]
             delete Test[key]
           }
@@ -433,7 +433,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           } else if (key == 'Line') {
             Test['ModuleNo'] = Test[key]
             delete Test[key]
-          } else if (key = 'Pdf') {
+          } else if (key == 'Pdf') {
             Test['ReferencePdf'] = Test[key]
             delete Test[key]
           }
@@ -532,7 +532,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           } else if (key == 'Line') {
             Test['ModuleNo'] = Test[key]
             delete Test[key]
-          } else if (key = 'Pdf') {
+          } else if (key == 'Pdf') {
             Test['ReferencePdf'] = Test[key]
             delete Test[key]
           }
