@@ -3,10 +3,10 @@ const mysql = require('mysql')
 
 
 const dbConn = mysql.createPool({
-    host: 'qcm.cz2oiimue97z.ap-south-1.rds.amazonaws.com',
-    user: 'admin',
-    password: 'qcm12345',
-    database: 'QCProd',
+    host: '68.178.155.50',
+    user: 'HRMGalo',
+    password: 'FlkumUAxazRW',
+    database: 'HRMGaloDev',
        })
   
   dbConn.getConnection(function (error) {
@@ -20,4 +20,3 @@ const dbConn = mysql.createPool({
 
 module.exports = {dbConn};
   
-
