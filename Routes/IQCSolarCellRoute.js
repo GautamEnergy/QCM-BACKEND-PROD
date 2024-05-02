@@ -1,6 +1,6 @@
 const express = require('express');
 const IQCSolarCellRoute = express.Router()
-const {AddIQCSolarCell, GetIQCSolarCellTests,GetSpecificSolarCellTest,UpdateStatus,UploadPdf} = require('../Controller/IQCSolarCell');
+const {AddIQCSolarCell, GetIQCSolarCellTests,GetSpecificSolarCellTest,UpdateStatus,UploadPdf,GetPdf} = require('../Controller/IQCSolarCell');
 const {AddFQC,GetFQCList,GetSpecificFQC,FQCUpdateStatus,UploadFQCPdf} = require('../Controller/IQCFQC.Controller')
 const {RoleAuthentication,upload} = require('../Middleware/IQCSolarCell.Middleware')
 const {FQCUpload} = require('../Middleware/FQC.Middleware')
@@ -10,6 +10,9 @@ IQCSolarCellRoute.post('/AddIQCSolarCell',AddIQCSolarCell)
 
 /**to Upload PDF */
 IQCSolarCellRoute.post('/UploadPdf',upload,UploadPdf)
+
+/** to Get Upload Pdf */
+IQCSolarCellRoute.get('/Pdf/:filename',GetPdf)
 
 /**to Upload PDF */
 IQCSolarCellRoute.post('/UploadFQCPdf',FQCUpload.single('FQCPdf'),UploadFQCPdf)
