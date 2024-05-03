@@ -228,8 +228,8 @@ const GetSpecificFraming = async(req,res)=>{
      let Stage = Framing['Stage'];
     response[`Stage${Stage}`] = Framing['Stage']
     response[`Sample${Stage}`] = Framing['Sample'];
-    response[`FramingObservation${Sample}`] = Framing['FramingObservation'];
-    response[`FramingDimension${Sample}`] = JSON.parse(Framing['FramingDimension']);
+    response[`FramingObservation${Stage}`] = Framing['FramingObservation'];
+    response[`FramingDimension${Stage}`] = JSON.parse(Framing['FramingDimension']);
   })
   res.send({response});
   }catch(err){
