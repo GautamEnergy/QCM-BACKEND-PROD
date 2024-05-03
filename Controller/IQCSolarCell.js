@@ -450,8 +450,8 @@ const UploadPdf = async (req, res) => {
       }
 
       /** Define the file path, including the desired file name and format */
-      const InvoiceFileName = `${SolarDetailId}_${req.files['InvoicePdf'][0].originalname}`;
-      const COCFileName = `${SolarDetailId}_${req.files['COCPdf'][0].originalname}`;
+      const InvoiceFileName = `${SolarDetailId}_Invoice.pdf`;
+      const COCFileName = `${SolarDetailId}_COC.pdf`;
       const InvoceFilePath = Path.join(folderPath, InvoiceFileName);
       const COCFilePath = Path.join(folderPath,COCFileName);
 
