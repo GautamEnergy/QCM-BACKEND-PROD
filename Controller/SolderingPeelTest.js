@@ -5,7 +5,7 @@ const fs = require('fs');
 const Path = require('path')
 const { dbConn } = require('../db.config/db.config');
 require('dotenv').config()
-const PORT = process.env.PORT || 9090
+const PORT = process.env.PORT || 8080
 
 /** Making Sync To Query */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
@@ -38,7 +38,6 @@ var data = {
 
 const AddSolderingPeelTest = async (req, res) => {
     const { JobCardDetailId, Type, Date, Remarks, DocNo, RevNo, RibbonMake, RibbonSize, CellMake, CellSize, Line, Shift, Samples, MachineNo, OperatorName, CreatedBy, Status, BusBarWidth, BussingStage } = req.body;
-    console.log(req.body['Samples']);
     const UUID = v4()
     if (!JobCardDetailId) {
         try {
@@ -90,7 +89,7 @@ const AddSolderingPeelTest = async (req, res) => {
          SET
              TrackData = '${JSON.stringify(Samples[key])}'
          WHERE
-             TestDetailId = '${UUID}' AND Track = '${SampleName}';
+             TestDetailId = '${JobCardDetailId}' AND Track = '${SampleName}';
          `
                 await queryAsync(SolderingPeelTestQuery);
             }
