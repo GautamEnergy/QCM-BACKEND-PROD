@@ -2,6 +2,8 @@ const AWS = require('aws-sdk');
 const {transport} = require('../Utilis/Person.utilis')
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 const ExcelJS = require('exceljs');
+const Path = require('path');
+const fs = require('fs')
 require('dotenv').config();
 
 /** to Get current Date & Time */
@@ -34,13 +36,112 @@ AWS.config.credentials = new AWS.Credentials({
 const s3 = new AWS.S3();
 
 
-async function ExcelGenerate(IQC,ApproveData){
-  
-  let exceldata = [{"column":"Lot Size","value":IQC[0]['LotSize']},
-  {"column":"Material Name","value":IQC[0]['MaterialName']},
-  {"column":"Supplier Name:","value":IQC[0]['SupplierName']},
-  {"column":"Invoice Date:","value":IQC[0]['InvoiceDate']},
-  {"column":"Raw Material Specs","value":IQC[0]['RawMaterialSpecs']}
+async function ExcelGenerate(IQC, ApproveData) {
+
+  // function GetCheckType(CheckType) {
+  //   let MaterialName = IQC[0]['MaterialName'];
+
+  //   if (MaterialName == 'Solar Glass') {
+  //     CheckType = CheckType == 'FrontBus' ? 'Mechanical' : 'FrontBus';
+  //     CheckType = CheckType == 'Electrical' ? 'Visual' : 'Electrical';
+
+  //   } else if (MaterialName = 'Backsheet') {
+  //     CheckType = CheckType == 'Packaging' ? 'Visual' : 'Packaging';
+  //     CheckType = CheckType == 'Visual' ? 'Physical' : 'Visual';
+  //     CheckType = CheckType == 'Physical' ? 'Performance' : 'Physical';
+  //     CheckType = CheckType == 'FrontBus' ? 'Verification' : 'FrontBus';
+
+  //   } else if (MaterialName == 'EVA(Encapsulant)') {
+  //     CheckType = CheckType == 'Packaging' ? 'Visual' : 'Packaging';
+  //     CheckType = CheckType == 'Visual' ? 'Physical' : 'Visual';
+  //     CheckType = CheckType == 'Physical' ? 'Performance' : 'Physical';
+  //     CheckType = CheckType == 'FrontBus' ? 'Performance' : 'FrontBus';
+      
+  //   }else if(MaterialName == 'Anodize Aluminium Frame'){
+  //     CheckType = CheckType == 'Packaging' ? 'Visual' : 'Packaging';
+  //     CheckType = CheckType == 'Physical' ? 'Measurement' : 'Physical';
+  //     CheckType = CheckType == 'FrontBus' ? 'Measurement' : 'FrontBus';
+  //     CheckType = CheckType == 'Verification' ? 'Measurement' : 'Verification';
+  //     CheckType = CheckType == 'Electrical' ? 'Verification' : 'Electrical';
+
+  //   }else if(MaterialName == 'Junction Box'){
+  //     CheckType = CheckType == 'Packaging' ? 'Visual' : 'Packaging';
+  //     CheckType = CheckType == 'FrontBus' ? 'Electrical' : 'FrontBus';
+  //     CheckType = CheckType == 'Performance' ? 'Verification' : 'Performance';
+
+  //   }else if(MaterialName == 'PV Ribbon'){
+  //     CheckType = CheckType == 'Packaging' ? 'Visual' : 'Packaging';
+  //     CheckType = CheckType == 'Visual' ? 'Physical' : 'Visual';
+  //     CheckType = CheckType == 'Physical' ? 'Verification' : 'Physical';
+  //     CheckType = CheckType == 'FrontBus' ? 'Performance' : 'FrontBus';
+  //     CheckType = CheckType == 'Electrical' ? 'Verification' : 'Electrical';
+  //     CheckType = CheckType == 'Performance' ? 'Verification' : 'Performance';
+
+  //   }else if(MaterialName == ''){
+
+  //   }
+  // }
+
+   let MaterialName = IQC[0]['MaterialName']
+/** re-assignening check types of Material (array) */
+  let SolarGlassCheckTypes = ['Packaging','Visual','Physical','Mechanical','Verification','Visual'];
+  let BacksheetCheckTypes = ['Visual','Physical','Performance','Verification','Verification'];
+  let EVCheckTypes = ['Visual','Physical','Performance','Performance','Verification'];
+  let AluminiumCheckTypes = ['Visual','Visual','Measurement','Measurement','Measurement','Verification'];
+  let PVRibbonCheckTypes = ['Visual','Physical','Verification','Performance','Verification','Verification','Verification','Verification'];
+  let SealentCheckTypes = ['Visual','Performance','Performance','Performance','Visual','Verification','Verification','Verification'];
+  let FluxCheckTypes = ['Visual/Verification','Visual','Verification','Verification','Verification'];
+  let JunctionBox = ['Visual','Physical','Electrical','Measurement','Verification','Verification']
+
+ if(MaterialName == 'Solar Glass'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = SolarGlassCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'Backsheet'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = BacksheetCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'Flux'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = FluxCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'EVA(Encapsulant)'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = EVCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'PV Ribbon'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = PVRibbonCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'Aluminium Frame'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = AluminiumCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'Sealant/Poating'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = SealentCheckTypes[i];
+   })
+
+ }else if(MaterialName == 'Junction Box'){
+  IQC.forEach((Material,i)=>{
+    Material['CheckType'] = JunctionBox[i];
+   })
+
+ }
+
+ 
+
+  let exceldata = [{ "column": "Lot Size", "value": IQC[0]['LotSize'] },
+  { "column": "Material Name", "value": IQC[0]['MaterialName'] },
+  { "column": "Supplier Name:", "value": IQC[0]['SupplierName'] },
+  { "column": "Invoice Date:", "value": IQC[0]['InvoiceDate'] },
+  { "column": "Raw Material Specs", "value": IQC[0]['RawMaterialSpecs'] }
   ]
   
   let rightexceldata = [{"column":"No. of Samples to be checked","value":''},
@@ -122,19 +223,21 @@ async function ExcelGenerate(IQC,ApproveData){
   worksheet.getCell('L3').value = IQC[0]['DocumentNo'];
   
   // Apply header styling
-  worksheet.getCell('A1').style = {alignment:{horizontal:'center',vertical:'middle'},font:{size:16,bold:true}, fill: {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFF6DC' } // Yellow background color
-  }}
-  
-  worksheet.getCell('A3').style = {alignment:{horizontal:'center',vertical:'middle'},font:{size:15,bold:true}};
-  worksheet.getCell('H3').style ={alignment:{horizontal:'center',vertical:'middle'},font:{size:12,bold:true}};
-  worksheet.getCell('L3').style = {alignment:{horizontal:'center',vertical:'middle'},font:{size:12,bold:true}};
-  worksheet.getCell('H5').style =  {alignment:{horizontal:'center',vertical:'middle'},font:{size:12,bold:true}};
-  worksheet.getCell('L5').style = {alignment:{horizontal:'center',vertical:'middle'},font:{size:12,bold:true}};
-  worksheet.getCell('L3').style = {alignment:{horizontal:'center',vertical:'middle'},font:{size:12,bold:true}};
-  
+  worksheet.getCell('A1').style = {
+    alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 16, bold: true }, fill: {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFF6DC' } // Yellow background color
+    }
+  }
+
+  worksheet.getCell('A3').style = { alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 15, bold: true } };
+  worksheet.getCell('H3').style = { alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 12, bold: true } };
+  worksheet.getCell('L3').style = { alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 12, bold: true } };
+  worksheet.getCell('H5').style = { alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 12, bold: true } };
+  worksheet.getCell('L5').style = { alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 12, bold: true } };
+  worksheet.getCell('L3').style = { alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 12, bold: true } };
+
   // Apply borders
   worksheet.getCell('A1').border = Border;
   worksheet.getCell('N2').border = Border;
@@ -219,8 +322,8 @@ async function ExcelGenerate(IQC,ApproveData){
   let Row  = 14;
   IQC.forEach((Material)=>{
     /**Check Type */
-    worksheet.getRow(Row).height = 38
-  
+    worksheet.getRow(Row).height = 48;
+
     worksheet.getCell(`A${Row}`).value = Material['CheckType'];
     worksheet.getCell(`A${Row}`).style = {alignment:{horizontal:'center',vertical:'middle',wrapText:true},font:{size:10,}};
     worksheet.getCell(`A${Row}`).border = Border;
@@ -247,14 +350,14 @@ async function ExcelGenerate(IQC,ApproveData){
     worksheet.getCell(`F${Row}`).border = Border;
   
     var startCharCode = 'G'.charCodeAt(0);
-  var endCharCode = 'N'.charCodeAt(0);
-  let index = 0;
-  for (var i = startCharCode; i <= endCharCode; i++) {
-  console.log(Material['Samples'][index]);
- // console.log(JSON.parse(Material['Samples']));
-    worksheet.getCell(`${String.fromCharCode(i)}${Row}`).value = Material['Samples'][index]?Material['Samples'][index]['SampleTest']?'✔':'❌':'';
-    worksheet.getCell(`${String.fromCharCode(i)}${Row}`).style = {alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },font: { size: 12, }}
-    worksheet.getCell(`${String.fromCharCode(i)}${Row}`).border = Border;
+    var endCharCode = 'N'.charCodeAt(0);
+    let index = 0;
+    for (var i = startCharCode; i <= endCharCode; i++) {
+      console.log(Material['Samples'][index]);
+      // console.log(JSON.parse(Material['Samples']));
+      worksheet.getCell(`${String.fromCharCode(i)}${Row}`).value = Material['Samples'][index] ? Material['Samples'][index]['SampleTest'] ? 'Pass' : 'Fail' : '';
+      worksheet.getCell(`${String.fromCharCode(i)}${Row}`).style = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, font: { size: 12, } }
+      worksheet.getCell(`${String.fromCharCode(i)}${Row}`).border = Border;
       index++;
   }
   
@@ -317,11 +420,13 @@ async function ExcelGenerate(IQC,ApproveData){
   
   worksheet.mergeCells(`B${Row}:N${Row}`)
   worksheet.getCell(`B${Row}`).value = 'Sample Remarks';
-  worksheet.getCell(`B${Row}`).style = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, font: { size: 13,bold:true }, fill: {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFF6DC' } // Yellow background color
-  } };
+  worksheet.getCell(`B${Row}`).style = {
+    alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, font: { size: 13, bold: true }, fill: {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFF6DC' } // Yellow background color
+    }
+  };
   worksheet.getCell(`B${Row}`).border = Border;
   worksheet.getCell(`N${Row}`).border = Border;
   
