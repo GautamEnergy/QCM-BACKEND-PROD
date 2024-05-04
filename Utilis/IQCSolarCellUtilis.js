@@ -501,8 +501,33 @@ async function ExcelGenerate(IQC, ApproveData) {
             <p style="font-size: 16px;"><strong>Gautam Solar QCM Team</strong></p>
         </div>
     </div>`
-      })
-  
-    }
+  })
 
-  module.exports = {getCurrentDateTime,s3,ExcelGenerate}
+  try{
+
+      /** Define the folder path */
+      const folderPath = Path.join('ExcelFile');
+      
+    
+      /** Create the folder if it doesn't exist */
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+        /** Define the file path, including the desired file name and format */
+        const Excel = `${IQC[0]['SolarDetailID']}.xlsx`;
+        
+        const ExcelFilePath = Path.join(folderPath, Excel);
+     
+
+      /** Save the file buffer to the specified file path */
+      fs.writeFileSync(ExcelFilePath, excelBuffer);
+     
+  }catch(err){
+    
+   throw err;
+  }
+  return `${IQC[0]['SolarDetailID']}.xlsx`;
+}
+
+module.exports = { getCurrentDateTime, s3, ExcelGenerate }
