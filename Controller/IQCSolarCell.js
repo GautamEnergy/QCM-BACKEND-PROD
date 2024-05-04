@@ -107,7 +107,7 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 /**to Add Solar Cell In IQC */
 const AddIQCSolarCell = async (req, res) => {
   const data = req.body;
-  const {SolarDetailId,Status,MaterialName} = data;
+  const { SolarDetailId, Status, MaterialName } = data;
   const UUID = v4();
   const SolarCellDetail = data['SolarCellDetails']
   const SolarCel = data['SolarCell']
@@ -115,62 +115,62 @@ const AddIQCSolarCell = async (req, res) => {
 
 
 
-  if(!SolarDetailId){
+  if (!SolarDetailId) {
 
-  try {
+    try {
 
-    /*************** Inserting Data in IQCSolarDetails Table **************/
-    const SolarDetailQuery = `INSERT INTO IQCSolarDetails(SolarDetailID,LotSize,MaterialName,SupplierName,QuantityRecd,InvoiceDate,SupplierRMBatchNo,RawMaterialSpecs,QualityCheckDate,SampleQuantityCheck,InvoiceNo,ReceiptDate,DocumentNo,RevisionNo,CheckedBy,UpdatedBy,Status,CreatedDate,UpdatedDate) 
+      /*************** Inserting Data in IQCSolarDetails Table **************/
+      const SolarDetailQuery = `INSERT INTO IQCSolarDetails(SolarDetailID,LotSize,MaterialName,SupplierName,QuantityRecd,InvoiceDate,SupplierRMBatchNo,RawMaterialSpecs,QualityCheckDate,SampleQuantityCheck,InvoiceNo,ReceiptDate,DocumentNo,RevisionNo,CheckedBy,UpdatedBy,Status,CreatedDate,UpdatedDate) 
     VALUES ('${UUID}','${SolarCellDetail['LotNo']}','${MaterialName}','${SolarCellDetail['SupplierName']}','','${SolarCellDetail['InvoiceDate']}','${SolarCellDetail['SupplierRMBatchNo']}','${SolarCellDetail['RawMaterialSpecs']}','${SolarCellDetail['DateOfQualityCheck']}','','${SolarCellDetail['InvoiceNo']}','${SolarCellDetail['RecieptDate']}','${SolarCellDetail['DocumentNo']}','${SolarCellDetail['RevNo']}','${data['CurrentUser']}','','${Status}','${getCurrentDateTime()}','');`
 
-    const result = await new Promise((resolve, reject) => {
-      dbConn.query(SolarDetailQuery, (err, result) => {
-        if (err) {
-          return reject(err);
-        } else {
-          return resolve(result);
-        }
+      const result = await new Promise((resolve, reject) => {
+        dbConn.query(SolarDetailQuery, (err, result) => {
+          if (err) {
+            return reject(err);
+          } else {
+            return resolve(result);
+          }
+        });
       });
-    });
 
 
 
-    /************ Inserting Data in IQC Solar Table ******************/
-    for (let key in SolarCel) {
-      const Samples = SolarCel[key]['Samples'];
-      for (let i = 0; i < Samples.length; i++) {
-        Samples[i] = JSON.stringify(Samples[i]);
-      }
+      /************ Inserting Data in IQC Solar Table ******************/
+      for (let key in SolarCel) {
+        const Samples = SolarCel[key]['Samples'];
+        for (let i = 0; i < Samples.length; i++) {
+          Samples[i] = JSON.stringify(Samples[i]);
+        }
 
-      const SolarCellQuery = `INSERT INTO IQCSolar(IQCSolarID,SolarDetailID,CheckType,Characterstics,MeasuringMethod,Sampling,Reference,AcceptanceCriteria,SampleSize,Samples,CreatedDate,UpdatedDate)
+        const SolarCellQuery = `INSERT INTO IQCSolar(IQCSolarID,SolarDetailID,CheckType,Characterstics,MeasuringMethod,Sampling,Reference,AcceptanceCriteria,SampleSize,Samples,CreatedDate,UpdatedDate)
      VALUES ('${uuidv4()}','${UUID}','${key}','${SolarCel[key]['Characterstics']}','${SolarCel[key]['MeasuringMethod']}','${SolarCel[key]['Sampling']}','${SolarCel[key]['Reference']}','${SolarCel[key]['AcceptanceCriteria']}','${SolarCel[key]['SampleSize']}','[${Samples}]','${getCurrentDateTime()}','');`;
 
-      const Solar = await queryAsync(SolarCellQuery);
-      temp = Solar;
-    }
+        const Solar = await queryAsync(SolarCellQuery);
+        temp = Solar;
+      }
 
 
-    /************** Inserting Data in Rejected Table *******************/
-    let checkTypes = []
-    for (let i = 0; i < Rejected['CheckTypes'].length; i++) {
-      checkTypes.push(JSON.stringify(Rejected['CheckTypes'][i]))
-    }
+      /************** Inserting Data in Rejected Table *******************/
+      let checkTypes = []
+      for (let i = 0; i < Rejected['CheckTypes'].length; i++) {
+        checkTypes.push(JSON.stringify(Rejected['CheckTypes'][i]))
+      }
 
-    const RejectedQuery = `INSERT INTO Rejected(RejectedID,SolarDetailID,CheckTypes,Reason,Result,CreatedDate,UpdatedDate)
+      const RejectedQuery = `INSERT INTO Rejected(RejectedID,SolarDetailID,CheckTypes,Reason,Result,CreatedDate,UpdatedDate)
  VALUES ('${v4()}','${UUID}','[${checkTypes}]','${Rejected['Reason']}','${Rejected['Result']}','${getCurrentDateTime()}','');`
-    const Reject = await queryAsync(RejectedQuery);
+      const Reject = await queryAsync(RejectedQuery);
 
-    res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': UUID })
-  } catch (err) {
+      res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': UUID })
+    } catch (err) {
 
-    console.log(err)
-    res.status(401).send(err)
-  }
-}else{
-  console.log(SolarCel['Packaging'])
-try{
-    /*************** Update Data in IQCSolarDetails Table **************/
-    let SolarDetailQuery = `UPDATE IQCSolarDetails id
+      console.log(err)
+      res.status(401).send(err)
+    }
+  } else {
+    console.log(SolarCel['Packaging'])
+    try {
+      /*************** Update Data in IQCSolarDetails Table **************/
+      let SolarDetailQuery = `UPDATE IQCSolarDetails id
     set id.LotSize = '${SolarCellDetail['LotNo']}',
         id.MaterialName = '${MaterialName}',
         id.SupplierName ='${SolarCellDetail['SupplierName']}',
@@ -191,27 +191,27 @@ try{
         id.UpdatedDate = ''
     WHERE id.SolarDetailID = '${SolarDetailId}';`
 
-    const result = await new Promise((resolve, reject) => {
-      dbConn.query(SolarDetailQuery, (err, result) => {
-        if (err) {
-          return reject(err);
-        } else {
-          return resolve(result);
-        }
+      const result = await new Promise((resolve, reject) => {
+        dbConn.query(SolarDetailQuery, (err, result) => {
+          if (err) {
+            return reject(err);
+          } else {
+            return resolve(result);
+          }
+        });
       });
-    });
 
 
-     /************ Inserting Data in IQC Solar Table ******************/
-     for (let key in SolarCel) {
-     // console.log(key)
-      const Samples = SolarCel[key]['Samples'];
-     console.log(Samples)
-      for (let i = 0; i < Samples.length; i++) {
-        Samples[i] = JSON.stringify(Samples[i]);
-      }
+      /************ Inserting Data in IQC Solar Table ******************/
+      for (let key in SolarCel) {
+        // console.log(key)
+        const Samples = SolarCel[key]['Samples'];
+        console.log(Samples)
+        for (let i = 0; i < Samples.length; i++) {
+          Samples[i] = JSON.stringify(Samples[i]);
+        }
 
-     const SolarCellQuery = `UPDATE IQCSolar i
+        const SolarCellQuery = `UPDATE IQCSolar i
      set i.Characterstics = '${SolarCel[key]['Characterstics']}',
          i.MeasuringMethod ='${SolarCel[key]['MeasuringMethod']}',
          i.Sampling = '${SolarCel[key]['Sampling']}',
@@ -222,34 +222,34 @@ try{
          i.CreatedDate = '${getCurrentDateTime()}',
          i.UpdatedDate = ''
      WHERE i.SolarDetailID = '${SolarDetailId}' AND i.CheckType = '${key}';`;
-      const Solar = await queryAsync(SolarCellQuery);
-      temp = Solar;
-    }
+        const Solar = await queryAsync(SolarCellQuery);
+        temp = Solar;
+      }
 
 
-     /************** Inserting Data in Rejected Table *******************/
-     let checkTypes = []
-     for (let i = 0; i < Rejected['CheckTypes'].length; i++) {
-       checkTypes.push(JSON.stringify(Rejected['CheckTypes'][i]))
-     }
+      /************** Inserting Data in Rejected Table *******************/
+      let checkTypes = []
+      for (let i = 0; i < Rejected['CheckTypes'].length; i++) {
+        checkTypes.push(JSON.stringify(Rejected['CheckTypes'][i]))
+      }
 
-   let RejectedQuery = `UPDATE Rejected r
+      let RejectedQuery = `UPDATE Rejected r
    set r.CheckTypes = '[${checkTypes}]',
        r.Reason = '${Rejected['Reason']}',
        r.Result = '${Rejected['Result']}',
        r.CreatedDate = '${getCurrentDateTime()}',
        r.UpdatedDate = ''
    WHERE r.SolarDetailID = '${SolarDetailId}';`
-   
-     const Reject = await queryAsync(RejectedQuery);
-     res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': SolarDetailId,'Status':Status });
 
-}catch(err){
+      const Reject = await queryAsync(RejectedQuery);
+      res.send({ msg: 'Data Inserted SuccesFully !', 'SolarDetailID': SolarDetailId, 'Status': Status });
 
-    console.log(err)
-    res.status(401).send(err)
-}
-}
+    } catch (err) {
+
+      console.log(err)
+      res.status(401).send(err)
+    }
+  }
 
 }
 
@@ -257,7 +257,7 @@ try{
 
 const GetIQCSolarCellTests = async (req, res) => {
   const { PersonID, Designation, Department, Status } = req.body
- 
+
   let query;
 
   /** Query */
@@ -492,6 +492,7 @@ const UploadPdf = async (req, res) => {
   }else{
     res.status(401).send({status:false,'err':'file is empty'});
   }
+  
 }
 
 const GetPdf = async(req,res)=>{
@@ -516,6 +517,19 @@ const GetExcel = async(req,res)=>{
    /** Define the absolute path to the IPQC-Pdf-Folder directory */
    const pdfFolderPath = Path.resolve('ExcelFile');
 
+   /** Construct the full file path to the requested file */
+   const filePath = Path.join(pdfFolderPath, filename);
+
+   /** Send the file to the client */
+   res.sendFile(filePath, (err) => {
+       if (err) {
+           console.error('Error sending file:', err);
+           res.status(404).send({ error: 'File not found' });
+       }
+   });
+}
+
 /** Export Controllers */
 module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf, GetExcel };
+
 
