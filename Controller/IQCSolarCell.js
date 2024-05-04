@@ -263,13 +263,13 @@ const GetIQCSolarCellTests = async (req, res) => {
   /** Query */
   try {
     if (Designation == 'Admin' || Designation == 'Super Admin') {
-      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
+      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.ExcelURL,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
   JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
   JOIN IQCSolarDetails id ON p.PersonID = id.CheckedBy
   WHERE id.Status = '${Status}'
   ORDER BY STR_TO_DATE(id.CreatedDate, '%d-%m-%Y %H:%i:%s') DESC;`
     } else {
-      query = `SELECT p.PersonID,id.CheckedBy, p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
+      query = `SELECT p.PersonID,id.CheckedBy, p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.ExcelURL,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
   JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
   JOIN IQCSolarDetails id ON p.PersonID = id.CheckedBy
    WHERE p.PersonID = '${PersonID}' AND id.Status = '${Status}' 
@@ -419,8 +419,18 @@ const UpdateStatus = async (req, res) => {
       data['Samples'] = JSON.parse(data['Samples']);
     })
 
-    console.log(ExcelData)
-    ExcelGenerate(ExcelData, ApproveData);
+    console.log(ExcelData.length)
+    try{
+   let ExcelFileName = await ExcelGenerate(ExcelData, ApproveData);
+   console.log(ExcelFileName);
+   let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+   let ExcelQuery = `UPDATE IQCSolarDetails id
+   set id.ExcelURL = '${URL}'
+   WHERE SolarDetailID = '${SolarDetailID}';`
+   await queryAsync(ExcelQuery);
+    }catch(err){
+
+    }
     res.send({ ExcelData, ApproveData })
   } catch (err) {
     console.log(err)
@@ -501,6 +511,11 @@ const GetPdf = async(req,res)=>{
    });
 }
 
+const GetExcel = async(req,res)=>{
+  const filename = req.params.filename;
+   /** Define the absolute path to the IPQC-Pdf-Folder directory */
+   const pdfFolderPath = Path.resolve('ExcelFile');
 
 /** Export Controllers */
-module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf };
+module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf, GetExcel };
+
