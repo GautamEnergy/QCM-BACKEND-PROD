@@ -479,18 +479,18 @@ async function ExcelGenerate(IQC, ApproveData) {
       console.error('Error generating Excel file:', error);
   });
 
-  
-      await transport.sendMail({
-        from: 'bhanu.galo@gmail.com',
-        cc: 'bhanu.galo@gmail.com',
-        to: 'nidhi@gautamsolar.com',
-        subject: `IQC Report: Invoice No. ${IQC[0]['InvoiceNo']} - ${IQC[0]['MaterialName']}`,
-        attachments:[{
-          filename:`quality_control_plan_${IQC[0]['MaterialName']}_${IQC[0]['InvoiceNo']}.xlsx`,
-          content:excelBuffer,
-          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        }],
-        html: `<div style="position: relative; padding: 5px;">
+
+  await transport.sendMail({
+    from: 'iqc.gautamsolar@gmail.com',
+    cc: 'bhanu.galo@gmail.com',
+    to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com',
+    subject: `IQC Report: Invoice No. ${IQC[0]['InvoiceNo']} - ${IQC[0]['MaterialName']}`,
+    attachments: [{
+      filename: `quality_control_plan_${IQC[0]['MaterialName']}_${IQC[0]['InvoiceNo']}.xlsx`,
+      content: excelBuffer,
+      contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }],
+    html: `<div style="position: relative; padding: 5px;">
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://galo.co.in/wp-content/uploads/2024/01/Galo-Energy-Logo-06.png'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.3; z-index: -1;"></div>
         <div style="background-color: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 10px;">
             <p style="font-size: 16px;">Dear Super Admin,</p>
