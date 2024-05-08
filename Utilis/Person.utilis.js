@@ -41,8 +41,8 @@ const s3 = new AWS.S3();
 var transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'bhanu.galo@gmail.com',
-      pass: 'twod iufn mddq shsr'
+      user: 'iqc.gautamsolar@gmail.com',
+      pass: 'cecm qjkm xwhe rsjr'
     }
   });
 
