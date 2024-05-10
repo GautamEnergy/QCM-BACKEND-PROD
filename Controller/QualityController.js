@@ -248,16 +248,32 @@ const GetQualityExcel = async(req,res)=>{
   const { FromDate, ToDate, CurrentUser} = req.body;
   const UUID = v4()
   try{
-   let query = `SELECT Q.QualityId, Q.Shift, Q.ShiftInChargeName, Q.ShiftInChargePreLime, Q.ShiftInChargePostLim, Q.ProductBarCode, Q.CreatedOn, P.Name AS CreatedBy, Q.Wattage, Q.Stage, Q.ResposiblePerson, Q.ReasonOfIssue, Q.IssueComeFrom, Q.ActionTaken, Q.OtherIssueType, Q.ModulePicture, Q.OtherModelNumber, I.Issue, M.ModelName
+   let query = `SELECT Q.CreatedOn, Q.QualityId, Q.Shift, Q.ShiftInChargeName, Q.ShiftInChargePreLime, Q.ShiftInChargePostLim, Q.ProductBarCode, P.Name AS CreatedBy, Q.Wattage, Q.Stage, Q.ResposiblePerson, Q.ReasonOfIssue, Q.IssueComeFrom, Q.ActionTaken, Q.OtherIssueType, Q.ModulePicture, Q.OtherModelNumber, I.Issue, M.ModelName
    FROM Quality Q
    JOIN IssuesType I ON I.IssueId = Q.IssueType
    JOIN Person P ON P.PersonID = Q.CreatedBy
    JOIN ModelTypes M ON M.ModelId = Q.ModelNumber
-   WHERE STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') BETWEEN STR_TO_DATE('${FromDate}', '%d-%m-%Y') AND STR_TO_DATE('${ToDate}', '%d-%m-%Y')
+   WHERE STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') >= STR_TO_DATE('${FromDate}', '%d-%m-%Y')
+   AND STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') < STR_TO_DATE('${ToDate}', '%d-%m-%Y') + INTERVAL 1 DAY
    ORDER BY STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
    const Quality = await queryAsync(query);
-   
+
+   Quality.forEach((el)=>{
+    if(el['Issue'] == 'Other'){
+      el['Issue'] = el['OtherIssueType']
+    
+    }
+
+    if(el['ModelName'] == 'Other'){
+      el['ModelName'] = el['OtherModelNumber']
+      
+    }
+    delete el['OtherIssueType'];
+    delete el['OtherModelNumber'];
+    el['CreatedOn'] = el['CreatedOn'].split(' ')[0];
+   })
+
    let QualityExcelBytes = await QualityExcelGenerate(Quality,FromDate,ToDate);
 
    // Define the folder path
