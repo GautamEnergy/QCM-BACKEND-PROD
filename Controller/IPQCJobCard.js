@@ -251,6 +251,11 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
     const BomList = await queryAsync(BomQuery);
     const PreLamList = await queryAsync(PreLamQuery);
     const SolderingPeelTestList = await queryAsync(SolderingPeelTestQuery)
+
+    JobCardList.forEach((Card)=>{
+      
+      Card['Date'] = Card['CreatedOn'].split(' ')[0];
+    })
     /** Function to parse the date string into a Date object for comparison **/
     const parseDate = dateString => {
       const [date, time] = dateString.split(' ');
@@ -270,6 +275,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
             delete BOM[key]
           }
         }
+        BOM['Date'] = BOM['CreatedOn'].split(' ')[0];
         JobCardList.push(BOM)
       })
 
@@ -325,7 +331,8 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           }
         }
         delete BOM['Line'];
-        delete BOM['PONo']
+        delete BOM['PONo'];
+        BOM['Date'] = BOM['CreatedOn'].split(' ')[0];
         JobCardList.push(BOM);
       })
 
@@ -343,6 +350,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
             delete Test[key]
           }
         }
+        Test['Date'] = Test['CreatedOn'].split(' ')[0];
         JobCardList.push(Test);
       })
 
@@ -366,6 +374,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
             delete BOM[key]
           }
         }
+        BOM['Date'] = BOM['CreatedOn'].split(' ')[0];
         JobCardList.push(BOM)
       })
 
@@ -420,7 +429,8 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           }
         }
         delete BOM['Line'];
-        delete BOM['PONo']
+        delete BOM['PONo'];
+        BOM['Date'] = BOM['CreatedOn'].split(' ')[0];
         JobCardList.push(BOM);
       });
 
@@ -438,6 +448,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
             delete Test[key]
           }
         }
+        Test['Date'] = Test['CreatedOn'].split(' ')[0];
         JobCardList.push(Test);
       })
 
@@ -461,7 +472,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
             delete BOM[key]
           }
         }
-
+        BOM['Date'] = BOM['CreatedOn'].split(' ')[0];
         JobCardList.push(BOM)
       })
 
@@ -519,7 +530,8 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
           }
         }
         delete BOM['Line'];
-        delete BOM['PONo']
+        delete BOM['PONo'];
+        BOM['Date'] = BOM['CreatedOn'].split(' ')[0];
         JobCardList.push(BOM);
       })
 
