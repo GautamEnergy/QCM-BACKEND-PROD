@@ -22,7 +22,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
     let WrapTextAlignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
   
     /**Merge Cells */
-    worksheet.mergeCells('A1:M2');
+    worksheet.mergeCells('A1:N2');
   
   
     /**Put Value in Cell */
@@ -39,16 +39,16 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
   
     /**Apply Borders */
     worksheet.getCell('A1').border = Border;
-    worksheet.getCell('M2').border = Border;
+    worksheet.getCell('N2').border = Border;
   
     /** Set The Column Names in Excel */
     var startCharCode = 'A'.charCodeAt(0);
-    var endCharCode = 'M'.charCodeAt(0);
+    var endCharCode = 'N'.charCodeAt(0);
     let row = 3;
     worksheet.getRow(row).height = 40;
   
     let index = 0;
-    let ColumnNames = ['Shift', 'In Charge Name', 'PreLam Incharge Name', 'Post Incharege Name', 'Product Barcode', 'Wattage', 'Model Number', 'Issue type',  'Stage', 'Found By', 'Reason Of Issue', 'Issue Come From', 'Taken Action'];
+    let ColumnNames = ['Date','Shift', 'In Charge Name', 'Shift In Charge Name PreLim', 'Shift In Charge Name PreLim', 'Product Barcode', 'Wattage', 'Model Number', 'Issue type',  'Stage', 'Found By', 'Reason Of Issue', 'Issue Come From', 'Taken Action'];
   
     for (let i = startCharCode; i <= endCharCode; i++) {
       worksheet.getColumn(`${String.fromCharCode(i)}`).width = 20;
@@ -56,7 +56,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
       worksheet.getCell(`${String.fromCharCode(i)}${row}`).style = {
         alignment: { horizontal: 'center', vertical: 'middle', wrapText:true}, font: { size: 10, bold: true }
       }
-      worksheet.getCell(`${String.fromCharCode(i)}${row}`).border = Border
+      worksheet.getCell(`${String.fromCharCode(i)}${row}`).border = Border;
       index++;
     }
   
@@ -127,19 +127,20 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
     worksheet.getRow(row).height = 40
     const style = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, font: { size: 9}, }
     /**Put the value in cell */
-    worksheet.getCell(`A${row}`).value = data['Shift'];
-    worksheet.getCell(`B${row}`).value = data['ShiftInChargeName'];
-    worksheet.getCell(`C${row}`).value = data['ShiftInChargePreLime'];
-    worksheet.getCell(`D${row}`).value = data['ShiftInChargePostLim'];
-    worksheet.getCell(`E${row}`).value = data['ProductBarCode'];
-    worksheet.getCell(`F${row}`).value = data['Wattage'];
-    worksheet.getCell(`G${row}`).value = data['ModelName'];
-    worksheet.getCell(`H${row}`).value = data['Issue'];
-    worksheet.getCell(`I${row}`).value = data['Stage'];
-    worksheet.getCell(`J${row}`).value = data['CreatedBy']; 
-    worksheet.getCell(`K${row}`).value = data['ReasonOfIssue'];
-    worksheet.getCell(`L${row}`).value = data['IssueComeFrom'];
-    worksheet.getCell(`M${row}`).value = data['ActionTaken'];
+    worksheet.getCell(`A${row}`).value = data['CreatedOn'];
+    worksheet.getCell(`B${row}`).value = data['Shift'];
+    worksheet.getCell(`C${row}`).value = data['ShiftInChargeName'];
+    worksheet.getCell(`D${row}`).value = data['ShiftInChargePreLime'];
+    worksheet.getCell(`E${row}`).value = data['ShiftInChargePostLim'];
+    worksheet.getCell(`F${row}`).value = data['ProductBarCode'];
+    worksheet.getCell(`G${row}`).value = data['Wattage'];
+    worksheet.getCell(`H${row}`).value = data['ModelName'];
+    worksheet.getCell(`I${row}`).value = data['Issue'];
+    worksheet.getCell(`J${row}`).value = data['Stage']; 
+    worksheet.getCell(`K${row}`).value = data['CreatedBy'];
+    worksheet.getCell(`L${row}`).value = data['ReasonOfIssue'];
+    worksheet.getCell(`M${row}`).value = data['IssueComeFrom'];
+    worksheet.getCell(`N${row}`).value = data['ActionTaken'];
   
     /**Styling */
     worksheet.getCell(`A${row}`).style = style;
@@ -155,7 +156,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
     worksheet.getCell(`K${row}`).style = style;
     worksheet.getCell(`L${row}`).style = style;
     worksheet.getCell(`M${row}`).style = style;
-  
+    worksheet.getCell(`N${row}`).style = style;
     /**Border */
     worksheet.getCell(`A${row}`).border = Border;
     worksheet.getCell(`B${row}`).border = Border;
@@ -170,7 +171,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
     worksheet.getCell(`K${row}`).border = Border;
     worksheet.getCell(`L${row}`).border = Border;
     worksheet.getCell(`M${row}`).border = Border;
-  
+    worksheet.getCell(`N${row}`).border = Border;
     row++;
   })
      //Save the workbook to a file
