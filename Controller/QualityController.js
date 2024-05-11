@@ -253,8 +253,7 @@ const GetQualityExcel = async(req,res)=>{
    JOIN IssuesType I ON I.IssueId = Q.IssueType
    JOIN Person P ON P.PersonID = Q.CreatedBy
    JOIN ModelTypes M ON M.ModelId = Q.ModelNumber
-   WHERE STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') >= STR_TO_DATE('${FromDate}', '%d-%m-%Y')
-   AND STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') < STR_TO_DATE('${ToDate}', '%d-%m-%Y') + INTERVAL 1 DAY
+   WHERE STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') BETWEEN STR_TO_DATE('${FromDate} 00:00:00', '%d-%m-%Y %H:%i:%s') AND STR_TO_DATE('${ToDate} 23:59:59', '%d-%m-%Y %H:%i:%s')
    ORDER BY STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
    const Quality = await queryAsync(query);
