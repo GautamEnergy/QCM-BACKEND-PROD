@@ -48,7 +48,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
     worksheet.getRow(row).height = 40;
   
     let index = 0;
-    let ColumnNames = ['Date','Shift', 'In Charge Name', 'Shift In Charge Name PreLim', 'Shift In Charge Name PreLim', 'Product Barcode', 'Wattage', 'Model Number', 'Issue type',  'Stage', 'Found By', 'Reason Of Issue', 'Issue Come From', 'Taken Action'];
+    let ColumnNames = ['Date','Shift', 'In Charge Name', 'Shift In Charge Name PreLime', 'Shift In Charge Name PostLime', 'Product Barcode', 'Wattage', 'Model Number', 'Issue type',  'Stage', 'Taken Action', 'Reason Of Issue', 'Issue Come From', 'Found By']; 
   
     for (let i = startCharCode; i <= endCharCode; i++) {
       worksheet.getColumn(`${String.fromCharCode(i)}`).width = 20;
@@ -137,10 +137,10 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
     worksheet.getCell(`H${row}`).value = data['ModelName'];
     worksheet.getCell(`I${row}`).value = data['Issue'];
     worksheet.getCell(`J${row}`).value = data['Stage']; 
-    worksheet.getCell(`K${row}`).value = data['CreatedBy'];
+    worksheet.getCell(`K${row}`).value = data['ActionTaken'];//ActionTaken
     worksheet.getCell(`L${row}`).value = data['ReasonOfIssue'];
     worksheet.getCell(`M${row}`).value = data['IssueComeFrom'];
-    worksheet.getCell(`N${row}`).value = data['ActionTaken'];
+    worksheet.getCell(`N${row}`).value = data['CreatedBy'];
   
     /**Styling */
     worksheet.getCell(`A${row}`).style = style;
