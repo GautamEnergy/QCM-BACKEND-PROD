@@ -483,7 +483,7 @@ async function ExcelGenerate(IQC, ApproveData) {
   await transport.sendMail({
     from: 'iqc.gautamsolar@gmail.com',
     cc: 'bhanu.galo@gmail.com',
-    to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com',
+    to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
     subject: `IQC Report: Invoice No. ${IQC[0]['InvoiceNo']} - ${IQC[0]['MaterialName']}`,
     attachments: [{
       filename: `quality_control_plan_${IQC[0]['MaterialName']}_${IQC[0]['InvoiceNo']}.xlsx`,
