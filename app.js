@@ -8,7 +8,7 @@ const path = require('path')
 const { IPQC } = require('./Routes/IPQCRoute')
 const app = express()
 const cors = require('cors')
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 9090
 require('dotenv').config()
 app.use(express.json())
 app.use(cors())
@@ -18,7 +18,7 @@ app.use(cors())
 
 
 
-
+console.log(process.env.PORT);
 
 /**Endpoints */
 
