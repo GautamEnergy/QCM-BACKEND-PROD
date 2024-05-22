@@ -2,7 +2,7 @@ const express = require('express');
 const QualityRoute = express.Router();
 const {IssueTypes:GetIssueTypes,GetModelListing,AddQuality,UploadModuleImage, GetModuleImage, QualityListing,GetQualityExcel} = require('../Controller/QualityController')
 const {upload} = require('../Middleware/IPQC.Middleware')
-
+const {RoleAuthentication} = require('../Middleware/IQCSolarCell.Middleware')
 
 
 /** Router To Get Listing of Isssues */
@@ -21,7 +21,7 @@ QualityRoute.post('/UploadModuleImage',upload.single('ModuleImage'),UploadModule
 QualityRoute.get('/File/:filename',GetModuleImage);
 
 /**Router to Get Listing of Quality  */
-QualityRoute.get('/QualityList',QualityListing);
+QualityRoute.post('/QualityList',RoleAuthentication,QualityListing);
 
 /**Router to Get Quality Excel Report */
 QualityRoute.post('/GetQualityReportExcel',GetQualityExcel);
