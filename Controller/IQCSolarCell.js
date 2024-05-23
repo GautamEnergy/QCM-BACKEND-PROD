@@ -417,6 +417,7 @@ const UpdateStatus = async (req, res) => {
     const ApproveData = await queryAsync(ApproveTableQuery);
     ExcelData.forEach((data) => {
       data['Samples'] = JSON.parse(data['Samples']);
+      data['CheckTypes'] = JSON.parse(data['CheckTypes']);
     })
 
     console.log(ExcelData.length)
@@ -531,5 +532,4 @@ const GetExcel = async(req,res)=>{
 
 /** Export Controllers */
 module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf, GetExcel };
-
 
