@@ -379,7 +379,7 @@ const GetQualityExcel = async (req, res) => {
     el['CreatedOn'] = el['CreatedOn'].split(' ')[0];
    })
 
-   let QualityExcelBytes = await QualityExcelGenerate(Quality,FromDate,ToDate);
+    let QualityExcelBytes = await QualityExcelGenerate(Quality, FromDate, ToDate, Status);
 
    // Define the folder path
    const folderPath = Path.join('Quality-Upload');
