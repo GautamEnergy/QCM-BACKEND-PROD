@@ -6,7 +6,7 @@ require('dotenv').config();
 
 
 
-async function QualityExcelGenerate(Quality, FromDate, ToDate) {
+async function QualityExcelGenerate(Quality, FromDate, ToDate, Status) {
 
     // Create a new workbook
     const workbook = new ExcelJS.Workbook();
@@ -26,7 +26,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate) {
   
   
     /**Put Value in Cell */
-    worksheet.getCell('A1').value = `Quality Report ${FromDate} To ${ToDate}`;
+    worksheet.getCell('A1').value = `${Status} Quality Report ${FromDate} To ${ToDate}`;
   
     /** Apply header styling */
     worksheet.getCell('A1').style = {
