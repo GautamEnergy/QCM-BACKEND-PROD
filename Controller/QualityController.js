@@ -342,20 +342,45 @@ const GetQualityExcel = async (req, res) => {
     WHERE Q.Status = '${Status}' AND STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') BETWEEN STR_TO_DATE('${FromDate} 00:00:00', '%d-%m-%Y %H:%i:%s') AND STR_TO_DATE('${ToDate} 23:59:59', '%d-%m-%Y %H:%i:%s')
     ORDER BY STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
 
-   const Quality = await queryAsync(query);
+  //  let query = `SELECT Q.CreatedOn, Q.QualityId, Q.Shift, Q.ShiftInChargeName, Q.ShiftInChargePreLime, Q.ShiftInChargePostLim, Q.ProductBarCode, P.Name AS CreatedBy, Q.Wattage, Q.Stage, Q.ResposiblePerson, Q.ReasonOfIssue, Q.IssueComeFrom, Q.ActionTaken, Q.OtherIssueType, Q.ModulePicture, Q.OtherModelNumber, I.Issue, M.ModelName
+  //  FROM Quality Q
+  //  JOIN IssuesType I ON I.IssueId = Q.IssueType
+  //  JOIN Person P ON P.PersonID = Q.CreatedBy
+  //  JOIN ModelTypes M ON M.ModelId = Q.ModelNumber
+  //  WHERE Q.Status = '${Status}' AND STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') BETWEEN STR_TO_DATE('${FromDate} 00:00:00', '%d-%m-%Y %H:%i:%s') AND STR_TO_DATE('${ToDate} 23:59:59', '%d-%m-%Y %H:%i:%s')
+  //  ORDER BY STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`
 
+    const Quality = await queryAsync(query);
+   let ModelQuery = `SELECT ModelName, ModelId FROM ModelTypes;`
+   let IssueQuery = `SELECT Issue, IssueId FROM IssuesType;`
+   let ModelNames = await queryAsync(ModelQuery);
+   let IssueNames = await queryAsync(IssueQuery);
+   /** To Find name Function  */
+   const findName = (Type, Id)=>{
+          Type == 'Model'?ModelNames.forEach((data)=>{
+             if(data['ModelId'] == Id){
+              return data['ModelName'];
+
+             }
+          }):IssueNames.forEach((data)=>{
+            if(data['IssueId'] == Id){
+              return data['Issue'];
+
+             }
+          })
+   }
     for (const data of Quality) {
       if (data['ModelNumber']) {
-        let ModelName = await queryAsync(`SELECT ModelName FROM ModelTypes WHERE ModelId = '${data['ModelNumber']}'`);
-        data['ModelName'] = ModelName[0]['ModelName'];
+        data['ModelName'] = findName('Model',data['ModelNumber']);
+
       } else {
         data['ModelName'] = '';
 
       }
 
       if (data['IssueType']) {
-        let IssueName = await queryAsync(`SELECT Issue FROM IssuesType WHERE IssueId = '${data['IssueType']}'`);
-        data['Issue'] = IssueName[0]['Issue'];
+        data['Issue'] = findName('Issue',data['IssueType']);
+
       } else {
         data['Issue'] = '';
 
