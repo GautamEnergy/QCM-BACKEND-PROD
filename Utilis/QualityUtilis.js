@@ -26,7 +26,7 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate, Status) {
   
   
     /**Put Value in Cell */
-    worksheet.getCell('A1').value = `${Status} Quality Report ${FromDate} To ${ToDate}`;
+    worksheet.getCell('A1').value = `Quality Report ${FromDate} To ${ToDate}`;
   
     /** Apply header styling */
     worksheet.getCell('A1').style = {
@@ -35,16 +35,57 @@ async function QualityExcelGenerate(Quality, FromDate, ToDate, Status) {
         pattern: 'solid',
         fgColor: { argb: 'FFF6DC' } // Yellow background color
       }
-    }
+    };
+
+        /**Merge Cells */
+        worksheet.mergeCells('A3:N3');
   
+        /** width of row */
+        worksheet.getRow(3).height = 24
+        /**Put Value in Cell */
+    worksheet.getCell('A3').value = `Quality Type: ${Status}`;
+
+     /** Apply header styling */
+     worksheet.getCell('A3').style = {
+      alignment: { horizontal: 'center', vertical: 'middle' }, font: { size: 12, bold: true }, fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF6DC' } // Yellow background color
+      }
+    };
+
     /**Apply Borders */
-    worksheet.getCell('A1').border = Border;
-    worksheet.getCell('N2').border = Border;
+    worksheet.getCell('A1').border = {
+      top: { style: 'thin' },
+      left:{ style: 'thin' },
+      right: { style: 'thin' }
+    
+    };
+    worksheet.getCell('N2').border = {
+      top: { style: 'thin' },
+      left:{ style: 'thin' },
+      right: { style: 'thin' }
+    
+    };
+     /**Apply Borders */
+     worksheet.getCell('A3').border = {
+      right: { style: 'thin' },
+      left:{ style: 'thin' },
+      bottom: { style: 'thin' },
+     
+     
+    };
+     worksheet.getCell('N3').border = {
+      right:{ style: 'thin' },
+      bottom: { style: 'thin' },
+      left:{ style: 'thin' },
+     
+    };;
   
     /** Set The Column Names in Excel */
     var startCharCode = 'A'.charCodeAt(0);
     var endCharCode = 'N'.charCodeAt(0);
-    let row = 3;
+    let row = 4;
     worksheet.getRow(row).height = 40;
   
     let index = 0;
