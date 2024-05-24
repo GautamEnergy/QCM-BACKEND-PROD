@@ -6,7 +6,7 @@ const Path = require('path');
 const { getCurrentDateTime, s3, ExcelGenerate } = require('../Utilis/IQCSolarCellUtilis');
 const { QualityExcelGenerate } = require('../Utilis/QualityUtilis')
 require('dotenv').config()
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 9090
 
 /** Making Sync To Query to Loop */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
