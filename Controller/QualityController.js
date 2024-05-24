@@ -4,9 +4,9 @@ const util = require('util');
 const fs = require('fs');
 const Path = require('path');
 const { getCurrentDateTime, s3, ExcelGenerate } = require('../Utilis/IQCSolarCellUtilis');
-const {QualityExcelGenerate} = require('../Utilis/QualityUtilis')
+const { QualityExcelGenerate } = require('../Utilis/QualityUtilis')
 require('dotenv').config()
-const PORT = process.env.PORT || 9090
+const PORT = process.env.PORT || 8080
 
 /** Making Sync To Query to Loop */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
@@ -202,28 +202,50 @@ const QualityListing = async (req, res) => {
       `SELECT Q.QualityId,Q.Shift,Q.ShiftInChargeName,Q.ShiftInChargePreLime,Q.ShiftInChargePostLim,Q.ProductBarCode,Q.CreatedOn,P.Name AS CreatedBy,Q.Wattage, Q.Stage, Q.ResposiblePerson,Q.ReasonOfIssue,Q.IssueComeFrom,Q.ActionTaken,Q.OtherIssueType,Q.ModulePicture, Q.OtherModelNumber, Q.IssueType, Q.ModelNumber, Q.Status FROM Quality Q
     JOIN Person P ON P.PersonID = Q.CreatedBy WHERE QualityId = '${QualityId}';`;
 
+    let ModelQuery = `SELECT ModelName, ModelId FROM ModelTypes;`
+    let IssueQuery = `SELECT Issue, IssueId FROM IssuesType;`
+    let ModelNames = await queryAsync(ModelQuery);
+    let IssueNames = await queryAsync(IssueQuery);
+
+    /** To Find name Function  */
+    const findName = (Type, Id) => {
+     if (Type === 'Model') {
+       const model = ModelNames.find(data => data['ModelId'] === Id);
+       if (model) {
+         return model['ModelName'];
+       }
+     } else {
+       const issue = IssueNames.find(data => data['IssueId'] === Id);
+       if (issue) {
+         return issue['Issue'];
+       }
+     }
+     return undefined; // If no match is found, return undefined
+   };
+   
+ 
     let data = await queryAsync(query);
 
     if (!QualityId) {
       for (const Quality of data) {
         if (Quality['ModelNumber']) {
-          let ModelName = await queryAsync(`SELECT ModelName FROM ModelTypes WHERE ModelId = '${Quality['ModelNumber']}'`);
-          Quality['ModelName'] = ModelName[0]['ModelName'];
+         Quality['ModelName'] = findName('Model',Quality['ModelNumber']);
+  
         } else {
-          Quality['ModelName'] = '';
-
+         Quality['ModelName'] = '';
+  
         }
-
+  
         if (Quality['IssueType']) {
-          let IssueName = await queryAsync(`SELECT Issue FROM IssuesType WHERE IssueId = '${Quality['IssueType']}'`);
-          Quality['Issue'] = IssueName[0]['Issue'];
+         Quality['Issue'] = findName('Issue',Quality['IssueType']);
+  
         } else {
-          Quality['Issue'] = '';
-
+         Quality['Issue'] = '';
+  
         }
-        delete Quality['ModelNumber'];
-        delete Quality['IssueType'];
-      }
+        delete data['ModelNumber'];
+        delete data['IssueType'];
+      };
     }
     //console.log(data)
     if (!QualityId) {
@@ -356,19 +378,21 @@ const GetQualityExcel = async (req, res) => {
    let ModelNames = await queryAsync(ModelQuery);
    let IssueNames = await queryAsync(IssueQuery);
    /** To Find name Function  */
-   const findName = (Type, Id)=>{
-          Type == 'Model'?ModelNames.forEach((data)=>{
-             if(data['ModelId'] == Id){
-              return data['ModelName'];
-
-             }
-          }):IssueNames.forEach((data)=>{
-            if(data['IssueId'] == Id){
-              return data['Issue'];
-
-             }
-          })
-   }
+   const findName = (Type, Id) => {
+    if (Type === 'Model') {
+      const model = ModelNames.find(data => data['ModelId'] === Id);
+      if (model) {
+        return model['ModelName'];
+      }
+    } else {
+      const issue = IssueNames.find(data => data['IssueId'] === Id);
+      if (issue) {
+        return issue['Issue'];
+      }
+    }
+    return undefined; // If no match is found, return undefined
+  };
+  
     for (const data of Quality) {
       if (data['ModelNumber']) {
         data['ModelName'] = findName('Model',data['ModelNumber']);
@@ -395,34 +419,34 @@ const GetQualityExcel = async (req, res) => {
 
       }
 
-    if(el['ModelName'] == 'Other'){
-      el['ModelName'] = el['OtherModelNumber']
-      
-    }
-    delete el['OtherIssueType'];
-    delete el['OtherModelNumber'];
-    el['CreatedOn'] = el['CreatedOn'].split(' ')[0];
-   })
+      if (el['ModelName'] == 'Other') {
+        el['ModelName'] = el['OtherModelNumber']
+
+      }
+      delete el['OtherIssueType'];
+      delete el['OtherModelNumber'];
+      el['CreatedOn'] = el['CreatedOn'].split(' ')[0];
+    })
 
     let QualityExcelBytes = await QualityExcelGenerate(Quality, FromDate, ToDate, Status);
 
-   // Define the folder path
-   const folderPath = Path.join('Quality-Upload');
+    // Define the folder path
+    const folderPath = Path.join('Quality-Upload');
 
-   // Create the folder if it doesn't exist
-   if (!fs.existsSync(folderPath)) {
+    // Create the folder if it doesn't exist
+    if (!fs.existsSync(folderPath)) {
 
-     fs.mkdirSync(folderPath, { recursive: true });
-   }
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
 
-   // Define the file path, including the desired file name and format
-   const fileName = `${UUID}.xlsx`;
-   const filePath = Path.join(folderPath, fileName);
-   
+    // Define the file path, including the desired file name and format
+    const fileName = `${UUID}.xlsx`;
+    const filePath = Path.join(folderPath, fileName);
+
     // Save the file buffer to the specified file path
     fs.writeFileSync(filePath, QualityExcelBytes);
 
-  query = `INSERT INTO QualityReportExcel(ExcelId,FromDate,ToDate,ExcelURL,CreatedBy,CreatedOn)
+    query = `INSERT INTO QualityReportExcel(ExcelId,FromDate,ToDate,ExcelURL,CreatedBy,CreatedOn)
                                     VALUES('${UUID}','${FromDate}','${ToDate}','http://srv515471.hstgr.cloud:${PORT}/Quality/File/${fileName}','${CurrentUser}','${getCurrentDateTime()}');`
     await queryAsync(query);
     res.send({ URL: `http://srv515471.hstgr.cloud:${PORT}/Quality/File/${fileName}` })
