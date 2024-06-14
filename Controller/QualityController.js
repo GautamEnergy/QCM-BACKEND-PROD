@@ -78,7 +78,7 @@ const AddQuality = async (req, res) => {
   //console.log(IsPresent);
   /**Checking Duplicate Product Barcode */
 
-  let temp = productBarcode ? await queryAsync(`SELECT ProductBarCode FROM Quality WHERE ProductBarCode = '${productBarcode}' AND Status != 'Inprogress'`) : [];
+  let temp = productBarcode && productBarcode!='N/A' && productBarcode!='n/a' ? await queryAsync(`SELECT ProductBarCode FROM Quality WHERE ProductBarCode = '${productBarcode}' AND Status != 'Inprogress'`) : [];
 
   if(temp.length){
    return res.status(409).send({ msg: 'This Product Barcode is already recorded' })
