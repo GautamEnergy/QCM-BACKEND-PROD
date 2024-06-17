@@ -4,6 +4,7 @@ const util = require('util')
 const Path = require('path')
 const fs = require('fs')
 const { getCurrentDateTime, s3 } = require('../Utilis/IQCSolarCellUtilis');
+const {FQCExcel} = require('../Utilis/BOMVerificationUtilis')
 require('dotenv').config()
 const PORT = process.env.PORT || 9090
 
@@ -223,9 +224,11 @@ const GetSpecificFQC = async(req,res)=>{
 }
 
 const FQCUpdateStatus = async(req,res)=>{
+    
+    let query
     const {TestId:FQCDetailId,ApprovalStatus:Status,PersonID,RejectionReasonStatus:Reason} = req.body;
     try{
-     const query = `UPDATE FQCDetails
+      query = `UPDATE FQCDetails
                     SET
                        Status = '${Status}',
                        UpdatedBy = '${PersonID}',
@@ -234,7 +237,33 @@ const FQCUpdateStatus = async(req,res)=>{
                     WHERE FQCDetailId = '${FQCDetailId}';`;
      
     const FQCApproveStatus = await queryAsync(query);
-    res.send({FQCApproveStatus})
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${PersonID}';`)
+    
+    query = ` select *FROM FQCDetails FD
+    JOIN FQCTest FT ON FT.FQCDetailId = FD.FQCDetailId
+    JOIN Person P on FD.CreatedBy = P.PersonID
+    WHERE FD.FQCDetailId = 'd41e5e8c-c8f4-455c-8fb8-5569358073e1';`
+
+    let JobCardData = await queryAsync(query);
+    console.log(JobCardData)
+    JobCardData[0]['ReviewedBy'] = Name.length?Name[0]['Name']:'';
+  
+    try{
+      let ExcelFileName = await FQCExcel(JobCardData);
+      
+      let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+    //   let ExcelQuery = `UPDATE JobCardDetails JD
+    //   set JD.ExcelURL = '${URL}'
+    //   WHERE JobCardDetailID = '${FQCDetailId}';`
+
+    //   await queryAsync(ExcelQuery);
+      res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`})
+
+       }catch(err){
+        console.log(err)
+         res.status(400).send(err)
+       }
+
     }catch(err){
         console.log(err)
         res.status(500).send({ err })
