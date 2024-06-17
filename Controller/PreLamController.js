@@ -1,5 +1,6 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { getCurrentDateTime, s3 } = require('../Utilis/PreLamUtilis');
+const {PreLamExcel, LaminatorExcel, StingerExcel} = require('../Utilis/BOMVerificationUtilis');
 const util = require('util');
 const fs = require('fs');
 const Path = require('path')
@@ -224,8 +225,8 @@ try{
 
 
 const UpdatePreLamStatus = async(req,res)=>{
-  const {JobCardDetailId,ApprovalStatus,CurrentUser} = req.body;
-
+  const {JobCardDetailId,ApprovalStatus,CurrentUser, Type} = req.body;
+  let ExcelFileName
   try{
      const UpdateStatusQuery = `UPDATE PreLamDetail
                                 SET
@@ -236,7 +237,61 @@ const UpdatePreLamStatus = async(req,res)=>{
 
     let UpdateStatus =  await queryAsync(UpdateStatusQuery);
 
-    res.send({status:true,data:UpdateStatus});
+    if(Type == 'Postlam' || Type == 'Prelam'){
+
+    let PreLamQuery = `  select *FROM PreLam PL
+    JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
+    JOIN Person P on PD.CreatedBy = P.PersonID
+    WHERE PD.PreLamDetailId = '${JobCardDetailId}';`
+
+   let PreLamData = await queryAsync(PreLamQuery);
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
+
+  PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
+  ExcelFileName = await PreLamExcel(PreLamData);
+
+    }else if(Type == 'Laminator'){
+
+      let PreLamQuery = `select *FROM Laminator PL
+    JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
+    JOIN Person P on PD.CreatedBy = P.PersonID
+    WHERE PD.PreLamDetailId = '${JobCardDetailId}';`
+
+   let PreLamData = await queryAsync(PreLamQuery);
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
+
+  PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
+  ExcelFileName = await LaminatorExcel(PreLamData);
+
+    }else if(Type == 'Stringer'){
+
+      let PreLamQuery = `select *FROM StringerMachine PL
+      JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
+      JOIN Person P on PD.CreatedBy = P.PersonID
+      WHERE PD.PreLamDetailId = '${JobCardDetailId}';`
+
+   let PreLamData = await queryAsync(PreLamQuery);
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
+
+  PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
+  ExcelFileName = await StingerExcel(PreLamData);
+    }
+  try{
+  //  let ExcelFileName = await PreLamExcel(PreLamData);
+    
+    let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+    let ExcelQuery = `UPDATE PreLamDetail JD
+    set JD.ExcelURL = '${URL}'
+    WHERE PreLamDetailId = '${JobCardDetailId}';`
+
+    await queryAsync(ExcelQuery);
+  return  res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`});
+
+     }catch(err){
+      console.log(err)
+     return  res.status(400).send(err)
+
+     }
   }catch(err){
     console.log(err)
     res.status(400).send({status:false,err})
