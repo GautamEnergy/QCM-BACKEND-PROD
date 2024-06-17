@@ -1,5 +1,5 @@
 const { v4: uuidv4, v4 } = require('uuid');
-const { getCurrentDateTime, s3 } = require('../Utilis/IPQCJobCardUtilis')
+const { getCurrentDateTime, s3, ExcelGenerate } = require('../Utilis/IPQCJobCardUtilis')
 const util = require('util')
 const fs = require('fs');
 const Path = require('path')
@@ -549,6 +549,7 @@ ORDER BY STR_TO_DATE(SPT.CreatedOn, '%d-%m-%Y %H:%i:%s') DESC;`;
             delete Test[key]
           }
         }
+        Test['Date'] = Test['CreatedOn'].split(' ')[0];
         JobCardList.push(Test);
       })
 
@@ -668,7 +669,33 @@ const UpdateJobCardStatus = async (req, res) => {
                         jd.UpdatedOn = '${getCurrentDateTime()}'
                     WHERE jd.JobCardDetailID = '${JobCardDetailId}'`
     let JobCardDetail = await queryAsync(query)
-    res.send({ ApprovalStatus, JobCardDetail })
+
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
+    
+    query = `SELECT *FROM JobCardDetails jcd
+    JOIN JobCard jc ON jcd.JobCardDetailID = jc.JobCardDetailID
+    JOIN Person P on jcd.CreatedBy = P.PersonID
+    WHERE jcd.JobCardDetailID = '${JobCardDetailId}';`
+
+    let JobCardData = await queryAsync(query);
+    JobCardData[0]['ApprovedBy'] = Name.length?Name[0]['Name']:'';
+     
+    try{
+      let ExcelFileName = await ExcelGenerate(JobCardData);
+      
+      let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+      let ExcelQuery = `UPDATE JobCardDetails JD
+      set JD.ExcelURL = '${URL}'
+      WHERE JobCardDetailID = '${JobCardDetailId}';`
+
+      await queryAsync(ExcelQuery);
+      res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`})
+
+       }catch(err){
+        console.log(err)
+         res.status(400).send(err)
+
+       }
   } catch (err) {
     console.log(err)
     res.status(400).send(err)
