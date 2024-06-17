@@ -1,5 +1,6 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { getCurrentDateTime, s3 } = require('../Utilis/PreLamUtilis');
+const {FramingExcel} = require('../Utilis/BOMVerificationUtilis')
 const fs = require('fs');
 const Path = require('path')
 const util = require('util');
@@ -249,7 +250,34 @@ const UpdateFramingStatus = async(req,res)=>{
                         PD.UpdatedOn = '${getCurrentDateTime()}'
                     WHERE PD.PreLamDetailId = '${JobCardDetailId}'`
     let JobCardDetail = await queryAsync(query)
-    res.send({ ApprovalStatus, JobCardDetail })
+
+    let PreLamQuery = `  select *FROM Framing PL
+    JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
+    JOIN Person P on PD.CreatedBy = P.PersonID
+    WHERE PD.PreLamDetailId = '${JobCardDetailId}';`
+    
+   let PreLamData = await queryAsync(PreLamQuery);
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
+
+  PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
+
+  try{
+    let ExcelFileName = await FramingExcel(PreLamData);
+    
+    let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+    let ExcelQuery = `UPDATE PreLamDetail JD
+    set JD.ExcelURL = '${URL}'
+    WHERE PreLamDetailId = '${JobCardDetailId}';`
+
+    await queryAsync(ExcelQuery);
+  return  res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`});
+
+     }catch(err){
+      console.log(err)
+      return res.status(400).send(err)
+
+     }
+  
   } catch (err) {
     console.log(err)
     res.status(400).send(err)
