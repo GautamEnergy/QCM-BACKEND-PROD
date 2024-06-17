@@ -410,7 +410,7 @@ const UpdateStatus = async (req, res) => {
     WHERE id.SolarDetailID = '${SolarDetailID}';`;
 
     const ApproveTableQuery = `select p.Name from IQCSolarDetails id
-    join Person p on p.PersonID = id.UpdatedBy
+    JOIN Person p on p.PersonID = id.UpdatedBy
     where id.SolarDetailID = '${SolarDetailID}';`;
 
     const ExcelData = await queryAsync(ExcelQuery);
@@ -420,7 +420,7 @@ const UpdateStatus = async (req, res) => {
       data['CheckTypes'] = JSON.parse(data['CheckTypes']);
     })
 
-    console.log(ExcelData.length)
+   // console.log(ExcelData)
     try{
    let ExcelFileName = await ExcelGenerate(ExcelData, ApproveData);
    console.log(ExcelFileName);
@@ -430,7 +430,7 @@ const UpdateStatus = async (req, res) => {
    WHERE SolarDetailID = '${SolarDetailID}';`
    await queryAsync(ExcelQuery);
     }catch(err){
-
+      res.status(500).send({ err })
     }
     res.send({ ExcelData, ApproveData })
   } catch (err) {
@@ -532,4 +532,3 @@ const GetExcel = async(req,res)=>{
 
 /** Export Controllers */
 module.exports = { AddIQCSolarCell, GetIQCSolarCellTests, GetSpecificSolarCellTest, UpdateStatus, UploadPdf, GetPdf, GetExcel };
-
