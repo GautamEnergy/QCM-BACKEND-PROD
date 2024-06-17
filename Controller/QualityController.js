@@ -74,6 +74,12 @@ const AddQuality = async (req, res) => {
     stage, wattage, productBarcode, issuecomefrom, actiontaken, status } = req.body;
 
   let UUID = v4();
+
+//getCurrentDateTime()
+let currentDate = new Date();
+let Time = currentDate.toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata" });
+console.log("Current Time in India: ", Time);
+
   //let IsPresent = await IsPresentSameIssue(qualityid, productBarcode, otherissuetype, issuetype);
   //console.log(IsPresent);
   /**Checking Duplicate Product Barcode */
@@ -89,8 +95,8 @@ const AddQuality = async (req, res) => {
       try {
 
 
-        const query = `INSERT INTO Quality(QualityId,Shift,ShiftInChargeName,ShiftInChargePreLime,ShiftInChargePostLim,ProductBarCode,Wattage,ModelNumber,OtherModelNumber,IssueType,OtherIssueType,Stage,ResposiblePerson,ReasonOfIssue,IssueComeFrom,ActionTaken,CreatedBy,CreatedOn,Status)
-              VALUES('${UUID}','${shift}','${shiftinchargename}','${shiftinchargeprelime}','${shiftinchargepostlime}','${productBarcode}','${wattage}','${modelnumber}','${othermodelnumber}','${issuetype}','${otherissuetype}','${stage}','${responsibleperson}','${reasonofissue}','${issuecomefrom}','${actiontaken}','${currentuser}','${getCurrentDateTime()}','${status}');`;
+        const query = `INSERT INTO Quality(QualityId,Shift,ShiftInChargeName,ShiftInChargePreLime,ShiftInChargePostLim,ProductBarCode,Wattage,ModelNumber,OtherModelNumber,IssueType,OtherIssueType,Stage,ResposiblePerson,ReasonOfIssue,IssueComeFrom,ActionTaken,CreatedBy,CreatedOn,CreatedTime,Status)
+              VALUES('${UUID}','${shift}','${shiftinchargename}','${shiftinchargeprelime}','${shiftinchargepostlime}','${productBarcode}','${wattage}','${modelnumber}','${othermodelnumber}','${issuetype}','${otherissuetype}','${stage}','${responsibleperson}','${reasonofissue}','${issuecomefrom}','${actiontaken}','${currentuser}','${getCurrentDateTime()}','${Time}','${status}');`;
 
         await queryAsync(query);
        return res.send({ msg: "data inserted Succesfully", UUID });
@@ -125,6 +131,7 @@ const AddQuality = async (req, res) => {
           ActionTaken = '${actiontaken}',
           CreatedBy = '${currentuser}',
           CreatedOn = '${getCurrentDateTime()}',
+          CreatedTime = '${Time}',
           Status = '${status}'
       WHERE QualityId = '${qualityid}';
   `;
@@ -136,9 +143,9 @@ const AddQuality = async (req, res) => {
         
         console.log(err);
        return res.send({ err });
-      }
-   
-  }
+ }
+
+}
 }
 
 const UploadModuleImage = async (req, res) => {
@@ -358,7 +365,7 @@ const GetQualityExcel = async (req, res) => {
   const { FromDate, ToDate, CurrentUser, Status } = req.body;
   const UUID = v4()
   try {
-    let query = `SELECT Q.CreatedOn, Q.QualityId, Q.Shift, Q.ShiftInChargeName, Q.ShiftInChargePreLime, Q.ShiftInChargePostLim, Q.ProductBarCode, P.Name AS CreatedBy, Q.Wattage, Q.Stage, Q.ResposiblePerson, Q.ReasonOfIssue, Q.IssueComeFrom, Q.ActionTaken, Q.OtherIssueType, Q.ModulePicture,Q.Status, Q.OtherModelNumber,Q.IssueType,Q.ModelNumber
+    let query = `SELECT Q.CreatedOn, Q.QualityId, Q.Shift, Q.ShiftInChargeName, Q.ShiftInChargePreLime, Q.ShiftInChargePostLim, Q.ProductBarCode, P.Name AS CreatedBy, Q.Wattage, Q.Stage, Q.ResposiblePerson, Q.ReasonOfIssue, Q.IssueComeFrom, Q.ActionTaken, Q.OtherIssueType, Q.ModulePicture,Q.Status, Q.OtherModelNumber,Q.IssueType,Q.ModelNumber, Q.CreatedTime
     FROM Quality Q
     JOIN Person P ON P.PersonID = Q.CreatedBy
     WHERE Q.Status = '${Status}' AND STR_TO_DATE(Q.CreatedOn, '%d-%m-%Y %H:%i:%s') BETWEEN STR_TO_DATE('${FromDate} 00:00:00', '%d-%m-%Y %H:%i:%s') AND STR_TO_DATE('${ToDate} 23:59:59', '%d-%m-%Y %H:%i:%s')
