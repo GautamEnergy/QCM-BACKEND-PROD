@@ -1,5 +1,5 @@
 const { v4: uuidv4, v4 } = require('uuid');
-const { getCurrentDateTime, s3 } = require('../Utilis/BOMVerificationUtilis')
+const { getCurrentDateTime, s3,BOMExcelGenerate } = require('../Utilis/BOMVerificationUtilis')
 const util = require('util');
 const fs = require('fs');
 const Path = require('path');
@@ -289,7 +289,34 @@ const UpdateStatusBOM = async(req,res)=>{
                     WHERE BOMDetailId = '${JobCardDetailId}';`
         const Update = await queryAsync(query)
 
-        res.send({status:true,data:{JobCardDetailId}})
+    const BOMCardQuery = `select *FROM BOM b
+    JOIn BOMVerificationDetails BM on b.BOMDetailId = BM.BOMDetailId
+    JOIN Person P ON P.PersonID = BM.CreatedBy
+    WHERE b.BOMDetailId = '${JobCardDetailId}';`;
+    
+    const Name = `SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`
+    const BomCard = await queryAsync(BOMCardQuery);
+    const NameData = await queryAsync(Name)
+    BomCard[0]['ReviewedBy'] = NameData.length?NameData[0]['Name']:'';
+
+        try{
+            let ExcelFileName = await BOMExcelGenerate(BomCard);
+            
+            let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+            
+            let ExcelQuery = `UPDATE BOMVerificationDetails
+            set ExcelURL = '${URL}'
+            WHERE BOMDetailId = '${JobCardDetailId}';`
+      
+            await queryAsync(ExcelQuery);
+            res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`})
+      
+             }catch(err){
+              console.log(err)
+               res.status(400).send(err)
+      
+             }
+     
 
     }catch(err){
      console.log(err)
