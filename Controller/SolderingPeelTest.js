@@ -1,11 +1,12 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { getCurrentDateTime, s3 } = require('../Utilis/PreLamUtilis');
+const {SolderingGenerate} = require('../Utilis/BOMVerificationUtilis')
 const util = require('util');
 const fs = require('fs');
 const Path = require('path')
 const { dbConn } = require('../db.config/db.config');
 require('dotenv').config()
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 9090
 
 /** Making Sync To Query */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
@@ -200,8 +201,33 @@ const UpdateSolderingPeelTestStatus = async(req,res)=>{
                                    WHERE TestDetailId = '${JobCardDetailId}';`;
    
        let UpdateStatus =  await queryAsync(UpdateStatusQuery);
-   
-       res.send({status:true,data:UpdateStatus});
+       let PreLamQuery = `  select *FROM SolderingPeelTest SP
+       JOIN SolderingPeelTestDetail S ON S.TestDetailId = SP.TestDetailId
+         JOIN Person P on S.CreatedBy = P.PersonID
+       WHERE S.TestDetailId = '${JobCardDetailId}';`
+    
+   let PreLamData = await queryAsync(PreLamQuery);
+    let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`);
+
+  PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
+
+  try{
+    let ExcelFileName = await SolderingGenerate(PreLamData);
+    
+    let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
+    let ExcelQuery = `UPDATE SolderingPeelTestDetail JD
+    set JD.ExcelURL = '${URL}'
+    WHERE TestDetailId = '${JobCardDetailId}';`
+
+    await queryAsync(ExcelQuery);
+ return   res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`});
+
+     }catch(err){
+      console.log(err)
+      return res.status(400).send(err)
+
+     }
+    
      }catch(err){
        console.log(err)
        res.status(400).send({status:false,err})
