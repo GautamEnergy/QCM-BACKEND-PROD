@@ -2770,7 +2770,7 @@ const FQCExcel = async(Data) =>{
  
   // Load the bold font file
 const loadFontMedium = async (pdfDoc) => {
-    const fontPath = path.resolve(__dirname, '../Roboto/Roboto-Medium.ttf');
+    const fontPath = Path.resolve(__dirname, '../Roboto/Roboto-Medium.ttf');
     if (!fs.existsSync(fontPath)) {
         throw new Error(`Font file not found: ${fontPath}`);
     }
@@ -2779,13 +2779,14 @@ const loadFontMedium = async (pdfDoc) => {
 };
 
 const loadFontBold = async (pdfDoc) => {
-    const fontPath = path.resolve(__dirname, '../Roboto/Roboto-Bold.ttf');
+    const fontPath = Path.resolve(__dirname, '../Roboto/Roboto-Bold.ttf');
     if (!fs.existsSync(fontPath)) {
         throw new Error(`Font file not found: ${fontPath}`);
     }
     const fontBytes = fs.readFileSync(fontPath);
     return await pdfDoc.embedFont(fontBytes);
 };
+
 
 
 const MediumFont = await loadFontMedium(pdfDoc);
