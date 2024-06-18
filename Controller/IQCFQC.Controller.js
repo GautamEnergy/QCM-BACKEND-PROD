@@ -242,7 +242,7 @@ const FQCUpdateStatus = async(req,res)=>{
     query = ` select *FROM FQCDetails FD
     JOIN FQCTest FT ON FT.FQCDetailId = FD.FQCDetailId
     JOIN Person P on FD.CreatedBy = P.PersonID
-    WHERE FD.FQCDetailId = '${TestId}';`
+    WHERE FD.FQCDetailId = '${FQCDetailId}';`
 
     let JobCardData = await queryAsync(query);
     console.log(JobCardData)
