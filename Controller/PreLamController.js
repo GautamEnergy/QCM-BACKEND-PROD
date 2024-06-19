@@ -1,6 +1,6 @@
 const { v4: uuidv4, v4 } = require('uuid');
 const { getCurrentDateTime, s3 } = require('../Utilis/PreLamUtilis');
-const {PreLamExcel, LaminatorExcel, StingerExcel} = require('../Utilis/BOMVerificationUtilis');
+const {PreLamExcel, LaminatorExcel, StingerExcel,PostLamExcel} = require('../Utilis/BOMVerificationUtilis');
 const util = require('util');
 const fs = require('fs');
 const Path = require('path')
@@ -237,7 +237,7 @@ const UpdatePreLamStatus = async(req,res)=>{
 
     let UpdateStatus =  await queryAsync(UpdateStatusQuery);
 
-    if(Type == 'Postlam' || Type == 'Prelam'){
+    if(Type == 'Postlam'){
 
     let PreLamQuery = `  select *FROM PreLam PL
     JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
@@ -248,7 +248,20 @@ const UpdatePreLamStatus = async(req,res)=>{
     let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
 
   PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
-  ExcelFileName = await PreLamExcel(PreLamData);
+  ExcelFileName = await PostLamExcel(PreLamData);
+
+    }else if (Type == 'Prelam'){
+
+      let PreLamQuery = `  select *FROM PreLam PL
+      JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
+      JOIN Person P on PD.CreatedBy = P.PersonID
+      WHERE PD.PreLamDetailId = '${JobCardDetailId}';`
+  
+     let PreLamData = await queryAsync(PreLamQuery);
+      let Name = await  queryAsync(`SELECT Name FROM Person WHERE PersonID = '${CurrentUser}';`)
+  
+    PreLamData.length?Name.length?PreLamData[0]['ReviewedBy'] = Name[0]['Name']:PreLamData[0]['ReviewedBy'] = 'Unknown':''
+    ExcelFileName = await PreLamExcel(PreLamData);
 
     }else if(Type == 'Laminator'){
 
