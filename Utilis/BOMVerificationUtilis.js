@@ -1569,21 +1569,21 @@ const BOMExcelGenerate = async(Data)=>{
       }
     }
   
-    let MatrixData = [{
-      'Date': Data[0]['Date'],
-      'Shift': Data[0]['Shift'],
-      'Acceptance Crieteria': ">-4N"
-    },
-    {
-      'Line': Data[0]['Line'],
-      'Buusing Stage': Data[0]['BussingStage'],
-      'Operator Name': Data[0]['OperatorName'],
-    },
-    {
-      'Ribbon Width': Data[0]['Line'],
-      'Busbar Width': Data[0]['BussingStage'],
-      'Result': "NA",
-    }]
+    // let MatrixData = [{
+    //   'Date': Data[0]['Date'],
+    //   'Shift': Data[0]['Shift'],
+    //   'Acceptance Crieteria': ">-4N"
+    // },
+    // {
+    //   'Line': Data[0]['Line'],
+    //   'Buusing Stage': Data[0]['BussingStage'],
+    //   'Operator Name': Data[0]['OperatorName'],
+    // },
+    // {
+    //   'Ribbon Width': Data[0]['Line'],
+    //   'Busbar Width': Data[0]['BussingStage'],
+    //   'Result': "NA",
+    // }]
     let Border = {
       top: { style: 'thin' },
       bottom: { style: 'thin' },
