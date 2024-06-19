@@ -100,8 +100,8 @@ const AddFraming = async(req,res)=>{
   const UUID = v4();
   if(!PreLamDetailId){
   try{
-    const PreLamDetailQuery = `INSERT INTO PreLamDetail(PreLamDetailId,Type,DocNo,RevNo,Date,Shift,Line,Status,CheckedBy,CreatedOn)
-                                    VALUES('${UUID}','Framing','${DocNo}','${RevNo}','${Date}','${Shift}','${Line}','${Status}','${CurrentUser}','${getCurrentDateTime()}');`;
+    const PreLamDetailQuery = `INSERT INTO PreLamDetail(PreLamDetailId,Type,DocNo,RevNo,Date,Shift,Line,Status,CheckedBy,CreatedBy,CreatedOn)
+                                    VALUES('${UUID}','Framing','${DocNo}','${RevNo}','${Date}','${Shift}','${Line}','${Status}','${CurrentUser}','${CurrentUser}','${getCurrentDateTime()}');`;
     await queryAsync(PreLamDetailQuery);
 
     Samples.forEach(async(sample)=>{
@@ -124,6 +124,7 @@ const AddFraming = async(req,res)=>{
                                  Shift = '${Shift}',
                                  Status = '${Status}',
                                  CheckedBy = '${CurrentUser}',
+                                 CreatedBy = '${CurrentUser}',
                                  CreatedOn = '${getCurrentDateTime()}'
                                WHERE PreLamDetailId = '${PreLamDetailId}';`;
     await queryAsync(PreLamDetailQuery);
@@ -253,7 +254,7 @@ const UpdateFramingStatus = async(req,res)=>{
 
     let PreLamQuery = `  select *FROM Framing PL
     JOIN PreLamDetail PD ON PD.PreLamDetailId = PL.PreLamDetailId
-    JOIN Person P on PD.CreatedBy = P.PersonID
+    JOIN Person P on PD.CheckedBy = P.PersonID
     WHERE PD.PreLamDetailId = '${JobCardDetailId}';`
     
    let PreLamData = await queryAsync(PreLamQuery);
