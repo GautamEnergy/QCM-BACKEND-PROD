@@ -1185,7 +1185,7 @@ const BOMExcelGenerate = async(Data)=>{
  from: 'ipqc.gautamsolar@gmail.com',
  cc: 'bhanu.galo@gmail.com',
  to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
- subject: `IPQC PreLam Report: PO No. ${Data[0]['PONo']}`,
+ subject: `IPQC PostLam Report: PO No. ${Data[0]['PONo']}`,
  attachments: [{
    filename: `PreLam_Report_${Data[0]['PONo']}.xlsx`,
    content: excelBuffer,
