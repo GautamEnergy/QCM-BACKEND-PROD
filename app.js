@@ -229,9 +229,9 @@ UUID = v4()
     await queryAsync(query);
 
     await transport.sendMail({
-      from: 'ipqc.gautamsolar@gmail.com',
+      from: 'qualityreport.gautamsolar@gmail.com',
       cc: 'bhanu.galo@gmail.com',
-      to: 'krishukumar535@gmail.com',
+      to: 'nidhi@gautamsolar.com',
       subject: `Quality Report ${formattedPreviousDate}`,
       attachments: [{
         filename: `Quality_Report_InProgress.xlsx`,
@@ -272,7 +272,7 @@ app.get("/getFile", (req, res) => {
 });
 
 
-cron.schedule('35 17 * * *', async () => {
+cron.schedule('0 10 * * *', async () => {
   try {
    
     let result =  await QualityExcelShedule();
