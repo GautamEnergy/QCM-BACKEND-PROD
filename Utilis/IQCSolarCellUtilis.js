@@ -135,6 +135,69 @@ async function ExcelGenerate(IQC, ApproveData) {
 
  }
 
+ console.log(CheckTypes)
+ function SampleToBeChecked() {
+  if (MaterialName == 'Solar Glass') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Visual') {
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'Backsheet') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Physical') {
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'Flux') {
+    return '';
+  } else if (MaterialName == 'EVA(Encapsulant)') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Physical') {
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'PV Ribbon') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Physical') {
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'Aluminium Frame') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Visual') {
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'Sealant/Poating') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Performance') {
+        
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'Junction Box') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Physical') {
+        return Material['SampleSize'];
+      }
+    }
+  } else if (MaterialName == 'Solar Cell') {
+    for (let i = 0; i < IQC.length; i++) {
+      let Material = IQC[i];
+      if (Material['CheckType'] == 'Visual') {
+        return Material['SampleSize'];
+      }
+    }
+  }
+}
 
 
   let exceldata = [{ "column": "Lot Size", "value": IQC[0]['LotSize'] },
@@ -144,11 +207,11 @@ async function ExcelGenerate(IQC, ApproveData) {
   { "column": "Raw Material Specs", "value": IQC[0]['RawMaterialSpecs'] }
   ]
 
-  let rightexceldata = [{"column":"No. of Samples to be checked","value":''},
-  {"column":"Sample to be checked","value":"AS PER SIL S1 AQL 4.0"},
-  {"column":"Suppliers'RM Batch No.:","value":IQC[0]['SupplierRMBatchNo']},
-  {"column":"Invoice No.:","value":IQC[0]['InvoiceNo']},
-  {"column":"Receipt Date:","value":IQC[0]['ReceiptDate']}
+  let rightexceldata = [{ "column": "No. of Samples to be checked", "value": SampleToBeChecked() },
+  { "column": "Sample to be checked", "value": "AS PER SIL S1 AQL 4.0" },
+  { "column": "Suppliers'RM Batch No.:", "value": IQC[0]['SupplierRMBatchNo'] },
+  { "column": "Invoice No.:", "value": IQC[0]['InvoiceNo'] },
+  { "column": "Receipt Date:", "value": IQC[0]['ReceiptDate'] }
   ]
 
 
