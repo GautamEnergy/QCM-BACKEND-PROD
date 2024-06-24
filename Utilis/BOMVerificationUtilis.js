@@ -469,7 +469,7 @@ const BOMExcelGenerate = async(Data)=>{
     /**putting value in cell */
     worksheet.getCell('J1').value = 'Page No.1';
     worksheet.getCell('A1').value = 'Gautam Solar Pvt. Ltd';
-    worksheet.getCell('A3').value = `IPQC Check Sheet`;
+    worksheet.getCell('A3').value = `IPQC PreLam Check Sheet`;
     worksheet.getCell('J2').value = `Doc No. ${Data[0]['DocNo']}`;
     worksheet.getCell('J3').value = `Rev No. ${Data[0]['RevNo']}`;
    
@@ -610,7 +610,7 @@ const BOMExcelGenerate = async(Data)=>{
         let Timing = ['10:00','12:00','02:00','04:00','06:00']
          temp.forEach((el,i)=>{
           for(key in el){
-             string+=`TS (Time:${Timing[i]}): ${el[key]} |`;
+             string+=`TS (Time: ${Timing[i]}): ${el[key]} |`;
           } 
           
          })
@@ -948,7 +948,7 @@ const BOMExcelGenerate = async(Data)=>{
     /**putting value in cell */
     worksheet.getCell('J1').value = 'Page No.1';
     worksheet.getCell('A1').value = 'Gautam Solar Pvt. Ltd';
-    worksheet.getCell('A3').value = `IPQC Check Sheet`;
+    worksheet.getCell('A3').value = `IPQC PostLam Check Sheet`;
     worksheet.getCell('J2').value = `Doc No. ${Data[0]['DocNo']}`;
     worksheet.getCell('J3').value = `Rev No. ${Data[0]['RevNo']}`;
    
@@ -1085,7 +1085,7 @@ const BOMExcelGenerate = async(Data)=>{
         let Timing = ['10:00','12:00','02:00','04:00','06:00']
         let i = 0
           for(key in temp){
-             string+=`Obs (Time:${Timing[i]}): ${temp[key]} | `;
+             string+=`Obs (Time: ${Timing[i]}): ${temp[key]} | `;
              i++;
           } 
           
