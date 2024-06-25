@@ -135,7 +135,7 @@ async function ExcelGenerate(IQC, ApproveData) {
 
  }
 
- console.log(CheckTypes)
+
  function SampleToBeChecked() {
   if (MaterialName == 'Solar Glass') {
     for (let i = 0; i < IQC.length; i++) {
