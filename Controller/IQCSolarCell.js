@@ -263,17 +263,17 @@ const GetIQCSolarCellTests = async (req, res) => {
   /** Query */
   try {
     if (Designation == 'Admin' || Designation == 'Super Admin') {
-      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.ExcelURL,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
+      query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.ExcelURL,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
   JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
   JOIN IQCSolarDetails id ON p.PersonID = id.CheckedBy
   WHERE id.Status = '${Status}'
-  ORDER BY STR_TO_DATE(id.CreatedDate, '%d-%m-%Y %H:%i:%s') DESC;`
+  ORDER BY STR_TO_DATE(id.QualityCheckDate, '%Y-%m-%d') DESC;`
     } else {
-      query = `SELECT p.PersonID,id.CheckedBy, p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.ExcelURL,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
+      query = `SELECT p.PersonID,id.CheckedBy, p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,id.QualityCheckDate,id.SupplierName,id.QualityCheckDate,id.COCPdf,id.InvoicePdf,id.ExcelURL,id.CreatedDate,id.SolarDetailID,id.MaterialName,id.InvoiceNo FROM Person p
   JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
   JOIN IQCSolarDetails id ON p.PersonID = id.CheckedBy
    WHERE p.PersonID = '${PersonID}' AND id.Status = '${Status}' 
-   ORDER BY STR_TO_DATE(id.CreatedDate, '%d-%m-%Y %H:%i:%s') DESC;`
+   ORDER BY STR_TO_DATE(id.QualityCheckDate, '%Y-%m-%d') DESC;`
     }
 
     let data = await new Promise((resolve, rejects) => {
