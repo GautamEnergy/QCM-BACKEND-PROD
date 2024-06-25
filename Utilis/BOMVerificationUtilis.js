@@ -344,7 +344,7 @@ const BOMExcelGenerate = async(Data)=>{
   await transport.sendMail({  
   from: 'ipqc.gautamsolar@gmail.com',
   cc: 'bhanu.galo@gmail.com',
-  to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+  to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
   subject: `IPQC BOM Verification Report: PO No. ${Data[0]['PONo']}`,
   attachments: [{
     filename: `BOM_Verification_${Data[0]['PONo']}.xlsx`,
@@ -819,7 +819,7 @@ const BOMExcelGenerate = async(Data)=>{
  await transport.sendMail({  
  from: 'ipqc.gautamsolar@gmail.com',
  cc: 'bhanu.galo@gmail.com',
- to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+ to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
  subject: `IPQC PreLam Report: PO No. ${Data[0]['PONo']}`,
  attachments: [{
    filename: `PreLam_Report_${Data[0]['PONo']}.xlsx`,
@@ -1184,7 +1184,7 @@ const BOMExcelGenerate = async(Data)=>{
  await transport.sendMail({  
  from: 'ipqc.gautamsolar@gmail.com',
  cc: 'bhanu.galo@gmail.com',
- to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+ to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
  subject: `IPQC PostLam Report: PO No. ${Data[0]['PONo']}`,
  attachments: [{
    filename: `PostLam_Report_${Data[0]['PONo']}.xlsx`,
@@ -1494,7 +1494,7 @@ const BOMExcelGenerate = async(Data)=>{
  await transport.sendMail({  
  from: 'ipqc.gautamsolar@gmail.com',
  cc: 'bhanu.galo@gmail.com',
- to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+ to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
  subject: `IPQC ${Data[0]['Type']} Report: Shift. ${Data[0]['Shift']}`,
  attachments: [{
    filename: `${Data[0]['Type']}_Report_${Data[0]['Shift']}.xlsx`,
@@ -1831,7 +1831,7 @@ const excelBuffer = await workbook.xlsx.writeBuffer()
 await transport.sendMail({  
 from: 'ipqc.gautamsolar@gmail.com',
 cc: 'bhanu.galo@gmail.com',
-to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
 subject: `IPQC Framing Report: Sample. ${Data[0]['Sample']}`,
 attachments: [{
   filename: `Framing_Report_${Data[0]['Sample']}.xlsx`,
@@ -2198,7 +2198,7 @@ const excelBuffer = await workbook.xlsx.writeBuffer()
 await transport.sendMail({  
 from: 'ipqc.gautamsolar@gmail.com',
 cc: 'bhanu.galo@gmail.com',
-to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
 subject: `IPQC Laminator Report: Sample. ${Data[0]['Shift']}`,
 attachments: [{
   filename: `Laminator_Report_${Data[0]['Shift']}.xlsx`,
@@ -2712,7 +2712,7 @@ return `${Data[0]['PreLamDetailId']}.xlsx`;
      await transport.sendMail({  
      from: 'ipqc.gautamsolar@gmail.com',
      cc: 'bhanu.galo@gmail.com',
-     to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+     to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
      subject: `IPQC ${Data[0]['Type']} : Line No. ${Data[0]['Line']}`,
      attachments: [{
        filename: `${Data[0]['Type']}_Report_${Data[0]['Line']}.xlsx`,
@@ -5886,7 +5886,7 @@ page.drawText(`${Sample3['otherParameterS9RemarksControllers645']}`, {
    await FQCTransport.sendMail({  
    from: 'fqc.gautamsolar@gmail.com',
    cc: 'bhanu.galo@gmail.com',
-   to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+   to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
    subject: `${Data[0]['Type']} : Rev No. ${Data[0]['RevNo']}`,
    attachments: [{
      filename: `${Data[0]['Type']}_Report_${Data[0]['RevNo']}.pdf`,
@@ -6327,7 +6327,7 @@ worksheet.getCell('L9').border = Border;
  await transport.sendMail({  
  from: 'ipqc.gautamsolar@gmail.com',
  cc: 'bhanu.galo@gmail.com',
- to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+ to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
  subject: `IPQC SealentWeight Report: PO No. ${Data[0]['RevNo']}`,
  attachments: [{
    filename: `SealentWeight_Report${Data[0]['RevNo']}.xlsx`,
