@@ -6,7 +6,7 @@ const fs = require('fs')
 const { getCurrentDateTime, s3 } = require('../Utilis/IQCSolarCellUtilis');
 const {FQCExcel} = require('../Utilis/BOMVerificationUtilis')
 require('dotenv').config()
-const PORT = process.env.PORT || 9090
+const PORT = process.env.PORT || 8080
 
 
 /** Making Sync To Query to Loop */
@@ -201,6 +201,8 @@ if(req.file.size){
   }else{
     res.status(401).send({status:false,'err':'file is empty'})
   }
+  
+
 }
 
 const GetSpecificFQC = async(req,res)=>{
