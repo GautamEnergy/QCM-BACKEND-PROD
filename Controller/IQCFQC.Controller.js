@@ -252,21 +252,22 @@ const FQCUpdateStatus = async(req,res)=>{
       let ExcelFileName = await FQCExcel(JobCardData);
       
       let URL = `http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`
-    //   let ExcelQuery = `UPDATE JobCardDetails JD
-    //   set JD.ExcelURL = '${URL}'
-    //   WHERE JobCardDetailID = '${FQCDetailId}';`
+      let ExcelQuery = `UPDATE FQCDetails
+                    SET
+                      ExcelURL = '${URL}'
+                    WHERE FQCDetailId = '${FQCDetailId}';`
 
-    //   await queryAsync(ExcelQuery);
-      res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`})
+      await queryAsync(ExcelQuery);
+    return  res.send({URL:`http://srv515471.hstgr.cloud:${PORT}/IQCSolarCell/Excel/${ExcelFileName}`})
 
        }catch(err){
         console.log(err)
-         res.status(400).send(err)
+         return res.status(400).send(err)
        }
 
     }catch(err){
         console.log(err)
-        res.status(500).send({ err })
+        return res.status(500).send({ err })
     }
 }
 module.exports = { AddFQC, GetFQCList, GetSpecificFQC, FQCUpdateStatus,UploadFQCPdf };
