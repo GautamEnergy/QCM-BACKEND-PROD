@@ -1195,7 +1195,7 @@ const BOMExcelGenerate = async(Data)=>{
      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://galo.co.in/wp-content/uploads/2024/01/Galo-Energy-Logo-06.png'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.3; z-index: -1;"></div>
      <div style="background-color: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 10px;">
          <p style="font-size: 16px;">Dear Super Admin,</p>
-         <p style="font-size: 16px; margin-bottom: 0;">PO No: ${Data[0]['PONo']} of PreLam has been Reviewed by ${Data[0]['ReviewedBy']}.</p>
+         <p style="font-size: 16px; margin-bottom: 0;">PO No: ${Data[0]['PONo']} of PostLam has been Reviewed by ${Data[0]['ReviewedBy']}.</p>
          <p style="font-size: 16px;">Please find the attached Excel report for more details.</p>
          <br>
          <p style="font-size: 16px;"><em>Best regards,</em></p>
