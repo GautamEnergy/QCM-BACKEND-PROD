@@ -5872,7 +5872,7 @@ page.drawText(`${Sample3['otherParameterS9RemarksControllers645']}`, {
   
   });
 
-  page.drawText(`Checked By: ${Data[0]['ReviewedBy']}`, {
+  page.drawText(`${Data[0]['Status']=='Rejected'?'Rejected By':'Approved By'}: ${Data[0]['ReviewedBy']}`, {
     x: 20+500+200 ,
     y: 1500 - Y+10,
     size: 10,
