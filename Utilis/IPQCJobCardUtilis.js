@@ -285,7 +285,7 @@ worksheet.getCell(`F${Row}`).style = {
   await transport.sendMail({
     from: 'ipqc.gautamsolar@gmail.com',
     cc: 'bhanu.galo@gmail.com',
-    to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com',
+    to: 'nidhi@gautamsolar.com, production@gautamsolar.com, panel@gautamsolar.com, it@gautamsolar.com,qualityreport@gautamsolar.com',
     subject: `IPQC Job Card Report: Module No. ${Data[0]['ModuleNo']}`,
     attachments: [{
       filename: `Job_Card_${Data[0]['ModuleNo']}.xlsx`,
