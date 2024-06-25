@@ -199,52 +199,43 @@ const JobCardList = async (req, res) => {
       query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location, jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ReferencePdf,jcd.ExcelURL, jcd.Date AS InputDate, jcd.CreatedOn,jcd.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
-WHERE jcd.Status = '${Status}'
-ORDER BY STR_TO_DATE(jcd.Date, '%Y-%m-%d') DESC;`;
+WHERE jcd.Status = '${Status}';`;
 
       BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location, bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf, bd.ExcelURL, bd.Date AS InputDate, bd.CreatedOn,bd.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
-WHERE bd.Status = '${Status}'
-ORDER BY STR_TO_DATE(bd.Date, '%Y-%m-%d') DESC;`;
+WHERE bd.Status = '${Status}';`;
 
       PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location, PD.PreLamDetailId,PD.PONo,PD.Line,PD.Shift,PD.Type,PD.PreLamPdf, PD.Date AS InputDate, PD.ExcelURL, PD.CreatedOn, PD.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
-WHERE PD.Status = '${Status}'
-ORDER BY STR_TO_DATE(PD.Date, '%Y-%m-%d') DESC;`;
+WHERE PD.Status = '${Status}';`;
 
       SolderingPeelTestQuery = `  SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,SPT.TestDetailId,SPT.Line,SPT.Shift,SPT.Type,SPT.Pdf, SPT.Date AS InputDate, SPT.ExcelURL, SPT.CreatedOn, SPT.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN SolderingPeelTestDetail SPT ON p.PersonID = SPT.CreatedBy
-WHERE SPT.Status = '${Status}'
-ORDER BY STR_TO_DATE(SPT.Date, '%Y-%m-%d') DESC;`;
+WHERE SPT.Status = '${Status}';`;
 
     } else {
       query = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location, jcd.JobCardDetailID,jcd.ModuleNo,jcd.Type,jcd.ExcelURL, jcd.Date AS InputDate, jcd.ReferencePdf,jcd.CreatedOn,jcd.UpdatedOn  FROM Person p
     JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
     JOIN JobCardDetails jcd ON p.PersonID = jcd.CreatedBy
-    WHERE jcd.Status = '${Status}' AND p.PersonID = '${PersonID}'
-    ORDER BY STR_TO_DATE(jcd.Date, '%Y-%m-%d') DESC;`;
+    WHERE jcd.Status = '${Status}' AND p.PersonID = '${PersonID}';`;
 
       BomQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,bd.BOMDetailId,bd.PONo,bd.Type,bd.ReferencePdf,bd.ExcelURL, bd.Date AS InputDate, bd.CreatedOn, bd.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN BOMVerificationDetails bd ON p.PersonID = bd.CheckedBy
-WHERE bd.Status = '${Status}' AND p.PersonID = '${PersonID}'
-ORDER BY STR_TO_DATE(bd.Date, '%Y-%m-%d') DESC;`;
+WHERE bd.Status = '${Status}' AND p.PersonID = '${PersonID}';`;
 
       PreLamQuery = `SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,  PD.PreLamDetailId,PD.PONo,PD.Line,PD.Shift,PD.Type,PD.ExcelURL, PD.Date AS InputDate, PD.PreLamPdf, PD.CreatedOn,PD.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN PreLamDetail PD ON p.PersonID = PD.CheckedBy
-WHERE PD.Status = '${Status}' AND p.PersonID = '${PersonID}'
-ORDER BY STR_TO_DATE(PD.Date, '%Y-%m-%d') DESC;`;
+WHERE PD.Status = '${Status}' AND p.PersonID = '${PersonID}';`;
 
       SolderingPeelTestQuery = `  SELECT p.EmployeeID,  p.Name, p.ProfileImg, wl.Location,SPT.TestDetailId,SPT.Line,SPT.Shift,SPT.Type,SPT.Pdf,SPT.Date AS InputDate, SPT.ExcelURL, SPT.CreatedOn, SPT.UpdatedOn FROM Person p
 JOIN WorkLocation wl ON wl.LocationID = p.WorkLocation
 JOIN SolderingPeelTestDetail SPT ON p.PersonID = SPT.CreatedBy
-WHERE SPT.Status = '${Status}' AND p.PersonID = '${PersonID}'
-ORDER BY STR_TO_DATE(SPT.Date, '%Y-%m-%d') DESC;`;
-
+WHERE SPT.Status = '${Status}' AND p.PersonID = '${PersonID}';`;
     }
 
     const JobCardList = await queryAsync(query);
@@ -351,15 +342,7 @@ ORDER BY STR_TO_DATE(SPT.Date, '%Y-%m-%d') DESC;`;
         Test['Date'] = Test['CreatedOn'].split(' ')[0];
         JobCardList.push(Test);
       })
-
-      /** Sort the array by the "CreatedOn" property in descending order */
-      JobCardList.sort((a, b) => {
-        const dateA = parseDate(a.CreatedOn);
-        const dateB = parseDate(b.CreatedOn);
-        return dateB - dateA; /** Compare dates in descending order */
-      });
-
-      res.send({ status: true, data: JobCardList })
+      
     } else if (Status == 'Approved') {
 
       BomList.forEach((BOM) => {
@@ -450,15 +433,7 @@ ORDER BY STR_TO_DATE(SPT.Date, '%Y-%m-%d') DESC;`;
         JobCardList.push(Test);
       })
 
-      /** Sort the array by the "CreatedOn" property in descending order */
-      JobCardList.sort((a, b) => {
-        const dateA = parseDate(a.UpdatedOn);
-        const dateB = parseDate(b.UpdatedOn);
-        return dateB - dateA; /** Compare dates in descending order */
-      });
-      res.send({ status: true, data: JobCardList });
-
-    }else{
+    } else {
 
       BomList.forEach((BOM) => {
         for (let key in BOM) {
@@ -551,18 +526,22 @@ ORDER BY STR_TO_DATE(SPT.Date, '%Y-%m-%d') DESC;`;
         JobCardList.push(Test);
       })
 
-      /** Sort the array by the "CreatedOn" property in descending order */
-      JobCardList.sort((a, b) => {
-        const dateA = parseDate(a.InputDate);
-        const dateB = parseDate(b.InputDate);
-        return dateB - dateA; /** Compare dates in descending order */
-      });
-
-      res.send({ status: true, data: JobCardList });
+  
     }
+    /** Sort the array by the "CreatedOn" property in descending order */
+    JobCardList.sort((a, b) => {
+      const dateA = parseDate(a.InputDate);
+      const dateB = parseDate(b.InputDate);
+      return dateB - dateA; /** Compare dates in descending order */
+    });
+    JobCardList.forEach((Card)=>{
+      Card['Date'] = Card['InputDate'];
+    })
+
+   return res.send({ status: true, data: JobCardList });
   } catch (err) {
     console.log(err)
-    res.status(400).send(err)
+   return res.status(400).send(err)
   }
 
 
