@@ -5,7 +5,7 @@ const fs = require('fs');
 const Path = require('path');
 const { dbConn } = require('../db.config/db.config');
 require('dotenv').config();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 9090;
 
 
 /** Making Sync To Query */
@@ -21,17 +21,18 @@ const AddSpareParts = async (req, res) => {
         BrandName,
         MachineName,
         Status,
+        MasterSparePartName,
         CurrentUser: CreatedBy } = req.body;
 
 
-    const UUID = v4();
     console.log(req.body)
     console.log('typeeeeeeeeeeeeeeeee',typeof MachineName)
     const MachineNameArray = MachineName
     try {
         MachineNameArray.forEach(async(MachineName)=>{
-            const query = `INSERT INTO SparePartName(SparPartId ,SparePartName,SpareNumber,Specification,BrandName,MachineName, Status,CreatedBy,CreatedOn) VALUES
-            ('${UUID}','${SparePartName}','${SpareNumber}','${Specification}','${BrandName}','${MachineName}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
+          let UUID = v4();
+            const query = `INSERT INTO SparePartName(SparPartId ,SparePartName,SpareNumber,Specification,BrandName,MachineName, Status,CreatedBy,MasterSparePartName,CreatedOn) VALUES
+            ('${UUID}','${SparePartName}','${SpareNumber}','${Specification}','${BrandName}','${MachineName}','${Status}','${CreatedBy}','${MasterSparePartName}','${getCurrentDateTime()}');`
 
                   await queryAsync(query)
         });
