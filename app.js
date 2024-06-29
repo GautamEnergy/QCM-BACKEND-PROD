@@ -5,6 +5,7 @@ const { designationRouter } = require('./Routes/DesignationRoute')
 const { IQCSolarCellRoute } = require('./Routes/IQCSolarCellRoute')
 const { QualityRoute } = require('./Routes/QualityRoutes');
 const {getCurrentDateTime} = require('./Utilis/IQCSolarCellUtilis')
+const {MaintenanceRouter} = require('./Routes/MaintenanceRoutes')
 const Path = require('path');
 const { v4: uuidv4, v4 } = require('uuid');
 const nodemailer = require('nodemailer')
@@ -50,6 +51,9 @@ app.use('/IPQC',IPQC);
 /**to Quality */
 app.use('/Quality', QualityRoute)
 
+
+/**to Maintenance */
+app.use('/Maintenance',MaintenanceRouter)
 
 function formatDate(date) {
   const day = String(date.getDate()).padStart(2, '0');
@@ -272,20 +276,19 @@ app.get("/getFile", (req, res) => {
 });
 
 
-cron.schedule('0 10 * * *', async () => {
-  try {
+// cron.schedule('35 17 * * *', async () => {
+//   try {
    
-    let result =  await QualityExcelShedule();
-   console.log((await chalk).default.blueBright(result));
+//     let result =  await QualityExcelShedule();
+//    console.log((await chalk).default.blueBright(result));
 
-  } catch (error) {
-    console.error((await chalk).default.red('Error in cron job:', error));
-    //console.error('Error in cron job:', error);
-  }
-}, {
-  timezone: 'Asia/Kolkata' 
-});
-
+//   } catch (error) {
+//     console.error((await chalk).default.red('Error in cron job:', error));
+//     //console.error('Error in cron job:', error);
+//   }
+// }, {
+//   timezone: 'Asia/Kolkata' 
+// });
 
 
 
