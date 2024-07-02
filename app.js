@@ -269,26 +269,19 @@ UUID = v4()
 }
 
 
-
-app.get("/getFile", (req, res) => {
-  const pathfile = Path.join(__dirname, 'check.png');
-  res.download(pathfile);
-});
-
-
-// cron.schedule('35 17 * * *', async () => {
-//   try {
+cron.schedule('0 10 * * *', async () => {
+  try {
    
-//     let result =  await QualityExcelShedule();
-//    console.log((await chalk).default.blueBright(result));
+    let result =  await QualityExcelShedule();
+   console.log((await chalk).default.blueBright(result));
 
-//   } catch (error) {
-//     console.error((await chalk).default.red('Error in cron job:', error));
-//     //console.error('Error in cron job:', error);
-//   }
-// }, {
-//   timezone: 'Asia/Kolkata' 
-// });
+  } catch (error) {
+    console.error((await chalk).default.red('Error in cron job:', error));
+    //console.error('Error in cron job:', error);
+  }
+}, {
+  timezone: 'Asia/Kolkata' 
+});
 
 
 
