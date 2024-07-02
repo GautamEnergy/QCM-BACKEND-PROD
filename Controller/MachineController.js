@@ -25,17 +25,33 @@ const AddMachineData = async (req, res) => {
     const UUID = v4();
 
     try {
+        let getMachineNameQuery = `SELECT MachineName FROM Machine WHERE MachineName = '${MachineName}';`
+      let getMachineName = await queryAsync(getMachineNameQuery);
+
+      if(getMachineName.length){
+
+        return res.status(409).send({msg:'Duplicate Machine Name'});
+      }
+      
+        let getMachineModelNumberQuery = `SELECT MachineModelNumber FROM Machine WHERE MachineModelNumber = '${MachineModelNumber}';`
+      let getMachineModelNumbers = await queryAsync(getMachineModelNumberQuery);
+
+      if(getMachineModelNumbers.length){
+
+        return res.status(409).send({msg:'Duplicate Machine Model Number'})
+      }
+    
         const query = `INSERT INTO Machine(MachineId,MachineName,MachineBrandName,MachineModelNumber,MachineNumber,Status,CreatedBy,CreatedOn) VALUES
                                      ('${UUID}','${MachineName}','${MachineBrandName}','${MachineModelNumber}','${MachineNumber}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
 
         await queryAsync(query)
 
-        res.send({ msg: 'Inserted Succesfully!', MachineId: UUID });
+       return res.send({ msg: 'Inserted Succesfully!', MachineId: UUID });
 
     } catch (err) {
 
         console.log(err)
-        res.status(400).send({ err })
+       return res.status(400).send({ err })
 
     }
 
@@ -67,7 +83,25 @@ const MachineDetailById = async (req, res) => {
 
 }
 
+const GetMachineModelNumberById = async (req, res) => {
+    const { MachineId } = req.body;
 
 
+    try {
 
-module.exports = { AddMachineData, MachineDetailById }
+        let query = `SELECT MachineModelNumber FROM Machine WHERE MachineId = '${MachineId}';`;
+
+        let data = await queryAsync(query)
+
+        res.send(data);
+
+    } catch (err) {
+
+        console.log(err)
+        res.status(400).send({ err })
+
+    }
+}
+
+
+module.exports = { AddMachineData, MachineDetailById, GetMachineModelNumberById }
