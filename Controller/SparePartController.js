@@ -71,7 +71,6 @@ const UploadImage = async (req, res) => {
     const { SparePartId } = req.body;
 
     /** Uploading PDF in Employee-Profile-Folder */
-    if (req.files['SparePartImage'][0].size && req.files['DrawingImage'][0].size) {
       try {
         /** Get the file buffer and the file format */
         const SparePartImageBuffer = req.files['SparePartImage'][0].buffer;
@@ -121,10 +120,7 @@ const UploadImage = async (req, res) => {
         console.log(err);
         res.status(401).send(err);
       }
-    }else{
-      res.status(401).send({status:false,'err':'file is empty'});
-    }
-    
+   
   }
 
 
