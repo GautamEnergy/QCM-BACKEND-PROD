@@ -19,17 +19,25 @@ const AddParty = async (req, res) => {
     const UUID = v4();
 
     try {
+        let getPartyNameQuery = `SELECT PartyName FROM PartyName WHERE PartyName = '${PartyName}';`
+        let getPartyName = await queryAsync(getPartyNameQuery);
+  
+        if(getPartyName.length){
+  
+          return res.status(409).send({msg:'Duplicate Party Name'})
+        }
+
         const query = `INSERT INTO PartyName(PartyNameId,PartyName,GSTNumber,PANNumber,Address,Country,State,Email,MobileNumber,Status,CreatedBy,CreatedOn) VALUES
                                      ('${UUID}','${PartyName}','${GSTNumber}','${PANNumber}','${Address}','${Country}','${State}','${Email}','${MobileNumber}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
 
         await queryAsync(query)
 
-        res.send({ msg: 'Inserted Succesfully!', PartyNameId: UUID });
+       return res.send({ msg: 'Inserted Succesfully!', PartyNameId: UUID });
 
     } catch (err) {
 
         console.log(err)
-        res.status(400).send({ err })
+       return res.status(400).send({ err })
 
     }
 
