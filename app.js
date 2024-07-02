@@ -235,7 +235,7 @@ UUID = v4()
     await transport.sendMail({
       from: 'qualityreport.gautamsolar@gmail.com',
       cc: 'bhanu.galo@gmail.com',
-      to: 'nidhi@gautamsolar.com',
+      to: 'nidhi@gautamsolar.com,qualityreport@gautamsolar.com,ipqc@gautamsolar.com',
       subject: `Quality Report ${formattedPreviousDate}`,
       attachments: [{
         filename: `Quality_Report_InProgress.xlsx`,
