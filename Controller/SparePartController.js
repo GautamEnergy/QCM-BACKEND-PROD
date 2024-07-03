@@ -73,6 +73,7 @@ const UploadImage = async (req, res) => {
     /** Uploading PDF in Employee-Profile-Folder */
       try {
         /** Get the file buffer and the file format */
+        if(req.files['SparePartImage'] && req.files['DrawingImage']){
         const SparePartImageBuffer = req.files['SparePartImage'][0].buffer;
         const DrawingImageBuffer = req.files['DrawingImage'][0].buffer;
          let SparePartImage = req.files['SparePartImage'][0].originalname.split('.')
@@ -114,7 +115,71 @@ const UploadImage = async (req, res) => {
           }
         })
       })
-     res.send({ msg: 'Data Inserted SuccesFully !' })
+    return res.send({ msg: 'Data Inserted SuccesFully !' })
+
+    }else if(req.files['SparePartImage']){
+
+      const SparePartImageBuffer = req.files['SparePartImage'][0].buffer;
+      let SparePartImage = req.files['SparePartImage'][0].originalname.split('.');
+      let SparePartFileFormat = SparePartImage[SparePartImage.length-1];
+
+       /** Define the folder path */
+       const folderPath = Path.join('SpartPartImage');
+  
+       /** Create the folder if it doesn't exist */
+       if (!fs.existsSync(folderPath)) {
+         fs.mkdirSync(folderPath, { recursive: true });
+       }
+ 
+       /** Define the file path, including the desired file name and format */
+       const InvoiceFileName = `${SparePartId}_Spart.${SparePartFileFormat}`;
+
+       const InvoceFilePath = Path.join(folderPath, InvoiceFileName);
+        
+        /** Save the file buffer to the specified file path */
+        fs.writeFileSync(InvoceFilePath, SparePartImageBuffer);
+        
+        const query = `UPDATE SparePartName id
+        set id.SparePartImageURL = 'http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${InvoiceFileName}'
+       WHERE id.SparPartId = '${SparePartId}';`;
+
+       await queryAsync(query);
+       return res.send({ msg: 'Data Inserted SuccesFully !' })
+
+    }else if(req.files['DrawingImage']){
+
+      const DrawingImageBuffer = req.files['DrawingImage'][0].buffer;
+      let DrawingImage =  req.files['DrawingImage'][0].originalname.split('.');
+      let DrawingFileFormat = DrawingImage[DrawingImage.length-1];
+
+
+     /** Define the folder path */
+     const folderPath = Path.join('SpartPartImage');
+
+     /** Create the folder if it doesn't exist */
+     if (!fs.existsSync(folderPath)) {
+       fs.mkdirSync(folderPath, { recursive: true });
+     }
+
+     /** Define the file path, including the desired file name and format */
+     const COCFileName = `${SparePartId}_Drawing.${DrawingFileFormat}`;
+
+     const COCFilePath = Path.join(folderPath,COCFileName);
+
+     /** Save the file buffer to the specified file path */
+     fs.writeFileSync(COCFilePath, DrawingImageBuffer);
+     
+     const query = `UPDATE SparePartName id
+     set id.SparePartDrawingImageURL = 'http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${COCFileName}'
+    WHERE id.SparPartId = '${SparePartId}';`;
+
+    await queryAsync(query);
+    return res.send({ msg: 'Data Inserted SuccesFully !' });
+
+    }else{
+
+      return res.send({ msg: 'Data Inserted SuccesFully !' });
+    }
   
       } catch (err) {
         console.log(err);
