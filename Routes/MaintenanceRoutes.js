@@ -2,7 +2,7 @@ const express = require('express');
 const MaintenanceRouter = express.Router()
 const {AddMachineData, MachineDetailById, GetMachineModelNumberById} = require('../Controller/MachineController');
 const {AddParty} = require('../Controller/PartyController');
-const {UploadImage,AddSpareParts,GetImage} = require('../Controller/SparePartController');
+const {UploadImage,AddSpareParts,GetImage,getEquivalent} = require('../Controller/SparePartController');
 const {upload} = require('../Middleware/Maintenance.middleware');
 
 
@@ -26,5 +26,9 @@ MaintenanceRouter.post('/AddSparePart',AddSpareParts)
 
 /**Router To Get Upload FIle FROM Spare Parts */
 MaintenanceRouter.get('/File/:filename',GetImage)
+
+/**Router to Get Equivalent data */
+MaintenanceRouter.post('/Equ',getEquivalent)
+
 
 module.exports = {MaintenanceRouter}
