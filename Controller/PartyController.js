@@ -14,7 +14,7 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 
 /**Add Machine Data  */
 const AddParty = async (req, res) => {
-    const { PartyName, GSTNumber, PANNumber, Address, Country, State, Email, MobileNumber, Status, CurrentUser: CreatedBy } = req.body;
+    const { PartyName, GSTNumber, PANNumber, Address, Country, State, Email, MobileNumber, Status, CurrentUser: CreatedBy, PinCode, CountryCode } = req.body;
 
     const UUID = v4();
 
@@ -27,8 +27,8 @@ const AddParty = async (req, res) => {
           return res.status(409).send({msg:'Duplicate Party Name'})
         }
 
-        const query = `INSERT INTO PartyName(PartyNameId,PartyName,GSTNumber,PANNumber,Address,Country,State,Email,MobileNumber,Status,CreatedBy,CreatedOn) VALUES
-                                     ('${UUID}','${PartyName}','${GSTNumber}','${PANNumber}','${Address}','${Country}','${State}','${Email}','${MobileNumber}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
+        const query = `INSERT INTO PartyName(PartyNameId,PartyName,GSTNumber,PANNumber,Address,Country,State,Email,MobileNumber,PinCode,Status,CreatedBy,CreatedOn) VALUES
+                                     ('${UUID}','${PartyName}','${GSTNumber}','${PANNumber}','${Address}','${Country}','${State}','${Email}','${CountryCode} ${MobileNumber}','${PinCode}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
 
         await queryAsync(query)
 
