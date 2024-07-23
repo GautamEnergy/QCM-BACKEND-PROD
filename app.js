@@ -12,7 +12,6 @@ const nodemailer = require('nodemailer')
 const {QualityExcelGenerate} = require('./Utilis/QualityUtilis')
 const cron = require('node-cron');
 const util = require('util');
-const chalk =  import('chalk');
 const fs = require('fs');
 const { IPQC } = require('./Routes/IPQCRoute')
 const app = express()
@@ -273,10 +272,10 @@ cron.schedule('0 10 * * *', async () => {
   try {
    
     let result =  await QualityExcelShedule();
-   console.log((await chalk).default.blueBright(result));
+   console.log(result);
 
   } catch (error) {
-    console.error((await chalk).default.red('Error in cron job:', error));
+    console.error('Error in cron job:', error);
     //console.error('Error in cron job:', error);
   }
 }, {
@@ -288,9 +287,8 @@ cron.schedule('0 10 * * *', async () => {
 
 app.listen(PORT, async () => {
   try {
-    console.log((await chalk).default.green('server is running'));
-    console.log((await chalk).default.yellow('Database is connecting....'))
-  
+   
+  console.log('server is running');
     dbConn
   } catch (err) {
     console.log(err)
