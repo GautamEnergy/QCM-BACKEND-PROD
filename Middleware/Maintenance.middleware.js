@@ -19,7 +19,7 @@ const filefilter = (req, file, cb) => {
     }
 
 const upload = multer({ storage: storage, fileFilter: filefilter }).fields([
-  {name:'SparePartImage',maxCount:1},
+  {name:'SparePartImage'},
   {name:'DrawingImage',maxCount:1}
 ]);
 
