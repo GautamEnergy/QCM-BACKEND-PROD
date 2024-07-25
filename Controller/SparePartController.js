@@ -25,43 +25,44 @@ const AddSpareParts = async (req, res) => {
     NumberOfPcs,
     CycleTime,
     Equivalent,
+    HSNCode,
     CurrentUser: CreatedBy } = req.body;
 
 
-    console.log(req.body)
-    console.log('typeeeeeeeeeeeeeeeee',typeof MachineName)
-    const MachineNameArray = MachineName
-    let UUID = v4();
-    try {
-      let getSpareModelNumberQuery = `SELECT SpareNumber FROM SparePartName WHERE SpareNumber = '${SpareNumber}';`
-      let getSpareModelNumbers = await queryAsync(getSpareModelNumberQuery);
+  console.log(req.body)
+  console.log('typeeeeeeeeeeeeeeeee', typeof MachineName)
+  const MachineNameArray = MachineName
+  let UUID = v4();
+  try {
+    let getSpareModelNumberQuery = `SELECT SpareNumber FROM SparePartName WHERE SpareNumber = '${SpareNumber}';`
+    let getSpareModelNumbers = await queryAsync(getSpareModelNumberQuery);
 
-      if(getSpareModelNumbers.length){
+    if (getSpareModelNumbers.length) {
 
-        return res.status(409).send({msg:'Duplicate Spare Model Number'})
-      }
+      return res.status(409).send({ msg: 'Duplicate Spare Model Number' })
+    }
 
-    const query = `INSERT INTO SparePartName(SparPartId ,SparePartName,SpareNumber,Specification,BrandName,Status,CreatedBy,MasterSparePartName,CreatedOn,NumberOfPcs,CycleTime,Equivalent) VALUES
-            ('${UUID}','${SparePartName}','${SpareNumber}','${Specification}','${BrandName}','${Status}','${CreatedBy}','${MasterSparePartName}','${getCurrentDateTime()}','${NumberOfPcs}','${CycleTime}','${JSON.stringify(Equivalent)}');`
+    const query = `INSERT INTO SparePartName(SparPartId ,SparePartName,SpareNumber,Specification,BrandName,HSNCode,Status,CreatedBy,MasterSparePartName,CreatedOn,NumberOfPcs,CycleTime,Equivalent) VALUES
+            ('${UUID}','${SparePartName}','${SpareNumber}','${Specification}','${BrandName}','${HSNCode}','${Status}','${CreatedBy}','${MasterSparePartName}','${getCurrentDateTime()}','${NumberOfPcs}','${CycleTime}','${JSON.stringify(Equivalent)}');`
+   
+    await queryAsync(query)
+    MachineNameArray.forEach(async (MachineName) => {
+      let SpareMachineId = v4();
+      let query = `INSERT INTO SparePartMachine(SparePartMachineId,SparePartId,MachineId,Status,CreatedBy,CreatedOn) VALUES
+                    ('${SpareMachineId}','${UUID}','${MachineName}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
 
       await queryAsync(query)
-        MachineNameArray.forEach(async(MachineName)=>{
-          let SpareMachineId = v4();
-         let query = `INSERT INTO SparePartMachine(SparePartMachineId,SparePartId,MachineId,Status,CreatedBy,CreatedOn) VALUES
-                    ('${SpareMachineId}','${UUID}','${MachineName}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
-        
-                    await queryAsync(query)
-        });
-          
- 
-      return  res.send({ msg: 'Inserted Succesfully!', SparePartId: UUID });
+    });
 
-    } catch (err) {
 
-        console.log(err)
-     return   res.status(400).send({ err })
+    return res.send({ msg: 'Inserted Succesfully!', SparePartId: UUID });
 
-    }
+  } catch (err) {
+
+    console.log(err)
+    return res.status(400).send({ err })
+
+  }
 
 
 
