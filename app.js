@@ -6,6 +6,7 @@ const { IQCSolarCellRoute } = require('./Routes/IQCSolarCellRoute')
 const { QualityRoute } = require('./Routes/QualityRoutes');
 const {getCurrentDateTime} = require('./Utilis/IQCSolarCellUtilis')
 const {MaintenanceRouter} = require('./Routes/MaintenanceRoutes')
+const {setupSwagger} = require('./Controller/Swagger.controller')
 const Path = require('path');
 const { v4: uuidv4, v4 } = require('uuid');
 const nodemailer = require('nodemailer')
@@ -23,6 +24,8 @@ app.use(cors())
 
 /** Making Sync To Query to Loop */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
+
+setupSwagger(app);
 
 /** Nodemailer Configuration */
 var transport = nodemailer.createTransport({
