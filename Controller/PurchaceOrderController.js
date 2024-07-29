@@ -10,94 +10,11 @@ const PORT = process.env.PORT || 8080;
 /** Making Sync To Query to Loop */
 const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 
-// let data = {
-//   PurchaseData: {
-//     series: "GST-2024-2025",
-//     vochNo: "GST-2024-2025-01",
-//     purcType: "L/GST-12%",
-//     PartyName: "0213fe0c-cae1-4a07-858b-aeeefdaabe0d",
-//     company: "fd86454f-4365-11ef-b658-1a2cd4d9c0d1",
-//     narration: "jjjjjjsdkfksd",
-//     currentDate: "Sat Jul 20 2024",
-//     currentUser:'66494d8a-0786-11ef-8005-52549f6cc694'
-//   },
-//   BilingData: [
-//     {
-//       Bill_Sundry: "Discount",
-//       Narration: "",
-//       Percentage: "",
-//       Amount: "0.00",
-//       Total_Amount: "1080.80",
-//     },
-//     {
-//       Bill_Sundry: "Freight",
-//       Narration: "",
-//       Percentage: "3",
-//       Amount: "",
-//       Total_Amount: "1080.80",
-//     },
-//     {
-//       Bill_Sundry: "IGST",
-//       Narration: "",
-//       Percentage: "",
-//       Amount: "",
-//       Total_Amount: "1080.80",
-//     },
-//     {
-//       Bill_Sundry: "SGST",
-//       Narration: "",
-//       Percentage: 6,
-//       Amount: "57.90",
-//       Total_Amount: "1080.80",
-//     },
-//     {
-//       Bill_Sundry: "CGST",
-//       Narration: "",
-//       Percentage: 6,
-//       Amount: "57.90",
-//       Total_Amount: "1080.80",
-//     },
-//   ],
-//   tableData: {
-//     items: [
-//       {
-//         id: 1,
-//         spareName: "fhgfgh",
-//         modelNumber: "fghfgh",
-//         qty: "4",
-//         unit: "gfd",
-//         price: "100",
-//         gst: "10",
-//         amount:200,
-//         SparePartId: "10db5181-bed5-4a5d-b148-c0ce5a3f8822",
-//       },
-//       {
-//         id: 1721468333869,
-//         spareName: "fhgfgh",
-//         modelNumber: "fghfgh",
-//         qty: "5",
-//         unit: "fgd",
-//         price: "100",
-//         gst: "5",
-//         amount:200,
-//         SparePartId: "10db5181-bed5-4a5d-b148-c0ce5a3f8822",
-//       },
-//     ],
-//     totalAmount: '965',
-//   },
-//   optionalData: {
-//     paymentTerm: "fsd",
-//     deleveryTerm: "dgfs",
-//     contactPer: "fdgs",
-//     cellNo: "dfgs",
-//     warranty: "",
-//   },
-// };
 
 const AddPurchaseOrder = async (req, res) => {
   const { PurchaseData : P, BilingData : B, tableData:t, optionalData:o } = req.body;
   const UUID = v4();
-
+  console.log(req.body);
   try{
     /**
      * ! Inserting Data into Purchase Table
