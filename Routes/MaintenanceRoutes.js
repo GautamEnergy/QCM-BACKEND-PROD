@@ -1,9 +1,10 @@
 const express = require('express');
 const MaintenanceRouter = express.Router()
 const {AddMachineData, MachineDetailById, GetMachineModelNumberById} = require('../Controller/MachineController');
-const {AddParty} = require('../Controller/PartyController');
-const {UploadImage,AddSpareParts,GetImage,getEquivalent} = require('../Controller/SparePartController');
+const {AddParty,getCurrency,getPartyNames} = require('../Controller/PartyController');
+const {UploadImage,AddSpareParts,GetImage,getEquivalent,SparePartList} = require('../Controller/SparePartController');
 const {upload} = require('../Middleware/Maintenance.middleware');
+const {getVoucherNumber,AddPurchaseOrder, getPurchaseOrderList, getPurchaseOrderById, getFile} = require('../Controller/PurchaceOrderController')
 
 
 /**Route to Add Party */
@@ -30,5 +31,28 @@ MaintenanceRouter.get('/File/:filename',GetImage)
 /**Router to Get Equivalent data */
 MaintenanceRouter.post('/Equ',getEquivalent)
 
+/**Router to get Spare List & Brand Name & Spare Model Number */
+MaintenanceRouter.post('/GetAutoData',SparePartList)
+
+/**Router to Get Currency */
+MaintenanceRouter.get('/GetCurrency',getCurrency);
+
+/**Router To Get All Party Names */
+MaintenanceRouter.get('/GetParty',getPartyNames);
+
+/**Router to get Voucher Number */
+MaintenanceRouter.get('/GetVoucherNumber',getVoucherNumber)
+
+/**Router to Add Purchase Data  */
+MaintenanceRouter.post('/AddPurchaseOrder', AddPurchaseOrder)
+
+/**Router to Get Purchase Order List */
+MaintenanceRouter.get('/GetPurchaseOrderList', getPurchaseOrderList)
+
+/**Router to Get Purchase Order By PO Id For Edit PO */
+MaintenanceRouter.post('/GetPurchaseOrderById', getPurchaseOrderById)
+
+/**Router to Get Files, Pdf etc. */
+MaintenanceRouter.get('/getFile/:filename', getFile);
 
 module.exports = {MaintenanceRouter}
