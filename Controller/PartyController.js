@@ -46,5 +46,28 @@ const AddParty = async (req, res) => {
 }
 
 
+const getCurrency = async(req, res)=>{
+    
+  try{
+     const query = `SELECT CurrencyId, Country, Currency FROM Currency;`;
+     let data = await queryAsync(query);
+     res.send(data)
+  }catch(err){
+    res.status(400).send({err})
+  }
+}
 
-module.exports = { AddParty }
+
+const getPartyNames = async(req, res)=>{
+  
+  try{
+    let data = await queryAsync(`SELECT PartyName, PartyNameId, Country FROM PartyName`);
+    res.send(data)
+  }catch(err){
+    res.status(400).send({err})
+  }
+
+
+}
+
+module.exports = { AddParty,getCurrency,getPartyNames }
