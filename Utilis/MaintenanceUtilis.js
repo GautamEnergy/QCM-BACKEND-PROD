@@ -158,7 +158,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                   font-weight:bold;
                 }
                 .center-td{
-                 text-align: center;
+                 text-align: right;
                  font-size:12px;
                  font-weight:bold;
                 }
