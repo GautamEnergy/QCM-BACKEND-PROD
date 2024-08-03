@@ -14,36 +14,76 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 
 /**Add Machine Data  */
 const AddParty = async (req, res) => {
-    const { PartyName, GSTNumber, PANNumber, Address, Country, State, Email, MobileNumber, Status, CurrentUser: CreatedBy, PinCode, CountryCode } = req.body;
+  const {
+      PartyNameId,
+      PartyName,
+      GSTNumber,
+      PANNumber,
+      Address,
+      Country,
+      State,
+      Email,
+      MobileNumber,
+      Status,
+      CurrentUser: CreatedBy,
+      PinCode,
+      CountryCode
+  } = req.body;
 
-    const UUID = v4();
+  const UUID = PartyNameId || v4();
+  
 
-    try {
-        let getPartyNameQuery = `SELECT PartyName FROM PartyName WHERE PartyName = '${PartyName}';`
+  try {
+      if (!PartyNameId) {
+          // Check for duplicate Party Name only if inserting a new record
+          let getPartyNameQuery = `SELECT PartyName FROM PartyName WHERE PartyName = '${PartyName}'`;
+          let getPartyName = await queryAsync(getPartyNameQuery);
+
+          if (getPartyName.length) {
+              return res.status(409).send({ msg: 'Duplicate Party Name' });
+          }
+
+          // Insert new record
+          const insertQuery = `INSERT INTO PartyName(
+              PartyNameId, PartyName, GSTNumber, PANNumber, Address, Country, State, Email, MobileNumber, PinCode, Status, CreatedBy, CreatedOn
+          ) VALUES (
+              '${UUID}', '${PartyName}', '${GSTNumber}', '${PANNumber}', '${Address}', '${Country}', '${State}', '${Email}', '${CountryCode} ${MobileNumber}', '${PinCode}', '${Status}', '${CreatedBy}', '${getCurrentDateTime()}'
+          );`;
+
+          await queryAsync(insertQuery);
+          return res.send({ msg: 'Inserted Successfully!', PartyNameId: UUID });
+      } else {
+        // Check for duplicate Party Name only if inserting a new record
+        let getPartyNameQuery = `SELECT PartyName FROM PartyName WHERE PartyName = '${PartyName}' and PartyNameId <> '${PartyNameId}'`;
         let getPartyName = await queryAsync(getPartyNameQuery);
-  
-        if(getPartyName.length){
-  
-          return res.status(409).send({msg:'Duplicate Party Name'})
+
+        if (getPartyName.length) {
+            return res.status(409).send({ msg: 'Duplicate Party Name' });
         }
+          // Update existing record
+          const updateQuery = `UPDATE PartyName SET
+              PartyName = '${PartyName}',
+              GSTNumber = '${GSTNumber}',
+              PANNumber = '${PANNumber}',
+              Address = '${Address}',
+              Country = '${Country}',
+              State = '${State}',
+              Email = '${Email}',
+              MobileNumber = '${CountryCode} ${MobileNumber}',
+              PinCode = '${PinCode}',
+              Status = '${Status}',
+              UpdatedBy = '${CreatedBy}',
+              UpdatedOn = '${getCurrentDateTime()}'
+          WHERE PartyNameId = '${PartyNameId}';`;
 
-        const query = `INSERT INTO PartyName(PartyNameId,PartyName,GSTNumber,PANNumber,Address,Country,State,Email,MobileNumber,PinCode,Status,CreatedBy,CreatedOn) VALUES
-                                     ('${UUID}','${PartyName}','${GSTNumber}','${PANNumber}','${Address}','${Country}','${State}','${Email}','${CountryCode} ${MobileNumber}','${PinCode}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
-
-        await queryAsync(query)
-
-       return res.send({ msg: 'Inserted Succesfully!', PartyNameId: UUID });
-
-    } catch (err) {
-
-        console.log(err)
-       return res.status(400).send({ err })
-
-    }
-
-
-
-}
+          await queryAsync(updateQuery);
+          return res.send({ msg: 'Updated Successfully!', PartyNameId: PartyNameId });
+      }
+  } catch (err) {
+      console.log(err);
+      return res.status(400).send({ err });
+  }
+};
 
 
 const getCurrency = async(req, res)=>{
@@ -58,10 +98,11 @@ const getCurrency = async(req, res)=>{
 }
 
 
-const getPartyNames = async(req, res)=>{
-  
+const getPartyNames = async(req, res)=>{  
   try{
-    let data = await queryAsync(`SELECT PartyName, PartyNameId, Country FROM PartyName`);
+    let data = await queryAsync(`SELECT PartyName, PartyNameId, Country, Email, MobileNumber 
+  FROM PartyName 
+  ORDER BY createdOn DESC`);
     res.send(data)
   }catch(err){
     res.status(400).send({err})
@@ -70,4 +111,39 @@ const getPartyNames = async(req, res)=>{
 
 }
 
-module.exports = { AddParty,getCurrency,getPartyNames }
+
+const getPartyListById = async (req, res) => {
+  const { PartyNameId } = req.body;
+  try {
+    const query = `
+    SELECT *
+    FROM PartyName p
+    WHERE p.PartyNameId = '${PartyNameId}' AND p.Status = 'Active';`;
+
+
+
+    let data = await new Promise((resolve, reject) => {
+      dbConn.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });   
+    
+    res.send({data:data});
+  } catch (err) {
+    console.log(err);
+    res.status(404).send(err);
+  }
+};
+
+
+
+
+
+
+
+
+module.exports = { AddParty,getCurrency,getPartyNames, getPartyListById }
