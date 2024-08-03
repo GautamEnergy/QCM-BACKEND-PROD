@@ -104,4 +104,22 @@ const GetMachineModelNumberById = async (req, res) => {
 }
 
 
-module.exports = { AddMachineData, MachineDetailById, GetMachineModelNumberById }
+const GetMachineList = async (req, res) => {
+    try {
+
+        let query = `SELECT MachineId, MachineName, MachineBrandName, MachineModelNumber, MachineNumber FROM Machine WHERE Status = 'Active';`;
+
+        let data = await queryAsync(query)
+
+        res.send({data:data});
+
+    } catch (err) {
+
+        console.log(err)
+        res.status(400).send({ err })
+
+    }
+}
+
+
+module.exports = { AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList }
