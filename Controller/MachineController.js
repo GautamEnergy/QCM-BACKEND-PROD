@@ -14,7 +14,7 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 
 /**Add Machine Data  */
 const AddMachineData = async (req, res) => {
-    const { MachineName,
+    const {MachineId, MachineName,
         MachineBrandName,
         MachineModelNumber,
         MachineNumber,
@@ -24,29 +24,55 @@ const AddMachineData = async (req, res) => {
 
     const UUID = v4();
 
-    try {
-        let getMachineNameQuery = `SELECT MachineName FROM Machine WHERE MachineName = '${MachineName}';`
-      let getMachineName = await queryAsync(getMachineNameQuery);
+    try {    
 
-      if(getMachineName.length){
+        if (MachineId) {
+          let getMachineNameQuery = `SELECT MachineName FROM Machine WHERE MachineName = '${MachineName}' and MachineId <> '${MachineId}';`
+          let getMachineName = await queryAsync(getMachineNameQuery);
+  
+          if(getMachineName.length){
+  
+            return res.status(409).send({msg:'Duplicate Machine Name'});
+          }
+        
+          let getMachineModelNumberQuery = `SELECT MachineModelNumber FROM Machine WHERE MachineModelNumber = '${MachineModelNumber}' and MachineId <> '${MachineId}';`
+          let getMachineModelNumbers = await queryAsync(getMachineModelNumberQuery);
+  
+          if(getMachineModelNumbers.length){
+  
+          return res.status(409).send({msg:'Duplicate Machine Model Number'})
+          }  
 
-        return res.status(409).send({msg:'Duplicate Machine Name'});
-      }
-      
-        let getMachineModelNumberQuery = `SELECT MachineModelNumber FROM Machine WHERE MachineModelNumber = '${MachineModelNumber}';`
-      let getMachineModelNumbers = await queryAsync(getMachineModelNumberQuery);
 
-      if(getMachineModelNumbers.length){
+          const updateQuery = `UPDATE Machine SET MachineName='${MachineName}', MachineBrandName='${MachineBrandName}',
+           MachineModelNumber='${MachineModelNumber}', MachineNumber='${MachineNumber}', Status='${Status}',
+            UpdatedBy='${CreatedBy}', UpdatedOn='${getCurrentDateTime()}' WHERE MachineId='${MachineId}';`
+          await queryAsync(updateQuery);
 
-        return res.status(409).send({msg:'Duplicate Machine Model Number'})
-      }
-    
-        const query = `INSERT INTO Machine(MachineId,MachineName,MachineBrandName,MachineModelNumber,MachineNumber,Status,CreatedBy,CreatedOn) VALUES
-                                     ('${UUID}','${MachineName}','${MachineBrandName}','${MachineModelNumber}','${MachineNumber}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
-
-        await queryAsync(query)
-
-       return res.send({ msg: 'Inserted Succesfully!', MachineId: UUID });
+          return res.send({ msg: 'Updated Successfully!', MachineId: MachineId });
+        } else {
+            let getMachineNameQuery = `SELECT MachineName FROM Machine WHERE MachineName = '${MachineName}';`
+            let getMachineName = await queryAsync(getMachineNameQuery);
+  
+            if(getMachineName.length){
+  
+             return res.status(409).send({msg:'Duplicate Machine Name'});
+            }
+        
+              let getMachineModelNumberQuery = `SELECT MachineModelNumber FROM Machine WHERE MachineModelNumber = '${MachineModelNumber}';`
+              let getMachineModelNumbers = await queryAsync(getMachineModelNumberQuery);
+  
+             if(getMachineModelNumbers.length){
+  
+              return res.status(409).send({msg:'Duplicate Machine Model Number'})
+              }
+  
+           // Otherwise, add a new machine
+             const insertQuery = `INSERT INTO Machine(MachineId, MachineName, MachineBrandName, MachineModelNumber, MachineNumber, Status, CreatedBy, CreatedOn)
+              VALUES ('${UUID}', '${MachineName}', '${MachineBrandName}', '${MachineModelNumber}', '${MachineNumber}', '${Status}', '${CreatedBy}', '${getCurrentDateTime()}');`
+            await queryAsync(insertQuery);
+           return res.send({ msg: 'Inserted Successfully!', MachineId: UUID });
+        }  
 
     } catch (err) {
 
@@ -122,4 +148,22 @@ const GetMachineList = async (req, res) => {
 }
 
 
-module.exports = { AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList }
+const GetMachineListById = async (req, res) => {
+    const { MachineId } = req.body;
+
+
+    try {
+        let query = `SELECT MachineId, MachineName, MachineBrandName, MachineModelNumber, MachineNumber, Status FROM Machine WHERE MachineId = '${MachineId}' and Status = 'Active';`;
+        let data = await queryAsync(query)
+        
+        res.send({data});
+    } catch (err) {
+
+        console.log(err)
+        res.status(400).send({ err })
+
+    }
+}
+
+
+module.exports = { AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList, GetMachineListById }
