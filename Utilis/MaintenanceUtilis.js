@@ -20,6 +20,11 @@ function getCurrentDateTime() {
   };
 
 
+  function formatNumberWithCommas(value) {
+    let v =  value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return v
+}
+
 const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
     
        let serialNo = 0;
@@ -161,6 +166,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                  text-align: right;
                  font-size:12px;
                  font-weight:bold;
+                 padding-right:4px;
                 }
         
         
@@ -209,11 +215,17 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
         
         <body>
            <div style="width: 100%; border: 1px solid black; margin-bottom:-20px;">
+           ${Top_Data[0].Party_Country == 'India'?'':
+            `<span style="font-size:12px; margin-top:2px; margin-left:2px;">GSTIN &nbsp; : &nbsp; ${Top_Data[0].Company_GSTNumber}</span>
+           <br>
+           <span style="font-size:12px; margin-left:2px;">CIN &nbsp; &nbsp; &nbsp; <span style="margin-left:2px;">:</span> &nbsp; ${Top_Data[0].CINNumber}</span>`}
+           <div>
             <h4 style="text-decoration: underline; text-align: center; margin-top: 0px;">Purchase Order</h4>
             <h3 style="text-align: center; margin-top: -24px; letter-spacing: 2px;">${Top_Data[0].CompanyName}</h3>
             <h4 style="text-align: center; margin-top: -22px; font-size: 13px;">${Top_Data[0].Company_Address}, ${Top_Data[0].State} - ${Top_Data[0].Pin}</h4>
-            <h4 style="text-align: center; margin-top: -19px; font-size: 13px;">GSTIN: ${Top_Data[0].GSTNumber}</h4>
-            <h4 style="text-align: center; margin-top: -19px; font-size: 10px;">email: ${JSON.parse(emailString).join(' ')}</h4>
+            ${Top_Data[0].Party_Country=='India'?`<h4 style="text-align: center; margin-top: -19px; font-size: 13px;">GSTIN: ${Top_Data[0].Company_GSTNumber}</h4>`:''}
+            <h4 style="text-align: center; margin-top: -19px; font-size: 10px;">email: ${JSON.parse(emailString).join(', ')}</h4>
+            </div>
           </div>
 
            <div style="margin-top: -55px;">
@@ -225,50 +237,52 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                         <p class="address">${Top_Data[0].Address}</p>
                         <br>
                         <br>
-                        <span style="font-size: 14px;">GSTIN/UIN :</span> <span
+                        ${Top_Data[0].Party_Country == 'India'?`<span style="font-size: 14px;">GSTIN/UIN :</span> <span
                             style=" font-size: 14px; margin-left:30px">${Top_Data[0].GSTNumber}</span>
-                    </div>
+                    </div>`:
+                    `<span style="font-size: 14px;">Party TIN :</span> <span
+                            style=" font-size: 14px; margin-left:30px"></span>
+                    </div>`}
         
                     <!-- Second-->
-                    <div class="cell" style=" width: 55%;">
+                      <div class="cell" style=" width: 55%;">
                      <div style = " font-size:12px; font-weight:bold;">
         
                         <div>
         
                             <div>
-                                <span style="font-size: 12px;">Order No. :</span><span
-                                    style="font-size:12px; margin-left:32px;">${Top_Data[0].Order_Number}</span>
+                                <span style="font-size: 12px;">Order No</span><span
+                                    style="font-size:12px; margin-left:41px;">:&nbsp;&nbsp;GST-24-25-07</span>
                             </div>
                             <div>
-                                <span style="font-size: 12px;">Dated :</span><span
-                                    style="font-size:12px; margin-left:52px;">${Top_Data[0].Purchase_Date}</span>
+                                <span style="font-size: 12px;">Dated</span><span
+                                    style="font-size:12px; margin-left:59px;">:&nbsp;&nbsp;Mon Jul 22 2024
+                                </span>
                             </div>
                             <div>
-                                <span style="font-size: 12px;">Payment Terms :</span><span
-                                    style="font-size:12px; margin-left:1px;">${Top_Data[0].Payment_Terms}</span>
+                                <span style="font-size: 12px;">Payment Terms</span><span
+                                    style="font-size:12px; margin-left:4px;">:&nbsp;&nbsp;AFTER 30 DAYS</span>
                             </div>
                             <div>
-                                <span style="font-size: 12px;">Delivery Terms:</span><span
-                                    style="font-size:12px; margin-left:10px;">${Top_Data[0].Delivery_Terms}</span>
+                                <span style="font-size: 12px;">Delivery Terms</span><span
+                                    style="font-size:12px; margin-left:7px;">:&nbsp;&nbsp;IMMEDIATELY</span>
                             </div>
                             <div>
-                                <span style="font-size: 12px;">Contact Person:</span><span
-                                    style="font-size:12px; margin-left:10px;">${Top_Data[0].Contact_Person}</span>
+                                <span style="font-size: 12px;">Contact Person</span><span
+                                    style="font-size:12px; margin-left:4px;">:&nbsp;&nbsp;MOHD NOUSHAD</span>
                             </div>
                             <div>
-                                <span style="font-size: 12px;">Cell No:</span><span
-                                    style="font-size:12px; margin-left:52px;">${Top_Data[0].Cell_Number}</span>
+                                <span style="font-size: 12px;">Cell No</span><span
+                                    style="font-size:13px; margin-left:51px;">:&nbsp;&nbsp;+917428485660</span>
                             </div>
                             <div>
-                                <span style="font-size: 12px;">Warranty:</span><span
-                                    style="font-size:12px; margin-left:44px;">${Top_Data[0].Warranty}</span>
+                                <span style="font-size: 12px;">Warranty</span><span
+                                    style="font-size:12px; margin-left:40px;">:&nbsp;&nbsp;7 Months</span>
                             </div>
         
                         </div>
-        
-        
-                    </div>
-                </div>
+                   </div>
+               </div>
             </div>
         </div>
         
@@ -283,13 +297,17 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
          <table class = "page-break" ${totalPage==page?'':'style="border-bottom:1px solid black;"'} >
             <thead>
                 <tr>
-                    <th>S.N.</th>
-                    <th style="width:50%;">Description of Goods</th>
-                    <th>HSN/SAC Code</th>
-                    <th>Qty.</th>
-                    <th>Unit</th>
-                    <th>Price ₹</th>
-                    <th>Amount</th>
+                    <th style="font-size:15px; padding-top:3px; padding-bottom:3px;">S.N.</th>
+                    <th style="width:40%; font-size:15px; padding-top:3px; padding-bottom:3px;">Description of Goods</th>
+                    <th style="width:10%; font-size:15px; padding-top:3px; padding-bottom:3px;">HSN Code</th>
+                    <th style="font-size:15px; padding-top:3px; padding-bottom:3px;">Qty.</th>
+                    <th style="font-size:15px; padding-top:2px; padding-bottom:2px;">Unit</th>
+                    <th style="width:15%; font-size:15px; padding-top:3px; padding-bottom:3px;">Price ${Top_Data[0].Party_Country=='India'?
+                     `(₹)`:`($)`
+                    }</th>
+                    <th style="width:15%; font-size:15px; padding-top:3px; padding-bottom:3px;">Amount ${Top_Data[0].Party_Country=='India'?
+                        `(₹)`:`($)`
+                       }</th>
                 </tr>
             </thead>
             <tbody>
@@ -306,80 +324,88 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                             <ul style="margin-left:7px;">
                                 <li class="parent">${row.MasterSparePartName || ""}
                                     <ul>
-                                        <li class="child" style="word-wrap: break-word; word-break: break-word;">${row.SparePartName || ""}</li>
-                                        <li class="child" style="word-wrap: break-word; word-break: break-word;">${row.SpareNumber || ""}</li>
+                                        <li class="child" style="word-wrap: break-word; word-break: break-word; font-style:oblique;">${row.SparePartName || ""}</li>
+                                        <li class="child" style="word-wrap: break-word; word-break: break-word; font-style:oblique;">${row.SpareNumber || ""}</li>
                                     </ul>
                                 </li>
                             </ul>
                         </td>
                         <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.HSNCode || ""}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Quantity || ""}</td>
+                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Quantity?formatNumberWithCommas((+row.Quantity)):''}</td>
                         <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Unit || ""}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Price_Rs || ""}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Amount || ""}</td>
+                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Price_Rs?formatNumberWithCommas((+row.Price_Rs)):''}</td>
+                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Amount?formatNumberWithCommas((+row.Amount)):''}</td>
                     </tr>`;
             }).join(' ')
             }
                
-            ${totalPage == page?
-            `<tr style="height:20px; ">
-                       <td style="border:0px solid black;" class="serialNo" ></td>
-                       <td style="border:0px solid black;">
-                           <p style = "text-align:center; font-weight:bold; font-size:13px;">Total Quantity</p> 
-                       </td>
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td"></td> <!-- Replace with actual HSN/SAC Code -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" ></td> <!-- Replace with actual Qty. -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" ></td>
-                       <td  style="border:0px solid black; font-weight:bold;" class="center-td" ></td> <!-- Replace with actual Price -->
-                       <td style="border:0px solid black; font-weight:bold; word-wrap: break-word; word-break: break-word;" class="center-td" style = "text-align:center; font-weight:bold;" >${totalQuantityPerPage} ${data[0].Unit}</td> <!-- Replace with actual Amount -->
-                   </tr>`:`
-                   <tr style="height:120px; ">
-                       <td style="border:0px solid black;" class="serialNo" ></td>
-                       <td style="border:0px solid black;">
-                           <p style = "text-align:center; font-weight:bold; font-size:13px;">Total Quantity</p> 
-                       </td>
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td">${totalQuantityPerPage} ${data[0].Unit}</td> <!-- Replace with actual HSN/SAC Code -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" >Total Amount</td> <!-- Replace with actual Qty. -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" ></td>
-                       <td  style="border:0px solid black; font-weight:bold;" class="center-td" ></td> <!-- Replace with actual Price -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold; word-wrap: break-word; word-break: break-word;" >${totalAmountPerPage.toFixed(2)}</td> <!-- Replace with actual Amount -->
-                   </tr>
-                   
-                   `}
-    
-    
             ${
                 totalPage == page?
                 BillingTable.map((bill)=>{
     
                     return  bill.Amount? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
-                    <tr style="height:20px; ">
-                       <td style="border:0px solid black;" class="serialNo" ></td>
-                       <td style="border:0px solid black;">
-                           <p style = "text-align:center; font-weight:bold; font-size:13px; word-wrap: break-word; word-break: break-word;">${bill.Bill_Sundry} </p>
-                       </td>
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td"></td> <!-- Replace with actual HSN/SAC Code -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold; word-wrap: break-word; word-break: break-word;" >@ ${bill.Percentage} %</td> <!-- Replace with actual Qty. -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" ></td>
-                       <td  style="border:0px solid black; font-weight:bold;" class="center-td" ></td> <!-- Replace with actual Price -->
-                       <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold; word-wrap: break-word; word-break: break-word;" >${bill.Amount}</td> <!-- Replace with actual Amount -->
-                   </tr>`:'';
+                    <tr style="height:20px; font-size:12px; font-weight:bold;">
+    <td style="border:0px solid black;" class="serialNo"></td>
+    <td style="border:0px solid black; text-align:center;">
+        <p style="font-weight:bold; font-size:12px; word-wrap:break-word; word-break:break-word; font-style:oblique; ${bill.Bill_Sundry === 'Discount' ? 'margin-left:15px;' : ''}">
+            ${bill.Bill_Sundry !== 'Discount' ? 'Add &nbsp;:' : 'Less &nbsp;:'} ${bill.Bill_Sundry}
+        </p>
+    </td>
+    <td style="border:0px solid black; font-weight:bold;"></td> <!-- Replace with actual HSN/SAC Code -->
+    <td style="border:0px solid black; font-weight:bold;"></td> <!-- Replace with actual Qty. -->
+    <td style="border:0px solid black; font-weight:bold;"></td>
+    <td style="border:0px solid black; font-weight:bold; text-align:center;">@ &nbsp; ${bill.Percentage} %</td> <!-- Replace with actual Price -->
+    <td style="border:0px solid black; font-weight:bold; word-wrap:break-word; word-break:break-word; text-align:right; font-weight:bold;">
+        <span style="margin-right:2px;">${formatNumberWithCommas(+bill.Amount)}</span>
+    </td> <!-- Replace with actual Amount -->
+</tr>
+`:'';
     
                 }).join(' ')
         :
         ``
             }
+            ${totalPage == page?
+                `<tr style="height:20px; ">
+                           <td style="border:0px solid black;" class="serialNo" ></td>
+                           <td style="border:0px solid black;">
+                               <p style = "text-align:center; font-weight:bold; font-size:12px;">Total Quantity</p> 
+                           </td>
+                           <td style="border:0px solid black; font-weight:bold;" class="center-td"></td> <!-- Replace with actual HSN/SAC Code -->
+                           <td style="border:0px solid black; font-weight:bold; word-wrap: break-word; word-break: break-word;" class="center-td" style = "text-align:center; font-weight:bold;" >${formatNumberWithCommas(+totalQuantity.toFixed(2))} ${data[0].Unit}</td> <!-- Replace with actual Qty. -->
+                           <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" ></td>
+                           <td  style="border:0px solid black; font-weight:bold;" class="center-td" ></td> <!-- Replace with actual Price -->
+                           <td style="border:0px solid black; font-weight:bold; font-size:12px; word-wrap: break-word; word-break: break-word;" class="center-td" style = "text-align:center; font-weight:bold;" ></td> <!-- Replace with actual Amount -->
+                       </tr>`:`
+                      <tr style="height:120px;">
+                         <td style="border:0px solid black; vertical-align: top;" class="serialNo"></td>
+                         <td style="border:0px solid black; vertical-align: top;">
+                            <p style="text-align:center; font-weight:bold; font-size:13px;">Total c/o</p> 
+                         </td>
+                        <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td">
+                           ${formatNumberWithCommas(+totalQuantityPerPage.toFixed(2))} ${data[0].Unit}
+                        </td>
+                      <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td"></td>
+                     <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td"></td>
+                   <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td"></td>
+                  <td style="border:0px solid black; font-size:12px; font-weight:bold; vertical-align: top; text-align:right; word-wrap: break-word; word-break: break-word;">
+                     ${formatNumberWithCommas(+totalAmountPerPage.toFixed(2))}
+                 </td>
+              </tr>`}
     
             
             </tbody>
         </table>
         ${totalPage == page?
             `<div style="width: 100%; margin-top: 2px; box-sizing: border-box; ">
-        <table style="width: 100%; border-collapse: collapse; border: 1px dashed black;">
+        <table style="width: 100%; border-collapse: collapse; border: 2px solid black;">
             <tr>
                 <td style="width: 10%; font-weight: bold; text-align: left;  padding-left: 3px;  margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">Total Amount</td>
-                <td style="width: 75%; font-weight: bold; padding-left: 2px; padding-right: 3px; text-align: center; padding: 0; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${toWords.convert(Number(BillingTable[0].Total_Amount))}</td>
-                <td style="width: 15%; font-weight: bold; text-align: right; padding-right: 3px; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${BillingTable[0].Total_Amount}</td>
+                <td style="width: 75%; font-weight: bold; padding-left: 2px; padding-right: 3px; text-align: center; padding: 0; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${
+                Top_Data[0].Party_Country=='India'?
+                     `${toWords.convert(Number(BillingTable[0].Total_Amount))}`:`USD ${toWords.convert(Number(BillingTable[0].Total_Amount))}`
+                }</td>
+                <td style="width: 15%; font-weight: bold; text-align: right; padding-right: 3px; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${formatNumberWithCommas(+BillingTable[0].Total_Amount)}</td>
             </tr>
         </table>
     </div>`:``}
