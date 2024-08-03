@@ -1,7 +1,7 @@
 const express = require('express');
 const MaintenanceRouter = express.Router()
-const {AddMachineData, MachineDetailById, GetMachineModelNumberById} = require('../Controller/MachineController');
-const {AddParty,getCurrency,getPartyNames} = require('../Controller/PartyController');
+const {AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList} = require('../Controller/MachineController');
+const {AddParty,getCurrency,getPartyNames, getPartyListById} = require('../Controller/PartyController');
 const {UploadImage,AddSpareParts,GetImage,getEquivalent,SparePartList} = require('../Controller/SparePartController');
 const {upload} = require('../Middleware/Maintenance.middleware');
 const {getVoucherNumber,AddPurchaseOrder, getPurchaseOrderList, getPurchaseOrderById, getFile} = require('../Controller/PurchaceOrderController')
@@ -15,6 +15,9 @@ MaintenanceRouter.post('/AddMachine',AddMachineData);
 
 /**Router To Get Machine Detail By Id */
 MaintenanceRouter.get('/MachineDetailById',MachineDetailById);
+
+/**Router To Get Machine List */
+MaintenanceRouter.get('/MachineList',GetMachineList);
 
 /**Router To Get Machine Model Number by ID */
 MaintenanceRouter.post('/GetMachineModelNumber',GetMachineModelNumberById);
@@ -39,6 +42,9 @@ MaintenanceRouter.get('/GetCurrency',getCurrency);
 
 /**Router To Get All Party Names */
 MaintenanceRouter.get('/GetParty',getPartyNames);
+
+/**Router To Get All Party Names */
+MaintenanceRouter.post('/GetPartyListById',getPartyListById);
 
 /**Router to get Voucher Number */
 MaintenanceRouter.get('/GetVoucherNumber',getVoucherNumber)
