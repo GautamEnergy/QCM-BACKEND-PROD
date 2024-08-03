@@ -1,6 +1,6 @@
 const express = require('express');
 const MaintenanceRouter = express.Router()
-const {AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList} = require('../Controller/MachineController');
+const {AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList, GetMachineListById} = require('../Controller/MachineController');
 const {AddParty,getCurrency,getPartyNames, getPartyListById} = require('../Controller/PartyController');
 const {UploadImage,AddSpareParts,GetImage,getEquivalent,SparePartList} = require('../Controller/SparePartController');
 const {upload} = require('../Middleware/Maintenance.middleware');
@@ -17,7 +17,11 @@ MaintenanceRouter.post('/AddMachine',AddMachineData);
 MaintenanceRouter.get('/MachineDetailById',MachineDetailById);
 
 /**Router To Get Machine List */
-MaintenanceRouter.get('/MachineList',GetMachineList);
+MaintenanceRouter.get('/MachineList',GetMachineList);  
+
+
+/**Router To Get Machine List By Id */
+MaintenanceRouter.post('/MachineListById',GetMachineListById);  
 
 /**Router To Get Machine Model Number by ID */
 MaintenanceRouter.post('/GetMachineModelNumber',GetMachineModelNumberById);
