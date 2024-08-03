@@ -252,32 +252,32 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
         
                             <div>
                                 <span style="font-size: 12px;">Order No</span><span
-                                    style="font-size:12px; margin-left:41px;">:&nbsp;&nbsp;GST-24-25-07</span>
+                                    style="font-size:12px; margin-left:41px;">:&nbsp;&nbsp;${Top_Data[0].Order_Number}</span>
                             </div>
                             <div>
                                 <span style="font-size: 12px;">Dated</span><span
-                                    style="font-size:12px; margin-left:59px;">:&nbsp;&nbsp;Mon Jul 22 2024
+                                    style="font-size:12px; margin-left:59px;">:&nbsp;&nbsp;${Top_Data[0].Purchase_Date}
                                 </span>
                             </div>
                             <div>
                                 <span style="font-size: 12px;">Payment Terms</span><span
-                                    style="font-size:12px; margin-left:4px;">:&nbsp;&nbsp;AFTER 30 DAYS</span>
+                                    style="font-size:12px; margin-left:4px;">:&nbsp;&nbsp;${Top_Data[0].Payment_Terms}</span>
                             </div>
                             <div>
                                 <span style="font-size: 12px;">Delivery Terms</span><span
-                                    style="font-size:12px; margin-left:7px;">:&nbsp;&nbsp;IMMEDIATELY</span>
+                                    style="font-size:12px; margin-left:7px;">:&nbsp;&nbsp;${Top_Data[0].Delivery_Terms}</span>
                             </div>
                             <div>
                                 <span style="font-size: 12px;">Contact Person</span><span
-                                    style="font-size:12px; margin-left:4px;">:&nbsp;&nbsp;MOHD NOUSHAD</span>
+                                    style="font-size:12px; margin-left:4px;">:&nbsp;&nbsp;${Top_Data[0].Contact_Person}</span>
                             </div>
                             <div>
                                 <span style="font-size: 12px;">Cell No</span><span
-                                    style="font-size:13px; margin-left:51px;">:&nbsp;&nbsp;+917428485660</span>
+                                    style="font-size:13px; margin-left:51px;">:&nbsp;&nbsp;+${Top_Data[0].Cell_Number}</span>
                             </div>
                             <div>
                                 <span style="font-size: 12px;">Warranty</span><span
-                                    style="font-size:12px; margin-left:40px;">:&nbsp;&nbsp;7 Months</span>
+                                    style="font-size:12px; margin-left:40px;">:&nbsp;&nbsp;${Top_Data[0].Warranty}</span>
                             </div>
         
                         </div>
