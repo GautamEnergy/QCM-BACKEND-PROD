@@ -240,7 +240,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                         </p>
 
                         <p class="address">
-                        ${Top_Data[0].PartyEmail}, ${Top_Data[0].PartyMobileNumber}
+                        Email: ${Top_Data[0].PartyEmail}, Mob: ${Top_Data[0].PartyMobileNumber}
                         </p>
                         <br>
                         <br>
