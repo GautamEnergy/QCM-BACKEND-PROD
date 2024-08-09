@@ -2,9 +2,9 @@ const express = require('express');
 const MaintenanceRouter = express.Router()
 const {AddMachineData, MachineDetailById, GetMachineModelNumberById, GetMachineList, GetMachineListById} = require('../Controller/MachineController');
 const {AddParty,getCurrency,getPartyNames, getPartyListById} = require('../Controller/PartyController');
-const {UploadImage,AddSpareParts,GetImage,getEquivalent,SparePartList} = require('../Controller/SparePartController');
+const {UploadImage,AddSpareParts,GetImage,getEquivalent,SparePartList, getSpecificSparePart, SparePartIn, getStockList} = require('../Controller/SparePartController');
 const {upload} = require('../Middleware/Maintenance.middleware');
-const {getVoucherNumber,AddPurchaseOrder, getPurchaseOrderList, getPurchaseOrderById, getFile} = require('../Controller/PurchaceOrderController')
+const {getVoucherNumber,AddPurchaseOrder, getPurchaseOrderList, getPurchaseOrderById, getFile, VoucherList, GetPurchaseDetailByVoucher} = require('../Controller/PurchaceOrderController')
 
 
 /**Route to Add Party */
@@ -32,7 +32,7 @@ MaintenanceRouter.post('/SparePartsImage',upload,UploadImage)
 /**Router To Add Add Spare Parts */
 MaintenanceRouter.post('/AddSparePart',AddSpareParts)
 
-/**Router To Get Upload FIle FROM Spare Parts */
+// /**Router To Get Upload FIle FROM Spare Parts */
 MaintenanceRouter.get('/File/:filename',GetImage)
 
 /**Router to Get Equivalent data */
@@ -64,5 +64,20 @@ MaintenanceRouter.post('/GetPurchaseOrderById', getPurchaseOrderById)
 
 /**Router to Get Files, Pdf etc. */
 MaintenanceRouter.get('/getFile/:filename', getFile);
+
+/**Router to Get Spare Part By ID */
+MaintenanceRouter.post('/GetSpecificSparePart',getSpecificSparePart)
+
+/**Router to Get Voucher List  */
+MaintenanceRouter.post('/GetVoucherList',VoucherList);
+
+/**Router to Get Purchase ORder detail and Spare Part detail */
+MaintenanceRouter.post('/GetPO&SparePartDetail',GetPurchaseDetailByVoucher);
+
+/**Router to Spare Part IN */
+MaintenanceRouter.post('/SparePartIn',SparePartIn)
+
+/**Router to Get Stock List */
+MaintenanceRouter.post('/GetStockList',getStockList);
 
 module.exports = {MaintenanceRouter}
