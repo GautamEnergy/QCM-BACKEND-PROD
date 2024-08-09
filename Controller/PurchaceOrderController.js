@@ -143,7 +143,7 @@ if (P.Purchase_Order_Id) {
 await queryAsync(optionQuery);
 
 
-   let Top_Data_Query = `SELECT PO.Purchase_Order_Id,PO.Voucher_Number AS Order_Number,PO.Voucher_Number,PO.Purchase_Date, PO.Narration, P.PartyName, P.Country As Party_Country, P.Address,P.GSTNumber,C.CompanyName, C.CINNumber, C.GSTNumber AS Company_GSTNumber,
+   let Top_Data_Query = `SELECT PO.Purchase_Order_Id,PO.Voucher_Number AS Order_Number,PO.Voucher_Number,PO.Purchase_Date, PO.Narration, P.PartyName, P.Country As Party_Country, P.Address, P.State AS PartyState, P.PinCode AS PartyPincode, P.Email AS PartyEmail, P.MobileNumber AS PartyMobileNumber, P.GSTNumber,C.CompanyName, C.CINNumber, C.GSTNumber AS Company_GSTNumber,
 C.Address AS Company_Address, C.State,C.Pin,C.Email,POF.Payment_Terms,POF.Delivery_Terms,POF.Contact_Person,POF.Cell_Number,POF.Warranty
 FROM PurchaseOrder PO
 JOIN Company C ON C.CompanyID = PO.Company_Name
