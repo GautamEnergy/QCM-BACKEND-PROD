@@ -364,7 +364,11 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             ${bill.Bill_Sundry !== 'Discount' ? 'Add &nbsp;:' : 'Less &nbsp;:'} ${bill.Bill_Sundry}
         </p>
     </td>
-    <td style="border:0px solid black; font-weight:bold;"></td> <!-- Replace with actual HSN/SAC Code -->
+    <td style="border:0px solid black; font-weight:bold;">
+    <p style="font-weight:bold; font-size:12px; word-wrap:break-word; word-break:break-word; font-style:oblique;">
+            ${bill.Narration?bill.Narration:''}
+        </p>
+    </td> <!-- Replace with actual HSN/SAC Code -->
     <td style="border:0px solid black; font-weight:bold;"></td> <!-- Replace with actual Qty. -->
     <td style="border:0px solid black; font-weight:bold;"></td>
     <td style="border:0px solid black; font-weight:bold; text-align:center;">@ &nbsp; ${bill.Percentage} %</td> <!-- Replace with actual Price -->
