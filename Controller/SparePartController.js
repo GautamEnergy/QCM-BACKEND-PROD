@@ -15,11 +15,13 @@ const queryAsync = util.promisify(dbConn.query).bind(dbConn);
 /**Add Machine Data  */
 const AddSpareParts = async (req, res) => {
   const {
+    SparePartId,
     SparePartName,
     SpareNumber,
     Specification,
     BrandName,
     MachineName,
+    Quantity,
     Status,
     MasterSparePartName,
     NumberOfPcs,
@@ -30,11 +32,17 @@ const AddSpareParts = async (req, res) => {
 
 
   console.log(req.body)
-  console.log('typeeeeeeeeeeeeeeeee', typeof MachineName)
+
+
   const MachineNameArray = MachineName
-  let UUID = v4();
+  let UUID = SparePartId || v4();
   try {
-    let getSpareModelNumberQuery = `SELECT SpareNumber FROM SparePartName WHERE SpareNumber = '${SpareNumber}';`
+    //let getSpareModelNumberQuery = `SELECT SpareNumber FROM SparePartName WHERE SpareNumber = '${SpareNumber}';`
+
+    let getSpareModelNumberQuery = SparePartId
+      ? `SELECT SpareNumber FROM SparePartName WHERE SpareNumber = '${SpareNumber}' AND SparPartId <> '${SparePartId}';`
+      : `SELECT SpareNumber FROM SparePartName WHERE SpareNumber = '${SpareNumber}';`;
+
     let getSpareModelNumbers = await queryAsync(getSpareModelNumberQuery);
 
     if (getSpareModelNumbers.length) {
@@ -42,18 +50,43 @@ const AddSpareParts = async (req, res) => {
       return res.status(409).send({ msg: 'Duplicate Spare Model Number' })
     }
 
-    const query = `INSERT INTO SparePartName(SparPartId ,SparePartName,SpareNumber,Specification,BrandName,HSNCode,Status,CreatedBy,MasterSparePartName,CreatedOn,NumberOfPcs,CycleTime,Equivalent) VALUES
-            ('${UUID}','${SparePartName}','${SpareNumber}','${Specification}','${BrandName}','${HSNCode}','${Status}','${CreatedBy}','${MasterSparePartName}','${getCurrentDateTime()}','${NumberOfPcs}','${CycleTime}','${JSON.stringify(Equivalent)}');`
-   
-    await queryAsync(query)
-    MachineNameArray.forEach(async (MachineName) => {
-      let SpareMachineId = v4();
-      let query = `INSERT INTO SparePartMachine(SparePartMachineId,SparePartId,MachineId,Status,CreatedBy,CreatedOn) VALUES
-                    ('${SpareMachineId}','${UUID}','${MachineName}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
+    if (SparePartId) {
+      /** Updated Query SparePartId  */
+      const updateQuery = `UPDATE SparePartName 
+      SET SparPartId = '${SparePartId}', SparePartName = '${SparePartName}',SpareNumber = '${SpareNumber}',Specification = '${Specification}',BrandName = '${BrandName}',HSNCode = '${HSNCode}',MasterSparePartName = '${MasterSparePartName}',
+      NumberOfPcs = '${NumberOfPcs}',CycleTime = '${CycleTime}',MinimumQuantityRequired='${Quantity}',Equivalent = '${JSON.stringify(Equivalent)}',Status = '${Status}',UpdatedBy = '${CreatedBy}',
+      UpdatedOn = '${getCurrentDateTime()}'
+      WHERE SparPartId = '${SparePartId}';`
+
+      await queryAsync(updateQuery)
+
+
+      /**   Update Related SparePartMachine Entries  */
+      await queryAsync(`DELETE FROM SparePartMachine WHERE SparePartId = '${SparePartId}';`);
+      await Promise.all(MachineNameArray.map(async (MachineName) => {
+        let SpareMachineId = v4();
+        let updateMachineQuery = `INSERT INTO SparePartMachine(SparePartMachineId,SparePartId,MachineId,Status,UpdatedBy,UpdatedOn) VALUES
+                         ('${SpareMachineId}','${SparePartId}','${MachineName}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`;
+        await queryAsync(updateMachineQuery);
+      }));
+
+      return res.send({ msg: 'Updated Successfully!', SparePartId: `${SparePartId}` });
+
+    } else {
+      /** Inserted Query SparePartId */
+      const query = `INSERT INTO SparePartName(SparPartId ,SparePartName,SpareNumber,Specification,BrandName,HSNCode,Status,CreatedBy,MasterSparePartName,CreatedOn,NumberOfPcs,CycleTime,MinimumQuantityRequired, Equivalent) VALUES
+            ('${UUID}','${SparePartName}','${SpareNumber}','${Specification}','${BrandName}','${HSNCode}','${Status}','${CreatedBy}','${MasterSparePartName}','${getCurrentDateTime()}','${NumberOfPcs}','${CycleTime}','${Quantity}','${JSON.stringify(Equivalent)}');`
 
       await queryAsync(query)
-    });
 
+      MachineNameArray.forEach(async (MachineName) => {
+        let SpareMachineId = v4();
+        let query = `INSERT INTO SparePartMachine(SparePartMachineId,SparePartId,MachineId,Status,CreatedBy,CreatedOn) VALUES
+                    ('${SpareMachineId}','${UUID}','${MachineName}','${Status}','${CreatedBy}','${getCurrentDateTime()}');`
+
+        await queryAsync(query)
+      });
+    }
 
     return res.send({ msg: 'Inserted Succesfully!', SparePartId: UUID });
 
@@ -117,11 +150,27 @@ const UploadImage = async (req, res) => {
 
         return `http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${InvoiceFileName}`;
       })
+      
+      
+      /** Checking, is there already present Image URL in database */
+      let getPreviousImagesQ = `SELECT SparePartImageURL FROM SparePartName WHERE SparPartId = '${SparePartId}';`
+      let previousImageUR = await queryAsync(getPreviousImagesQ);
+      let previousImageURL = previousImageUR[0]['SparePartImageURL']
 
-      console.log(ImagesURL)
+
+     
+      /** If Present, then Push the new URL into previous to Update */
+      if(typeof previousImageURL == 'string'){
+        previousImageURL = JSON.parse(previousImageURL)
+        
+          ImagesURL.forEach((image)=>{
+            previousImageURL.push(image);
+          })
+        }
+
       const query = `UPDATE SparePartName id
         set id.SparePartDrawingImageURL = 'http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${COCFileName}',
-         id.SparePartImageURL = '${JSON.stringify(ImagesURL)}'
+         id.SparePartImageURL = '${JSON.stringify(previousImageURL?previousImageURL:ImagesURL)}'
        WHERE id.SparPartId = '${SparePartId}';`;
 
        let data = await new Promise((resolve, rejects) => {
@@ -162,55 +211,99 @@ const UploadImage = async (req, res) => {
 
         return `http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${InvoiceFileName}`;
       })
+      
+      let getPreviousImagesQ = `SELECT SparePartImageURL FROM SparePartName WHERE SparPartId = '${SparePartId}';`
+      let previousImageUR = await queryAsync(getPreviousImagesQ);
+      let previousImageURL = previousImageUR[0]['SparePartImageURL']
+        
+      
+      if(typeof previousImageURL == 'string'){
+
+        previousImageURL = JSON.parse(previousImageURL)
+      
+        ImagesURL.forEach((image)=>{
+          previousImageURL.push(image);
+        })
+      }
 
       const query = `UPDATE SparePartName id
-        set id.SparePartImageURL = '${JSON.stringify(ImagesURL)}'
+        set id.SparePartImageURL = '${JSON.stringify(previousImageURL?previousImageURL:ImagesURL)}'
        WHERE id.SparPartId = '${SparePartId}';`;
 
-       await queryAsync(query);
-       return res.send({ msg: 'Data Inserted SuccesFully !' })
+      await queryAsync(query);
+      return res.send({ msg: 'Data Inserted SuccesFully !' })
 
-    }else if(req.files['DrawingImage']){
+    }else if (req.files['DrawingImage']) {
 
       const DrawingImageBuffer = req.files['DrawingImage'][0].buffer;
-      let DrawingImage =  req.files['DrawingImage'][0].originalname.split('.');
-      let DrawingFileFormat = DrawingImage[DrawingImage.length-1];
+      let DrawingImage = req.files['DrawingImage'][0].originalname.split('.');
+      let DrawingFileFormat = DrawingImage[DrawingImage.length - 1];
 
 
-     /** Define the folder path */
-     const folderPath = Path.join('SpartPartImage');
+      /** Define the folder path */
+      const folderPath = Path.join('SpartPartImage');
 
-     /** Create the folder if it doesn't exist */
-     if (!fs.existsSync(folderPath)) {
-       fs.mkdirSync(folderPath, { recursive: true });
-     }
+      /** Create the folder if it doesn't exist */
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
 
-     /** Define the file path, including the desired file name and format */
-     const COCFileName = `${SparePartId}_Drawing.${DrawingFileFormat}`;
+      /** Define the file path, including the desired file name and format */
+      const COCFileName = `${SparePartId}_Drawing.${DrawingFileFormat}`;
 
-     const COCFilePath = Path.join(folderPath,COCFileName);
+      const COCFilePath = Path.join(folderPath, COCFileName);
 
-     /** Save the file buffer to the specified file path */
-     fs.writeFileSync(COCFilePath, DrawingImageBuffer);
-     
-     const query = `UPDATE SparePartName id
+      /** Save the file buffer to the specified file path */
+      fs.writeFileSync(COCFilePath, DrawingImageBuffer);
+
+      const query = `UPDATE SparePartName id
      set id.SparePartDrawingImageURL = 'http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${COCFileName}'
     WHERE id.SparPartId = '${SparePartId}';`;
 
-    await queryAsync(query);
-    return res.send({ msg: 'Data Inserted SuccesFully !' });
+      await queryAsync(query);
+      return res.send({ msg: 'Data Inserted SuccesFully !' });
 
-    }else{
+    }else if(req.files['InvoicePdf']){
+     
+      const DrawingImageBuffer = req.files['InvoicePdf'][0].buffer;
+      let DrawingImage = req.files['InvoicePdf'][0].originalname.split('.');
+      let DrawingFileFormat = DrawingImage[DrawingImage.length - 1];
+
+
+      /** Define the folder path */
+      const folderPath = Path.join('SpartPartImage');
+
+      /** Create the folder if it doesn't exist */
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      /** Define the file path, including the desired file name and format */
+      const COCFileName = `${SparePartId}_Invoice.${DrawingFileFormat}`;
+
+      const COCFilePath = Path.join(folderPath, COCFileName);
+
+      /** Save the file buffer to the specified file path */
+      fs.writeFileSync(COCFilePath, DrawingImageBuffer);
+
+      const query = `UPDATE Spare_Part_In id
+     set id.Invoice_Pdf_URL = 'http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${COCFileName}'
+    WHERE id.Spare_Part_In_Id = '${SparePartId}';`;
+
+      await queryAsync(query);
+      return res.send({ msg: 'Data Inserted SuccesFully !' });
+
+    }else {
 
       return res.send({ msg: 'Data Inserted SuccesFully !' });
     }
-  
-      } catch (err) {
-        console.log(err);
-        res.status(401).send(err);
-      }
-   
+
+  } catch (err) {
+    console.log(err);
+    res.status(401).send(err);
   }
+
+}
 
 
 const GetImage = async (req, res) => {
@@ -261,36 +354,167 @@ const getEquivalent = async (req, res) => {
 
 /**Spare Part List*/
 
-const SparePartList = async(req,res) =>{
- const {MachineId, SparePartId, required} = req.body;
-  let query = required == 'Spare Part Name By Machine'?
-  /**Condition 1 */
-  `SELECT SP.SparePartName, SP.SparPartId AS SparePartId FROM SparePartMachine S
+const SparePartList = async (req, res) => {
+  const { MachineId, SparePartId, required } = req.body;
+  let query = required == 'Spare Part Name By Machine' ?
+    /**Condition 1 */
+    `SELECT SP.SparePartName, SP.SparPartId AS SparePartId FROM SparePartMachine S
 JOIN SparePartName SP ON SP.SparPartId = S.SparePartId
-WHERE S.MachineId = '${MachineId}';`:
-/**Condition 2 */
-required == 'Spare Part Brand Name'?
-`SELECT BrandName, SparPartId AS SparePartId FROM SparePartName
-WHERE SparPartId = '${SparePartId}';`:
-/**Condition 3 */
-required == 'Spare Part Model No'?
-`SELECT SparPartId AS SparePartId, SpareNumber AS SparePartModelNumber, SparePartName FROM SparePartName;`:
-required == 'Spare Part Name'?
-`SELECT SparPartId AS SparePartId, SparePartName FROM SparePartName
-WHERE SparPartId = '${SparePartId}';`:
-required == 'Company Name'?
-`SELECT CompanyID, CompanyName FROM Company;`:'';
+WHERE S.MachineId = '${MachineId}';` :
+    /**Condition 2 */
+    required == 'Spare Part Brand Name' ?
+      `SELECT BrandName, SparPartId AS SparePartId FROM SparePartName
+WHERE SparPartId = '${SparePartId}';` :
+      /**Condition 3 */
+      required == 'Spare Part Model No' ?
+        `SELECT SparPartId AS SparePartId, SpareNumber AS SparePartModelNumber, SparePartName FROM SparePartName;` :
+        required == 'Spare Part Name' ?
+          `SELECT SparPartId AS SparePartId, SparePartName FROM SparePartName
+WHERE SparPartId = '${SparePartId}';` :
+          required == 'Company Name' ?
+            `SELECT CompanyID, CompanyName FROM Company;` : `SELECT SparPartId, MasterSparePartName, SparePartName, 
+SpareNumber, Specification, BrandName, SparePartImageURL, SparePartDrawingImageURL FROM SparePartName`;
 
- try{
-   let data = await queryAsync(query);
-   res.send({data});
+  try {
+    let data = await queryAsync(query);
+    !required ?
+      data.forEach((list) => {
+        if (typeof list.SparePartImageURL === 'string') {
+          try {
+            list.SparePartImageURL = JSON.parse(list.SparePartImageURL);
+          } catch (error) {
 
- }catch(err){
-   res.status(400).send({err})
+          }
+        }
+
+      }) : '';
+
+    res.send({ data });
+
+  } catch (err) {
+    console.log(err)
+    res.status(400).send({ err })
 
  }
 
 }
 
 
-module.exports = { AddSpareParts, UploadImage, AddSpareParts, GetImage,getEquivalent,SparePartList };
+/**
+ * ! Get Spare Part By Id
+ */
+getSpecificSparePart = async (req, res) => {
+  const { SparePartId } = req.body;
+
+  try {
+
+    const query = `SELECT * FROM SparePartName WHERE SparPartId = '${SparePartId}';`;
+    let data = await queryAsync(query);
+
+    const query1 = `SELECT MachineId FROM SparePartMachine WHERE SparePartId = '${SparePartId}';`
+    let data1 = await queryAsync(query1);
+    try {
+      if (typeof data[0].SparePartImageURL === 'string') {
+        data[0].SparePartImageURL = JSON.parse(data[0].SparePartImageURL);
+
+      }
+
+      if (typeof data[0].Equivalent === 'string') {
+        data[0].Equivalent = JSON.parse(data[0].Equivalent);
+
+
+      }
+
+    } catch (err) {
+      console.log(err)
+    }
+
+    data[0]['MachineId'] = data1;
+
+
+    res.send({ data })
+  } catch (err) {
+    console.log(err);
+    res.send(err)
+  }
+}
+
+
+
+const SparePartIn = async(req,res)=>{
+  const {
+    PartyId, SparePartId, SparePartName, PurchaseOrderId, MachineNames,
+    SparePartBrandName, SparePartSpecification, QuantityPurchaseOrder,
+    QuantityRecieved, Unit, Currency, Price, TotalCost, InvoiceNumber, Status,
+    CreatedBy
+  } = req.body;
+  
+  
+  try{
+    let data = await queryAsync(
+      `CALL SparePartIn(
+        '${PartyId}', 
+        '${SparePartId}', 
+        '${SparePartName}', 
+        '${PurchaseOrderId}', 
+        '${JSON.stringify(MachineNames)}', 
+        '${SparePartBrandName}', 
+        '${SparePartSpecification}', 
+        '${QuantityPurchaseOrder}', 
+        '${QuantityRecieved}', 
+        '${Unit}', 
+        '${Currency}', 
+        '${Price}', 
+        '${TotalCost}', 
+        '${InvoiceNumber}', 
+        '${Status}', 
+        '${CreatedBy}'
+      )`
+    );
+    
+    res.send(data[0])
+  }catch(err){
+     console.log(err);
+     res.status(400).send(err)
+  }
+}
+
+const getStockList = async(req,res)=>{
+ 
+  try{
+    let query = `SELECT P.PartyName, SPN.SparePartName, SPN.SpareNumber AS SparePartModelNumber, 
+PO.Voucher_Number, SPI.Machine_Names,
+SPI.Spare_Part_Brand_Name, SPI.Spare_Part_Specification,
+SPI.Quantity_Purchase_Order, SPI.Quantity_Recieved,
+SPI.Unit, SPI.Currency,
+SPI.Price, SPI.Total_Cost,
+SPI.Invoice_Number, SPI.Invoice_Pdf_URL,
+SPI.Available_Stock, Pn.Name,
+SPI.Created_On
+FROM Spare_Part_In SPI
+JOIN PartyName P ON P.PartyNameId = SPI.Party_Id
+JOIN SparePartName SPN ON SPN.SparPartId = SPI.Spare_Part_Id
+JOIN PurchaseOrder PO ON PO.Purchase_Order_Id = SPI.Purchase_Order_Id
+JOIN Person Pn ON Pn.PersonID = SPI.Created_By
+ORDER BY SPI.Created_On DESC;`;
+
+    let data = await queryAsync(query);
+
+    data.forEach((d)=>{
+      d['Machine_Names']?d['Machine_Names'] = JSON.parse(d['Machine_Names']):''
+
+      const date = new Date(d['Created_On']);
+        const formattedDate = date.toLocaleDateString('en-GB');
+        d['Date'] = formattedDate
+        d['Time'] = d['Created_On'].split(' ')[1]
+    })
+    res.send({data})
+  }catch(err){
+  console.log(err);
+  res.status(400).send(err);
+
+
+  }
+}
+
+module.exports = { AddSpareParts, UploadImage, GetImage, getEquivalent, getStockList, SparePartList, getSpecificSparePart, SparePartIn };
