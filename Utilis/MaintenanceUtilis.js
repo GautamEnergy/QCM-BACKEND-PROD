@@ -234,7 +234,14 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                     <div class="cell" style=" width: 50%; font-weight:bold;">
                         <p style="font-size: 14px">Party Details:</p>
                         <p class="company-name">${Top_Data[0].PartyName}</p>
-                        <p class="address">${Top_Data[0].Address}</p>
+
+                        <p class="address">${Top_Data[0].Address}, ${Top_Data[0].PartyState} - 
+                        ${Top_Data[0].PartyPincode}, ${Top_Data[0].Party_Country}
+                        </p>
+
+                        <p class="address">
+                        ${Top_Data[0].PartyEmail}, ${Top_Data[0].PartyMobileNumber}
+                        </p>
                         <br>
                         <br>
                         ${Top_Data[0].Party_Country == 'India'?`<span style="font-size: 14px;">GSTIN/UIN :</span> <span
