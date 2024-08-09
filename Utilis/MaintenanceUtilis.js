@@ -214,8 +214,8 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
         </head>
         
         <body>
-           <div style="width: 100%; border: 1px solid black; margin-bottom:-20px;">
-           ${Top_Data[0].Party_Country == 'India'?'':
+           <div style="width: 100%; border-right: 1px solid black; border-top: 1px solid black;border-bottom: 1px solid black;border-left: 1px solid black; margin-bottom:-20px;">
+           ${Top_Data[0].Party_Country == 'India' ? '' :
             `<span style="font-size:12px; margin-top:2px; margin-left:2px;">GSTIN &nbsp; : &nbsp; ${Top_Data[0].Company_GSTNumber}</span>
            <br>
            <span style="font-size:12px; margin-left:2px;">CIN &nbsp; &nbsp; &nbsp; <span style="margin-left:2px;">:</span> &nbsp; ${Top_Data[0].CINNumber}</span>`}
@@ -228,7 +228,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             </div>
           </div>
 
-           <div style="margin-top: -55px;">
+        <div style="margin-top: -55px; width: 100%;  border-right: 1px solid black; border-left: 1px solid black;">
             <div class="container">
                 <div class="row">
                     <div class="cell" style=" width: 50%; font-weight:bold;">
@@ -245,7 +245,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                     </div>`}
         
                     <!-- Second-->
-                      <div class="cell" style=" width: 55%;">
+                      <div class="cell" style=" width: 50%;">
                      <div style = " font-size:12px; font-weight:bold;">
         
                         <div>
@@ -286,15 +286,22 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             </div>
         </div>
         
-        <div class="empty-box">
-                  
-        </div>
-        <div class="empty-box1">
-          <p style="font-size:12px; margin-left:5px; ">We are Pleased to place the order for the following items:</p>
+         <div class="empty-box"  style ="border: 0px solid black; border-right: 0px solid black;">
+               
         </div>
         
+<div class="empty-box1" style="border: 0px solid black; border-bottom: none; border-right: 1px solid black;">
+    <p style="text-align: left; margin-left: 5px; font-size:12px; margin-top:-6px; word-wrap: break-word; word-break: break-word;">${Top_Data[0].Narration}</p>
+</div>
+
+<div class="divider" style="border-top: 1px solid black;"></div>
+
+<div class="empty-box2" style="border: 1px solid black; border-top: none; border-right: 1px solid black; padding: 5px;">
+    <p style="text-align: left; margin: 0; font-size:12px;">We are pleased to place the order for the following items:</p>
+</div>
+        
           <!-----------------------  Table  ------------------------->
-         <table class = "page-break" ${totalPage==page?'':'style="border-bottom:1px solid black;"'} >
+         <table class = "page-break" ${totalPage == page ? '' : 'style=" width: 100%; border-bottom: 0px solid black; border-bottom: 1px solid black;border-right: 0px solid black;"'} >
             <thead>
                 <tr>
                     <th style="font-size:15px; padding-top:3px; padding-bottom:3px;">S.N.</th>
@@ -302,25 +309,25 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                     <th style="width:10%; font-size:15px; padding-top:3px; padding-bottom:3px;">HSN Code</th>
                     <th style="font-size:15px; padding-top:3px; padding-bottom:3px;">Qty.</th>
                     <th style="font-size:15px; padding-top:2px; padding-bottom:2px;">Unit</th>
-                    <th style="width:15%; font-size:15px; padding-top:3px; padding-bottom:3px;">Price ${Top_Data[0].Party_Country=='India'?
-                     `(₹)`:`($)`
-                    }</th>
-                    <th style="width:15%; font-size:15px; padding-top:3px; padding-bottom:3px;">Amount ${Top_Data[0].Party_Country=='India'?
-                        `(₹)`:`($)`
-                       }</th>
+                    <th style="width:15%; font-size:15px; padding-top:3px; padding-bottom:3px;">Price ${Top_Data[0].Party_Country == 'India' ?
+            `(₹)` : `($)`
+        }</th>
+                    <th style="width:15%; font-size:15px; padding-top:3px; padding-bottom:3px;">Amount ${Top_Data[0].Party_Country == 'India' ?
+            `(₹)` : `($)`
+        }</th>
                 </tr>
             </thead>
             <tbody>
             ${data.map((row, i) => {
-                serialNo++;
-                totalQuantity += Number(row.Quantity) || 0;
-                totalAmountPerPage+=Number(row.Amount) || 0;
-                totalQuantityPerPage+=Number(row.Quantity) || 0;
-              
-                return `
+            serialNo++;
+            totalQuantity += Number(row.Quantity) || 0;
+            totalAmountPerPage += Number(row.Amount) || 0;
+            totalQuantityPerPage += Number(row.Quantity) || 0;
+
+            return `
                     <tr style="height:55px;">
-                        <td ${8-1 == i ? 'style="vertical-align: top;"' : 'style="border-bottom-style: hidden; vertical-align: top;"'} style="vertical-align: top;" class="serialNo">${row.MasterSparePartName ? serialNo : ''}</td>
-                        <td ${8-1 == i ? '' : 'style="border-bottom-style: hidden;"'}>
+                        <td ${8 - 1 == i ? 'style="vertical-align: top;"' : 'style="border-bottom-style: hidden; vertical-align: top;"'} style="vertical-align: top;" class="serialNo">${row.MasterSparePartName ? serialNo : ''}</td>
+                        <td ${8 - 1 == i ? '' : 'style="border-bottom-style: hidden;"'}>
                             <ul style="margin-left:7px;">
                                 <li class="parent">${row.MasterSparePartName || ""}
                                     <ul>
@@ -330,20 +337,19 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                                 </li>
                             </ul>
                         </td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.HSNCode || ""}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Quantity?formatNumberWithCommas((+row.Quantity)):''}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Unit || ""}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Price_Rs?formatNumberWithCommas((+row.Price_Rs)):''}</td>
-                        <td class="center-td" ${8-1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Amount?formatNumberWithCommas((+row.Amount)):''}</td>
+                        <td class="center-td" ${8 - 1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.HSNCode || ""}</td>
+                        <td class="center-td" ${8 - 1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Quantity ? formatNumberWithCommas((+row.Quantity)) : ''}</td>
+                        <td class="center-td" ${8 - 1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Unit || ""}</td>
+                        <td class="center-td" ${8 - 1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Price_Rs ? formatNumberWithCommas((+row.Price_Rs)) : ''}</td>
+                        <td class="center-td" ${8 - 1 == i ? 'style="word-wrap: break-word; word-break: break-word; vertical-align: top;"' : 'style="border-bottom-style: hidden; word-wrap: break-word; word-break: break-word; vertical-align: top;"'}>${row.Amount ? formatNumberWithCommas((+row.Amount)) : ''}</td>
                     </tr>`;
-            }).join(' ')
-            }
+        }).join(' ')
+        }
                
-            ${
-                totalPage == page?
-                BillingTable.map((bill)=>{
-    
-                    return  bill.Amount? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
+            ${totalPage == page ?
+            BillingTable.map((bill) => {
+
+                return bill.Amount ? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
                     <tr style="height:20px; font-size:12px; font-weight:bold;">
     <td style="border:0px solid black;" class="serialNo"></td>
     <td style="border:0px solid black; text-align:center;">
@@ -396,15 +402,14 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             
             </tbody>
         </table>
-        ${totalPage == page?
-            `<div style="width: 100%; margin-top: 2px; box-sizing: border-box; ">
+        ${totalPage == page ?
+            `<div style="width: 100%; margin-top: 0px;  border-right: 2px solid black; ">
         <table style="width: 100%; border-collapse: collapse; border: 2px solid black;">
             <tr>
                 <td style="width: 10%; font-weight: bold; text-align: left;  padding-left: 3px;  margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">Total Amount</td>
-                <td style="width: 75%; font-weight: bold; padding-left: 2px; padding-right: 3px; text-align: center; padding: 0; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${
-                Top_Data[0].Party_Country=='India'?
-                     `${toWords.convert(Number(BillingTable[0].Total_Amount))}`:`USD ${toWords.convert(Number(BillingTable[0].Total_Amount))}`
-                }</td>
+                <td style="width: 75%; font-weight: bold; padding-left: 2px; padding-right: 3px; text-align: center; padding: 0; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${Top_Data[0].Party_Country == 'India' ?
+                `${toWords.convert(Number(BillingTable[0].Total_Amount))}` : `USD ${toWords.convert(Number(BillingTable[0].Total_Amount))}`
+            }</td>
                 <td style="width: 15%; font-weight: bold; text-align: right; padding-right: 3px; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${formatNumberWithCommas(+BillingTable[0].Total_Amount)}</td>
             </tr>
         </table>
@@ -434,17 +439,17 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
         </body>
         
         </html>`;
-    
+
         return htmlContent1;
-    
+
     }
-    
-     
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     const options = {
         path: '/usr/bin/chromium-browser', // Path to your local Chromium/Chrome
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
