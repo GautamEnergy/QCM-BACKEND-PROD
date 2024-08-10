@@ -218,7 +218,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
            ${Top_Data[0].Party_Country == 'India' ? '' :
             `<span style="font-size:12px; margin-top:2px; margin-left:2px;">GSTIN &nbsp; : &nbsp; ${Top_Data[0].Company_GSTNumber}</span>
            <br>
-           <span style="font-size:12px; margin-left:2px;">CIN &nbsp; &nbsp; &nbsp; <span style="margin-left:2px;">:</span> &nbsp; ${Top_Data[0].CINNumber}</span>`}
+           <span style="font-size:12px; margin-left:2px;">CIN &nbsp; &nbsp; &nbsp; <span style="margin-left:2px;">:</span> &nbsp; ${Top_Data[0].CINNumber?Top_Data[0].CINNumber:''}</span>`}
            <div>
             <h4 style="text-decoration: underline; text-align: center; margin-top: 0px;">Purchase Order</h4>
             <h3 style="text-align: center; margin-top: -24px; letter-spacing: 2px;">${Top_Data[0].CompanyName}</h3>
@@ -356,7 +356,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             ${totalPage == page ?
             BillingTable.map((bill) => {
 
-                return bill.Amount ? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
+                return bill.Amount || bill.Bill_Sundry == 'Discount' || bill.Bill_Sundry == 'Freight'? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
                     <tr style="height:20px; font-size:12px; font-weight:bold;">
     <td style="border:0px solid black;" class="serialNo"></td>
     <td style="border:0px solid black; text-align:center;">
@@ -364,17 +364,16 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             ${bill.Bill_Sundry !== 'Discount' ? 'Add &nbsp;:' : 'Less &nbsp;:'} ${bill.Bill_Sundry}
         </p>
     </td>
-    <td style="border:0px solid black; font-weight:bold;">
-    <p style="font-weight:bold; font-size:12px; word-wrap:break-word; word-break:break-word; font-style:oblique;">
-            ${bill.Narration?bill.Narration:''}
+    <td colspan="2" style="border:0px solid black; font-weight:bold;"> <!-- Combining HSN Code and Quantity columns -->
+        <p style="font-weight:bold; font-size:11px; word-wrap:break-word; word-break:break-word; font-style:oblique;">
+            ${bill.Bill_Sundry == 'Discount' || bill.Bill_Sundry == 'Freight' ? bill.Narration ? bill.Narration : '' : ''}
         </p>
-    </td> <!-- Replace with actual HSN/SAC Code -->
-    <td style="border:0px solid black; font-weight:bold;"></td> <!-- Replace with actual Qty. -->
+    </td>
     <td style="border:0px solid black; font-weight:bold;"></td>
-    <td style="border:0px solid black; font-weight:bold; text-align:center;">@ &nbsp; ${bill.Percentage} %</td> <!-- Replace with actual Price -->
+    <td style="border:0px solid black; font-weight:bold; text-align:center;">@ &nbsp; ${bill.Percentage} %</td>
     <td style="border:0px solid black; font-weight:bold; word-wrap:break-word; word-break:break-word; text-align:right; font-weight:bold;">
         <span style="margin-right:2px;">${formatNumberWithCommas(+bill.Amount)}</span>
-    </td> <!-- Replace with actual Amount -->
+    </td>
 </tr>
 `:'';
     
@@ -389,20 +388,20 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                                <p style = "text-align:center; font-weight:bold; font-size:12px;">Total Quantity</p> 
                            </td>
                            <td style="border:0px solid black; font-weight:bold;" class="center-td"></td> <!-- Replace with actual HSN/SAC Code -->
-                           <td style="border:0px solid black; font-weight:bold; word-wrap: break-word; word-break: break-word;" class="center-td" style = "text-align:center; font-weight:bold;" >${formatNumberWithCommas(+totalQuantity.toFixed(2))} ${data[0].Unit}</td> <!-- Replace with actual Qty. -->
+                           <td style="border:0px solid black; font-weight:bold; word-wrap: break-word; word-break: break-word;" class="center-td" style = "text-align:center; font-weight:bold;" >${formatNumberWithCommas(+totalQuantity.toFixed(2))} Units</td> <!-- Replace with actual Qty. -->
                            <td style="border:0px solid black; font-weight:bold;" class="center-td" style = "text-align:center; font-weight:bold;" ></td>
                            <td  style="border:0px solid black; font-weight:bold;" class="center-td" ></td> <!-- Replace with actual Price -->
                            <td style="border:0px solid black; font-weight:bold; font-size:12px; word-wrap: break-word; word-break: break-word;" class="center-td" style = "text-align:center; font-weight:bold;" ></td> <!-- Replace with actual Amount -->
-                       </tr>`:`
+                       </tr>`: `
                       <tr style="height:120px;">
                          <td style="border:0px solid black; vertical-align: top;" class="serialNo"></td>
                          <td style="border:0px solid black; vertical-align: top;">
                             <p style="text-align:center; font-weight:bold; font-size:13px;">Total c/o</p> 
                          </td>
                         <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td">
-                           ${formatNumberWithCommas(+totalQuantityPerPage.toFixed(2))} ${data[0].Unit}
+                           ${formatNumberWithCommas(+totalQuantityPerPage.toFixed(2))}
                         </td>
-                      <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td"></td>
+                      <td style="border:0px solid black; font-weight:bold; vertical-align: top; text-align:left;" class="center-td">Units</td>
                      <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td"></td>
                    <td style="border:0px solid black; font-weight:bold; vertical-align: top;" class="center-td"></td>
                   <td style="border:0px solid black; font-size:12px; font-weight:bold; vertical-align: top; text-align:right; word-wrap: break-word; word-break: break-word;">
@@ -446,7 +445,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
           </div>
         
           </div>
-           <p style="text-align:center; margin-top:20px;">${page}.</p>
+           <p style="text-align:center; margin-top:20px;">${totalPage>1?page:''}</p>
         </body>
         
         </html>`;
