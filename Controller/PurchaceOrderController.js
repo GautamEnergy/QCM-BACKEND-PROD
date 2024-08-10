@@ -171,6 +171,16 @@ WHERE PO.Purchase_Order_Id = '${UUID}'`;
  
 const BilingData = await queryAsync(BilingDataQuery);
 
+BilingData.sort((a, b) => {
+  const order = ["Discount", "Freight"];
+  const indexA = order.indexOf(a.Bill_Sundry);
+  const indexB = order.indexOf(b.Bill_Sundry);
+  
+  if (indexA === -1 && indexB === -1) return 0;
+  if (indexA === -1) return 1;
+  if (indexB === -1) return -1;
+  return indexA - indexB;
+});
 
 if (P.Purchase_Order_Id) {
 let pdf = await PurchaseOrderPdf(Top_Data,ItemsTable,BilingData, P.Purchase_Order_Id);
