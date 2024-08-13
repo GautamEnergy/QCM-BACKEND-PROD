@@ -293,6 +293,36 @@ const UploadImage = async (req, res) => {
       await queryAsync(query);
       return res.send({ msg: 'Data Inserted SuccesFully !' });
 
+    }else if(req.files['MachineMaintenancePdf']){
+     
+      const DrawingImageBuffer = req.files['MachineMaintenancePdf'][0].buffer;
+      let DrawingImage = req.files['MachineMaintenancePdf'][0].originalname.split('.');
+      let DrawingFileFormat = DrawingImage[DrawingImage.length - 1];
+
+
+      /** Define the folder path */
+      const folderPath = Path.join('SpartPartImage');
+
+      /** Create the folder if it doesn't exist */
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      /** Define the file path, including the desired file name and format */
+      const COCFileName = `${SparePartId}_Machine_Maintenance.${DrawingFileFormat}`;
+
+      const COCFilePath = Path.join(folderPath, COCFileName);
+
+      /** Save the file buffer to the specified file path */
+      fs.writeFileSync(COCFilePath, DrawingImageBuffer);
+
+      const query = `UPDATE Machine_Maintenance id
+     set id.Image_URL = 'http://srv515471.hstgr.cloud:${PORT}/Maintenance/File/${COCFileName}'
+    WHERE id.Machine_Maintenance_Id = '${SparePartId}';`;
+
+      await queryAsync(query);
+      return res.send({ msg: 'Data Inserted SuccesFully !' });
+
     }else {
 
       return res.send({ msg: 'Data Inserted SuccesFully !' });
@@ -517,4 +547,185 @@ ORDER BY SPI.Created_On DESC;`;
   }
 }
 
-module.exports = { AddSpareParts, UploadImage, GetImage, getEquivalent, getStockList, SparePartList, getSpecificSparePart, SparePartIn };
+const getSparePartNamesByMachineName = async(req,res)=>{
+      const { MachineName } = req.body;
+
+      try{
+        const getStock = await queryAsync(`
+  SELECT SPS.Spare_Part_Id, SPN.SpareNumber, SPN.SparePartName, SPS.Machine_Names, SPS.Available_Stock FROM Spare_Part_Stock SPS
+JOIN SparePartName SPN ON SPN.SparPartId = SPS.Spare_Part_Id;`)
+        
+        let SparePartArr = []
+        getStock.forEach((d)=>{
+          d['Machine_Names'] = JSON.parse(d['Machine_Names']);
+
+          d['Machine_Names'].indexOf(MachineName)!=-1?
+          SparePartArr.push(d):''
+         
+        })
+
+        SparePartArr.forEach((el)=>{
+          delete el['Machine_Names'];
+        })
+       console.log(SparePartArr)
+      
+        res.send(SparePartArr)
+      }catch(err){
+     console.log(err)
+     res.send(err)
+      }
+}
+
+
+const SparePartOut = async(req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.ip;
+  const userAgent = req.headers['user-agent'];
+  console.log('Sparepartout...............................')
+  console.log(`Request from IP: ${clientIp}`);
+  console.log(`Client User-Agent: ${userAgent}`);
+  console.log(`Request Headers: `, req.headers); // Optional: log all headers
+
+  const {
+    MachineMaintenanceId,
+    CreatedBy,
+    MachineName,
+    Line,
+    Chamber,
+    Issue,
+    BreakDownStartTime,
+    BreakDownEndTime,
+    BreakDownTotalTime,
+    SparePartModelNumber,
+    Quantity,
+    SolutionProcess,
+    Remark,
+    Status
+  } = req.body;
+
+console.log(req.body)
+
+  try {
+    let data = await queryAsync(`
+      CALL Machine_Maintenance_Sp(
+         '${MachineMaintenanceId}',
+        '${MachineName}',
+        '${Issue}',
+        '${BreakDownStartTime}',
+        '${BreakDownEndTime}',
+        '${BreakDownTotalTime}',
+        '${SparePartModelNumber}',
+        '${Quantity}',
+        '${SolutionProcess}',
+        '${Line}',
+        '${JSON.stringify(Chamber)}',
+        '${CreatedBy}',
+        '${Remark}',
+        '${Status}'
+      );
+    `);
+
+    res.send({ data: data[0] });
+  } catch (err) {
+    console.log(err);
+    res.status(400).send({ err });
+  }
+};
+
+
+const SparePartStockList = async(req,res)=>{
+  
+  try{
+   let data = await queryAsync(`
+    SELECT SPS.Spare_Part_Stock_Id, SPN.SparePartName, SPN.SpareNumber AS Spare_Model_Number, SPS.Machine_Names, SPS.Available_Stock FROM Spare_Part_Stock SPS
+JOIN SparePartName SPN ON SPN.SparPartId = SPS.Spare_Part_Id;`);
+
+data.forEach((d)=>{
+  d['Machine_Names'] = JSON.parse(d['Machine_Names']);
+
+})
+res.send({data});
+
+  }catch(err){
+
+  console.log(err);
+  res.status(400).send(err);
+  }
+}
+
+
+const getMachineMaintenanceList = async(req,res)=>{
+  // const clientIp = req.headers['x-forwarded-for'] || req.ip;
+  // const userAgent = req.headers['user-agent'];
+  
+  // console.log(`Request from IP: ${clientIp}`);
+  // console.log(`Client User-Agent: ${userAgent}`);
+  // console.log(`Request Headers: `, req.headers); // Optional: log all headers
+
+  try{
+     let data = await queryAsync(`SELECT 
+    MM.Machine_Maintenance_Id,  
+    SPN.SparePartName AS 'Spare Part Name', 
+    SPN.SpareNumber AS 'Spare Part Model Number', 
+    M.MachineName AS 'Machine Name',
+    M.MachineModelNumber AS 'Machine Model Number', 
+    MM.Issue,
+    MM.BreakDown_Start_Time AS 'BreakDown Start Time',
+    MM.BreakDown_End_Time AS 'BreakDown End Time',
+    MM.BreakDown_Total_Time AS 'BreakDown Total Time',
+    MM.Quantity AS 'Quantity',
+    MM.Solution_Process AS 'Solution Process',
+    MM.Line,
+    MM.Chamber,
+    MM.Image_URL,
+    MM.Stock_After_Usage AS 'Stock After Usage',
+    P.Name AS 'Maintenanced by',
+    MM.Created_On AS 'Maintenance Date'
+FROM 
+    Machine_Maintenance MM
+LEFT JOIN 
+    SparePartName SPN ON SPN.SparPartId = MM.Spare_Part_Id
+JOIN 
+    Machine M ON M.MachineId = MM.Machine_Id
+JOIN
+    Machine_Maintainer MMR ON MMR.Machine_Maintenance_Id = MM.Machine_Maintenance_Id
+JOIN 
+    Person P ON P.PersonID = MMR.Created_By
+ORDER BY 
+    MM.Created_On DESC;
+`);
+
+const groupedData = data.reduce((acc, item) => {
+  const id = item.Machine_Maintenance_Id;
+  
+  if (!acc.has(id)) {
+    // Clone the item and initialize the Maintenanced by array
+    acc.set(id, { ...item, 'Maintenanced by': [item['Maintenanced by']],'Chamber': JSON.parse(item['Chamber']) });
+  } else {
+    // Push the unique Maintenanced by value into the array
+    acc.get(id)['Maintenanced by'].push(item['Maintenanced by']);
+  }
+  
+  return acc;
+}, new Map());
+
+
+// Convert the Map back to an array of objects
+const uniqueData = Array.from(groupedData.values());
+
+//console.log(uniqueData);
+
+res.send({data:uniqueData});
+
+  }catch(err){
+    console.log(err)
+    res.status(400).send({err})
+
+  }
+
+}
+
+module.exports = { AddSpareParts, UploadImage, GetImage, getEquivalent, getStockList, SparePartList, getSpecificSparePart, SparePartIn, getSparePartNamesByMachineName,
+  SparePartOut,
+  SparePartStockList,
+  getMachineMaintenanceList
+ };
