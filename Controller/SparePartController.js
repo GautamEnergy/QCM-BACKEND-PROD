@@ -598,7 +598,7 @@ const SparePartOut = async(req, res) => {
     SparePartModelNumber,
     Quantity,
     SolutionProcess,
-    Remark,
+    Remarks,
     Status
   } = req.body;
 
@@ -619,7 +619,7 @@ console.log(req.body)
         '${Line}',
         '${JSON.stringify(Chamber)}',
         '${CreatedBy}',
-        '${Remark}',
+        '${Remarks}',
         '${Status}'
       );
     `);
