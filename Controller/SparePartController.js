@@ -676,6 +676,7 @@ const getMachineMaintenanceList = async(req,res)=>{
     MM.Solution_Process AS 'Solution Process',
     MM.Line,
     MM.Chamber,
+    MM.Remark,
     MM.Image_URL,
     MM.Stock_After_Usage AS 'Stock After Usage',
     P.Name AS 'Maintenanced by',
