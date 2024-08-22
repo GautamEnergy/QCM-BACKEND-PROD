@@ -93,6 +93,6 @@ MaintenanceRouter.post('/SparePartOut',SparePartOut);
 MaintenanceRouter.get('/SparePartStockList',SparePartStockList);
 
 /**Router to Get Machine List */
-MaintenanceRouter.get('/GetMachineMaintenanceList', getMachineMaintenanceList)
+MaintenanceRouter.post('/GetMachineMaintenanceList', getMachineMaintenanceList)
 
 module.exports = {MaintenanceRouter}
