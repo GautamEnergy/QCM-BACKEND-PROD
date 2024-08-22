@@ -624,7 +624,7 @@ const SparePartOut = async(req, res) => {
     Required
   } = req.body;
 
-console.log(req.body)
+console.log('prod',req.body)
 
   try {
     let data = await queryAsync(`
