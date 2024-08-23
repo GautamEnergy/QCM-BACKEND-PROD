@@ -424,7 +424,7 @@ let previousDay = `${year}-${month}-${day}`;
 
   const uniqueData = Array.from(groupedData.values());
   
-  const MachineBuffer = await QualityExcelGenerate(uniqueData, previousDay)
+  const MachineBuffer = await QualityExcelGenerate1(uniqueData, previousDay)
 
   await transport1.sendMail({
     from: 'stockalert.gautamsolar@gmail.com',
@@ -459,7 +459,7 @@ let previousDay = `${year}-${month}-${day}`;
 });
 
 
-async function QualityExcelGenerate(Quality, FromDate) {
+async function QualityExcelGenerate1(Quality, FromDate) {
 
   // Create a new workbook
   const workbook = new ExcelJS.Workbook();
