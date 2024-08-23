@@ -355,8 +355,8 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                
             ${totalPage == page ?
             BillingTable.map((bill) => {
-
-                return bill.Amount || bill.Bill_Sundry == 'Discount' || bill.Bill_Sundry == 'Freight'? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
+                 //console.log(bill)
+                return bill.Amount || bill.Bill_Sundry == 'Discount' && bill.Narration || bill.Bill_Sundry == 'Freight' && bill.Narration  ? `<!----------------- @@@@ Last Row to final QTY and amount @@@@@@@@@@@@@@@@------>
                     <tr style="height:20px; font-size:12px; font-weight:bold;">
     <td style="border:0px solid black;" class="serialNo"></td>
     <td style="border:0px solid black; text-align:center;">
@@ -370,9 +370,9 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
         </p>
     </td>
     <td style="border:0px solid black; font-weight:bold;"></td>
-    <td style="border:0px solid black; font-weight:bold; text-align:center;">@ &nbsp; ${bill.Percentage} %</td>
+    <td style="border:0px solid black; font-weight:bold; text-align:center;">${bill.Percentage?`@ &nbsp; ${bill.Percentage}%`:''}</td>
     <td style="border:0px solid black; font-weight:bold; word-wrap:break-word; word-break:break-word; text-align:right; font-weight:bold;">
-        <span style="margin-right:2px;">${formatNumberWithCommas(+bill.Amount)}</span>
+        <span style="margin-right:2px;">${bill.Amount?formatNumberWithCommas(+bill.Amount):''}</span>
     </td>
 </tr>
 `:'';
