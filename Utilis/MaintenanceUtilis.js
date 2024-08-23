@@ -17,37 +17,75 @@ function getCurrentDateTime() {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
+};
 
 
-  function formatNumberWithCommas(value) {
-    let v =  value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function formatNumberWithCommas(value) {
+    let v = value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // console.log('kkkkkkk',v);
     return v
 }
 
-const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
-    
-       let serialNo = 0;
-        let totalQuantity = 0;
-    
-        let emailString = Top_Data[0].Email;
-        emailString = emailString.replace(/'/g, '"');
-    
-    const HTMLGenerator = (data,page,totalPage,DataLength)=>{
-       
+const PurchaseOrderPdf = async (Top_Data, ItemsTable, BillingTable, UUID) => {
+    // let  Top_Data = [
+    //     {"Purchase_Order_Id":"5fb72d5e-827a-443f-a5e0-ef111bb401e1","Order_Number":"GST-24-25-07","Voucher_Number":"GST-24-25-07","PartyName":"ABC Corp","Address":"123 Main Street, Suite 100","GSTNumber":"22AAAAA0000A1Z5","CompanyName":"Gautam Solar Private Limited Bhiwani","Company_GSTNumber":"06AAFCG5884Q1ZS","Company_Address":"7KM Milestone, Tosham Road, Dist.Bhiwani, Bawani Khera,","State":"Haryana","Pin":"127032","Email":"['sohan@gautamsolar.com','purchase@gautamsolar.com']","Purchase_Date":"Mon Jul 22 2024","Payment_Terms":"lknj","Delivery_Terms":"hj","Contact_Person":"jhg","Cell_Number":"jhg","Warranty":"jh"}
+    //     ];
+
+    let serialNo = 0;
+
+
+
+    // let ItemsTable = [
+    //     {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJKhfghfghfghfghgfhfgfghfghfhfhfghfghfghfhfghfghfghfghfhfghfghfghfghfghfghfhfhfghfghfghfghfghfghfghfghfghfghytyrtyrtyhfghfgh","HSNCode":'777',"SpareNumber":"JK;;PJ","Quantity":"321","Unit":"dfb","Price_Rs":"700","GST":"10","Amount":"247170","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":'null',"SpareNumber":"JK;;PJ","Quantity":"7","Unit":"vbf","Price_Rs":"65","GST":"5","Amount":"477.75","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"fghhf","SparePartName":"fhgfgh","HSNCode":'null',"SpareNumber":"fghfgh","Quantity":"34","Unit":"54","Price_Rs":"55","GST":"55","Amount":"2898.5","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"123saif","SparePartName":"Solar panel","HSNCode":"45","SpareNumber":"123456ha","Quantity":"133","Unit":"cfd","Price_Rs":"676","GST":"65","Amount":"148348.2","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"123saif","SparePartName":"Solar panel","HSNCode":"45","SpareNumber":"123456ha","Quantity":"234","Unit":"dsf","Price_Rs":"32","GST":"43","Amount":"10707.84","Total_Amount":"821494.27"},
+    //      {"MasterSparePartName":"53232","SparePartName":"Solar panel","HSNCode":'null',"SpareNumber":"0000988","Quantity":"2","Unit":"gf","Price_Rs":"100","GST":"10","Amount":"220","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"Motor","SparePartName":"servo motor ","HSNCode":'null',"SpareNumber":"ms1h3-40s","Quantity":"34","Unit":"df","Price_Rs":"435","GST":"32","Amount":"19522.8","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"fghhf","SparePartName":"fhgfgh","HSNCode":'null',"SpareNumber":"fghfgh","Quantity":"10","Unit":"fds","Price_Rs":"500","GST":"20","Amount":"6000","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"fghhf","SparePartName":"fhgfgh","HSNCode":null,"SpareNumber":"fghfgh","Quantity":"4","Unit":"vcb","Price_Rs":"56","GST":"65","Amount":"369.6","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"123saif","SparePartName":"Solar panel","HSNCode":"45","SpareNumber":"123456ha","Quantity":"54","Unit":"fg","Price_Rs":"54","GST":"54","Amount":"4490.64","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"123saif","SparePartName":"Solar panel","HSNCode":"45","SpareNumber":"123456ha","Quantity":"5","Unit":"fds","Price_Rs":"65","GST":"12","Amount":"364","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"fghhf","SparePartName":"fhgfgh","HSNCode":null,"SpareNumber":"fghfgh","Quantity":"43","Unit":"dfg","Price_Rs":"4","GST":"4","Amount":"178.88","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"dfghd","SparePartName":"dfhdfh","HSNCode":null,"SpareNumber":"hdfhdfhdh","Quantity":"65","Unit":"654","Price_Rs":"56","GST":"54","Amount":"5605.6","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"123saif","SparePartName":"Solar panel","HSNCode":"45","SpareNumber":"123456ha","Quantity":"4","Unit":"vbc","Price_Rs":"546","GST":"54","Amount":"3363.36","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":null,"SpareNumber":"JK;;PJ","Quantity":"566","Unit":"dfbg","Price_Rs":"435","GST":"51","Amount":"371777.1","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":'777',"SpareNumber":"JK;;PJ","Quantity":"321","Unit":"dfb","Price_Rs":"700","GST":"10","Amount":"247170","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":'null',"SpareNumber":"JK;;PJ","Quantity":"7","Unit":"vbf","Price_Rs":"65","GST":"5","Amount":"477.75","Total_Amount":"821494.27"},
+    //     {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":null,"SpareNumber":"JK;;PJ","Quantity":"566","Unit":"dfbg","Price_Rs":"435","GST":"51","Amount":"371777.1","Total_Amount":"821494.27"},
+    //     // {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":'777',"SpareNumber":"JK;;PJ","Quantity":"321","Unit":"dfb","Price_Rs":"700","GST":"10","Amount":"247170","Total_Amount":"821494.27"},
+    //     // {"MasterSparePartName":"DFGFGDS","SparePartName":"JLKLJK","HSNCode":'null',"SpareNumber":"JK;;PJ","Quantity":"7","Unit":"vbf","Price_Rs":"65","GST":"5","Amount":"477.75","Total_Amount":"821494.27"},
+    //     ]
+
+    // let BillingTable = [
+    //     {"Purchase_Order_Billing_Id":"4a0788d2-001e-47ee-a3ae-73842a1e6dfa","Purchase_Order_Id":"059ee1c6-4ee1-44d2-a868-7926a736f303","Bill_Sundry":"Freight","Narration":"","Percentage":"6","Amount":"46825.17","Total_Amount":"827244.73"},
+    //     {"Purchase_Order_Billing_Id":"8835d25f-b67d-4337-929a-5952777eaaed","Purchase_Order_Id":"059ee1c6-4ee1-44d2-a868-7926a736f303","Bill_Sundry":"SGST","Narration":"","Percentage":"5","Amount":"5667","Total_Amount":"827244.73"},
+    //     {"Purchase_Order_Billing_Id":"a2134b94-ab62-404b-b2fb-7974c9691d6d","Purchase_Order_Id":"059ee1c6-4ee1-44d2-a868-7926a736f303","Bill_Sundry":"CGST","Narration":"","Percentage":"8","Amount":"56766","Total_Amount":"827244.73"},
+    //     {"Purchase_Order_Billing_Id":"b1e4f7f2-0839-4df4-80d6-9aa5c5defba3","Purchase_Order_Id":"059ee1c6-4ee1-44d2-a868-7926a736f303","Bill_Sundry":"IGST","Narration":"","Percentage":"","Amount":"","Total_Amount":"827244.73"},
+    //     {"Purchase_Order_Billing_Id":"c8325b06-5b40-435a-a6f3-91e52d6f713b","Purchase_Order_Id":"059ee1c6-4ee1-44d2-a868-7926a736f303","Bill_Sundry":"Discount","Narration":"","Percentage":"5","Amount":"41074.71","Total_Amount":"827244.73"}
+    //     ]
+
+    let totalQuantity = 0;
+
+    let emailString = Top_Data[0].Email;
+    emailString = emailString.replace(/'/g, '"');
+
+    const HTMLGenerator = (data, page, totalPage, DataLength) => {
+
         let totalQuantityPerPage = 0;
         let totalAmountPerPage = 0;
-     
-        if(DataLength<8 && data.length) {
-            let templength = 8-DataLength;
-            for(let i = 1; i<=templength; i++){  
-            data.push(
-                {"MasterSparePartName":"","SparePartName":"","HSNCode":"","SpareNumber":"","Quantity":"","Unit":"","Price_Rs":"","GST":"","Amount":"","Total_Amount":""}
-            );
-        }
+
+        if (DataLength < 8 && data.length) {
+            let templength = 8 - DataLength;
+            for (let i = 1; i <= templength; i++) {
+                data.push(
+                    { "MasterSparePartName": "", "SparePartName": "", "HSNCode": "", "SpareNumber": "", "Quantity": "", "Unit": "", "Price_Rs": "", "GST": "", "Amount": "", "Total_Amount": "" }
+                );
+            }
         }
         console.log(data.length)
-         const htmlContent1 = ` <html>
+        const htmlContent1 = ` <html>
     
         <head>
             <style>
@@ -223,7 +261,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
             <h4 style="text-decoration: underline; text-align: center; margin-top: 0px;">Purchase Order</h4>
             <h3 style="text-align: center; margin-top: -24px; letter-spacing: 2px;">${Top_Data[0].CompanyName}</h3>
             <h4 style="text-align: center; margin-top: -22px; font-size: 13px;">${Top_Data[0].Company_Address}, ${Top_Data[0].State} - ${Top_Data[0].Pin}</h4>
-            ${Top_Data[0].Party_Country=='India'?`<h4 style="text-align: center; margin-top: -19px; font-size: 13px;">GSTIN: ${Top_Data[0].Company_GSTNumber}</h4>`:''}
+            ${Top_Data[0].Party_Country == 'India' ? `<h4 style="text-align: center; margin-top: -19px; font-size: 13px;">GSTIN: ${Top_Data[0].Company_GSTNumber}</h4>` : ''}
             <h4 style="text-align: center; margin-top: -19px; font-size: 10px;">email: ${JSON.parse(emailString).join(', ')}</h4>
             </div>
           </div>
@@ -244,10 +282,10 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                         </p>
                         <br>
                         <br>
-                        ${Top_Data[0].Party_Country == 'India'?`<span style="font-size: 14px;">GSTIN/UIN :</span> <span
+                        ${Top_Data[0].Party_Country == 'India' ? `<span style="font-size: 14px;">GSTIN/UIN :</span> <span
                             style=" font-size: 14px; margin-left:30px">${Top_Data[0].GSTNumber}</span>
                     </div>`:
-                    `<span style="font-size: 14px;">Party TIN :</span> <span
+            `<span style="font-size: 14px;">Party TIN :</span> <span
                             style=" font-size: 14px; margin-left:30px"></span>
                     </div>`}
         
@@ -375,14 +413,15 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
         <span style="margin-right:2px;">${formatNumberWithCommas(+bill.Amount)}</span>
     </td>
 </tr>
-`:'';
-    
-                }).join(' ')
-        :
-        ``
-            }
-            ${totalPage == page?
-                `<tr style="height:20px; ">
+
+`: '';
+
+            }).join(' ')
+            :
+            ``
+        }
+            ${totalPage == page ?
+            `<tr style="height:20px; ">
                            <td style="border:0px solid black;" class="serialNo" ></td>
                            <td style="border:0px solid black;">
                                <p style = "text-align:center; font-weight:bold; font-size:12px;">Total Quantity</p> 
@@ -423,7 +462,7 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
                 <td style="width: 15%; font-weight: bold; text-align: right; padding-right: 3px; margin: 0; font-size: 12px; word-wrap: break-word; word-break: break-word; border: none;">${formatNumberWithCommas(+BillingTable[0].Total_Amount)}</td>
             </tr>
         </table>
-    </div>`:``}
+    </div>`: ``}
     </div>
 
     <div style="width: 100%;" class="summary-desc">
@@ -463,99 +502,99 @@ const PurchaseOrderPdf = async(Top_Data,ItemsTable, BillingTable,UUID )=>{
     const options = {
         path: '/usr/bin/chromium-browser', // Path to your local Chromium/Chrome
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      };
-      
-      process.env.OPENSSL_CONF = '/dev/null';
-      
-      // Function to create PDF using Puppeteer
-      async function createPdf(html, options) {
+    };
+
+    process.env.OPENSSL_CONF = '/dev/null';
+
+    // Function to create PDF using Puppeteer
+    async function createPdf(html, options) {
         try {
-          const browser = await puppeteer.launch({
-            executablePath: options.path,
-            args: options.args
-          });
-          const page = await browser.newPage();
-          await page.setContent(html, { waitUntil: 'networkidle0' });
-          const pdf = await page.pdf({
-            format: 'A4',
-            
-          });
-          await browser.close();
-          return pdf;
+            const browser = await puppeteer.launch({
+               executablePath: options.path,
+                args: options.args
+            });
+            const page = await browser.newPage();
+            await page.setContent(html, { waitUntil: 'networkidle0' });
+            const pdf = await page.pdf({
+                format: 'A4',
+
+            });
+            await browser.close();
+            return pdf;
         } catch (error) {
-          throw new Error(`Error creating PDF: ${error.message}`);
+            throw new Error(`Error creating PDF: ${error.message}`);
         }
-      }
-      
-      // Function to merge PDFs using pdf-lib
-      async function mergePdfs(buffers) {
+    }
+
+    // Function to merge PDFs using pdf-lib
+    async function mergePdfs(buffers) {
         const pdfDoc = await PDFDocument.create();
         for (const buffer of buffers) {
-          const pdfBuffer = await PDFDocument.load(buffer);
-          const pages = await pdfDoc.copyPages(pdfBuffer, pdfBuffer.getPageIndices());
-          pages.forEach(page => pdfDoc.addPage(page));
+            const pdfBuffer = await PDFDocument.load(buffer);
+            const pages = await pdfDoc.copyPages(pdfBuffer, pdfBuffer.getPageIndices());
+            pages.forEach(page => pdfDoc.addPage(page));
         }
         const mergedPdf = await pdfDoc.save();
         return mergedPdf;
-      }
-      
-      // Create and handle PDF buffers
-      async function generateAndMergePdfs() {
-        let pagesBufferArr = [];
-        try {
-          let Pages = Math.ceil((ItemsTable.length) / 8);
-      
-          for (let page = 1; page <= Pages; page++) {
-            let startIndex = (page - 1) * 8; 
-            let endIndex = page * 8;
-      
-            // Ensure that pageData has items before generating the PDF
-            if (startIndex < ItemsTable.length) {
-              let pageData = ItemsTable.slice(startIndex, endIndex);
-              const htmlContent1 = HTMLGenerator(pageData, page, Pages, pageData.length);
-              let pageBuffer = await createPdf(htmlContent1, options);
-              pagesBufferArr.push(pageBuffer);
-            }
-          }
-      
-          const mergedPdfBuffer = await mergePdfs(pagesBufferArr);
-
-          const folderPath = Path.join('PurchaseOrder');
-     
-   
-          /** Create the folder if it doesn't exist */
-          if (!fs.existsSync(folderPath)) {
-            fs.mkdirSync(folderPath, { recursive: true });
-          }
-        
-            /** Define the file path, including the desired file name and format */
-            const PDF = `${UUID}.pdf`;
-            
-            const PDFFilePath = Path.join(folderPath, PDF);
-         
-        
-          /** Save the file buffer to the specified file path */
-          fs.writeFileSync(PDFFilePath, mergedPdfBuffer,(err) => {
-            if(err){
-                console.log(err)
-                return err
-            }else{
-                return 'Merged Succesfully'
-            }
-          });
-      
-         
-        } catch (err) {
-            console.log(err)
-          return ('Error generating or merging PDFs:', err);
-        }
-      }
-      
-     let response =  await generateAndMergePdfs();
-
-    return response;
     }
 
+    // Create and handle PDF buffers
+    async function generateAndMergePdfs() {
+        let pagesBufferArr = [];
+        try {
+            let Pages = Math.ceil((ItemsTable.length) / 8);
+
+            for (let page = 1; page <= Pages; page++) {
+                let startIndex = (page - 1) * 8;
+                let endIndex = page * 8;
+
+                // Ensure that pageData has items before generating the PDF
+                if (startIndex < ItemsTable.length) {
+                    let pageData = ItemsTable.slice(startIndex, endIndex);
+                    const htmlContent1 = HTMLGenerator(pageData, page, Pages, pageData.length);
+                    let pageBuffer = await createPdf(htmlContent1, options);
+                    pagesBufferArr.push(pageBuffer);
+                }
+            }
+
+            const mergedPdfBuffer = await mergePdfs(pagesBufferArr);
+
+            const folderPath = Path.join('PurchaseOrder');
 
 
-  module.exports = {getCurrentDateTime, PurchaseOrderPdf}
+            /** Create the folder if it doesn't exist */
+            if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath, { recursive: true });
+            }
+
+            /** Define the file path, including the desired file name and format */
+            const PDF = `${UUID}.pdf`;
+
+            const PDFFilePath = Path.join(folderPath, PDF);
+
+
+            /** Save the file buffer to the specified file path */
+            fs.writeFileSync(PDFFilePath, mergedPdfBuffer, (err) => {
+                if (err) {
+                    console.log(err)
+                    return err
+                } else {
+                    return 'Merged Succesfully'
+                }
+            });
+
+
+        } catch (err) {
+            console.log(err)
+            return ('Error generating or merging PDFs:', err);
+        }
+    }
+
+    let response = await generateAndMergePdfs();
+
+    return response;
+}
+
+
+
+module.exports = { getCurrentDateTime, PurchaseOrderPdf }
